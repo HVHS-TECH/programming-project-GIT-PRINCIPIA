@@ -52,31 +52,35 @@ class Page {
 //----------------------------------------------------------------------//
 
 //Pages
-var pageNum = 0; //Index into the pages array
+
+const INDEX_TITLE = "Astro Explorer - Index";
+const HOME_TITLE = "Astro Explorer - Title Screen";
+const GAME_TITLE = "Astro Explorer";
+const END_TITLE = "Astro Explorer - End Screen";
 
 const PAGES = [
-    new Page("Astro Explorer - Index", "../index.html", false, 
+    new Page(INDEX_TITLE, "../index.html", false, 
         function(){
             g_core_setPage(HOME_TITLE);
         }
     ),
 
 
-    new Page("Astro Explorer - Title Screen", "../html/start.html", false, 
+    new Page(HOME_TITLE, "../html/start.html", false, 
         function(){
 
         }
     ),
 
 
-    new Page("Astro Explorer", "../html/game.html", true, 
+    new Page(GAME_TITLE, "../html/game.html", true, 
         function(){
 
         }
     ),
 
 
-    new Page("Astro Explorer - End Screen", "../html/end.html", false, 
+    new Page(END_TITLE, "../html/end.html", false, 
         function(){
 
         }
@@ -84,10 +88,7 @@ const PAGES = [
 
 ];
 
-const INDEX_TITLE = "Astro Explorer - Index";
-const HOME_TITLE = "Astro Explorer - Title Screen";
-const GAME_TITLE = "Astro Explorer";
-const END_TITLE = "Astro Explorer - End Screen";
+
 
 //----------------------------------------------------------------------//
 //Functions
@@ -146,6 +147,17 @@ function g_core_initializeState(title) {
 //Gets the index into PAGES pointer to the page//
 //with the title title                         //
 function getPage(title) {
+    var p;
+    for (p = 0; p < PAGES.length; p++) {
+        if (PAGES[p].title == title) {
+            break;
+        }
+    }
+    return p;
+}
+//Overload with no title, gets document.title
+function getPage() {
+    var title = document.title;
     var p;
     for (p = 0; p < PAGES.length; p++) {
         if (PAGES[p].title == title) {
