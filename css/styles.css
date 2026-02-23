@@ -1,9 +1,39 @@
+body {
+    background-color: rgb(3, 45, 38);
+}
+
 .column {
     display: flex;
-    width: 30%;
+    width: 70%;
     height: 500px;
     flex-direction: column;
-    
+    button {
+        width: 25vw;
+        padding: 10px;
+        color: black;
+        background-color: rgb(248, 229, 155);
+        border-color: white;
+        border-radius: 5px;
+        border-width: 5px;
+        font-size: 30px;
+        margin: 0px;
+    }
+    button:hover {
+        background-color: rgb(165, 149, 85);
+        border-color: black;
+        
+    }
+    button:active {
+        width: 20vw;
+        padding: 8px;
+        margin: 5px; /*Stops the item above moving downward due to the button shrinking*/
+        font-size: 25px;
+    }
+    h1 {
+        font-size: 100px;
+        color: rgb(255, 237, 163);
+        text-shadow: 0px 4px black;
+    }
 }
 
 .center {
