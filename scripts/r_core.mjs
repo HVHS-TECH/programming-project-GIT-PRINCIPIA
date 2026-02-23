@@ -63,7 +63,7 @@ function r_core_initialize() {
 
     //Initialize the framebuffer
     fbo_width = FBO_SCALE;
-    fbo_height = FBO_SCALE * windowHeight / windowWidth;
+    fbo_height = FBO_SCALE * cnv_height / cnv_width;
     fbo = createFramebuffer();
     fbo.resize(fbo_width, fbo_height);
 
@@ -104,6 +104,17 @@ function r_core_initialize() {
 //resizes the framebuffer to match the screen aspect ration
 function windowResized() {
     if (!initialized) return; //Only resize the canvas and fbo if the fbo and canvas exist
+
+    //Calculate the new canvas dimensions
+    cnv_width = windowWidth;
+    cnv_height = windowHeight;
+
+    //Resize the canvas
+    cnv.resize(cnv_width, cnv_height);
+
+    //Calculate the new fbo dimensions
+    fbo_height = FBO_SCALE * cnv_height / cnv_width;
+    fbo.resize(fbo_width, fbo_height);
 }
 //----------------------------------------------------------------------//
 
