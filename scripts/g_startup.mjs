@@ -21,13 +21,18 @@
 //                            ---Imports---                             //
 //----------------------------------------------------------------------//
 
-import {g_core_update} from 'g_core.mjs';
-import {g_core_initialize} from 'g_core.mjs';
+import {g_core_update} from './g_core.mjs';
+import {g_core_initialize} from './g_core.mjs';
+import {g_core_initializeState} from './g_core.mjs';
 
-import {r_core_initialize} from 'r_core.mjs';
+import {r_core_initialize} from './r_core.mjs';
+
 
 //----------------------------------------------------------------------//
 
+//Start the game loop
+setup();
+requestAnimationFrame(draw);
 
 //----------------------------------------------------------------------//
 //Functions
@@ -35,12 +40,19 @@ import {r_core_initialize} from 'r_core.mjs';
 
 
 //----------------------------------------------------------------------//
-//setup()            //
-//called on page load//
-//-------------------//
+//setup()              //
+//called on script load//
+//---------------------//
 function setup() {
+    let loc = document.title;
+    console.log("Title: " + loc);
+    
+    g_core_initializeState(loc); //Reads the loc variable and sets the state accordingly (canvas, no canvas, start, end, game, etc)
+    
+    //If loc is the index page, this will not run as the page will be changed to the start page in g_core.mjs setState
     g_core_initialize(); //Initialize the game state
     r_core_initialize(); //Initialize the renderer state
+    
 }
 //----------------------------------------------------------------------//
 
@@ -52,6 +64,7 @@ function setup() {
 //------------------//
 function draw() {
     g_core_update(); //Perform update logic
+    requestAnimationFrame(draw);
 }
 //----------------------------------------------------------------------//
 

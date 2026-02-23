@@ -3,3 +3,7 @@
 file name prefixes:  
 g : game  
 r : renderer  
+
+
+function name prefixes:  
+cb : callback  
