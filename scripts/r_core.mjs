@@ -44,7 +44,7 @@ var canvas; //The canvas context
 var cnvWidth; //The canvas width
 var cnvHeight; //The canvas height
 var cnvHalfDimen; //half the canvas dimensions, vector2
-const CNV_PADDING = 20;
+const CNV_PADDING = 0;
 //Renderer state
 var initialized = false;
 var hasCnv = false;
@@ -182,7 +182,6 @@ function r_core_setHasCnv(_hasCnv) {
 //resizes the canvas to match the screen size
 function cb_windowResized() {
     if (!initialized) return; //Only resize the canvas if the canvas exists
-
     //Calculate the new canvas dimensions
     cnvWidth = window.innerWidth - CNV_PADDING;
     cnvHeight = window.innerHeight - CNV_PADDING; 
@@ -190,6 +189,7 @@ function cb_windowResized() {
     //Resize the canvas
     cnv.width = cnvWidth;
     cnv.height = cnvHeight;
+    console.log("Window resized");
 
 }
 //----------------------------------------------------------------------//
