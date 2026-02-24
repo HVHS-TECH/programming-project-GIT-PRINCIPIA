@@ -30,6 +30,7 @@ export {r_core_arc}
 
 import {Vec2} from './g_core.mjs';
 import {Planet} from './g_core.mjs';
+import {Player} from './g_core.mjs';
 import {g_planets} from './g_core.mjs';
 
 //----------------------------------------------------------------------//
@@ -99,6 +100,9 @@ function r_core_render() {
     for (var p = 0; p < g_planets.length; p++) {
         g_planets[p].Draw();
     }
+
+    //Render the player
+    Player.Draw();
 }
 //----------------------------------------------------------------------//
 

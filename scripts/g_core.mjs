@@ -17,7 +17,9 @@ export {g_core_initialize}
 export {g_core_initializeState}
 export {Vec2}
 export {Planet}
+export {Player}
 export {g_planets}
+
 
 //----------------------------------------------------------------------//
 
@@ -141,6 +143,22 @@ class Planet {
 }
 //----------------------------------------------------------------------//
 
+//----------------------------------------------------------------------//
+//Player class
+class Player {
+    static pos = new Vec2(0, 1000);
+    static vel = new Vec2(0, 0);
+    static dir = 0;
+    static ang_vel = 0;
+    static Update() {
+
+    }
+    static Draw() {
+        
+    }
+}
+//----------------------------------------------------------------------//
+
 
 //----------------------------------------------------------------------//
 //Variables
@@ -190,11 +208,6 @@ var g_planets = [
 ];
 
 
-//Player
-var player_pos;
-var player_vel;
-var player_dir; //Direction
-var player_ang_vel; //Angular velocity, used for smooth rotation
 
 
 
@@ -208,9 +221,10 @@ var player_ang_vel; //Angular velocity, used for smooth rotation
 //called in g_startup.mjs during setup()
 //initializes the game state            
 function g_core_initialize() {
-    //Player
-    player_pos = new Vec2(0, 1000);
-    player_vel = new Vec2(0, 0);
+    Player.pos = new Vec2(0, 1000);
+    Player.vel = new Vec2(0, 0);
+    Player.dir = 0;
+    Player.ang_vel = 0;
 }
 //----------------------------------------------------------------------//
 
