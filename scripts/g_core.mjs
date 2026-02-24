@@ -110,7 +110,7 @@ class Planet {
     }
     Draw() {
         //Draw planet
-        var relPos = this.pos.add(player_pos);
+        var relPos = this.pos.add(Player.pos);
         
         var atmoGrad = r_core_radGradient(relPos, relPos, this.radius, this.atmoRadius);
 
