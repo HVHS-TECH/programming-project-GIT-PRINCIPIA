@@ -93,7 +93,7 @@ function dot(a, b) {
 //Planet class
 class Planet {
     
-    constructor(name, pos, vel, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid, atmoColourHigh) {
+    constructor(name, pos, vel, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid) {
         this.name = name;
         this.pos = pos;
         this.vel = vel;
@@ -103,7 +103,6 @@ class Planet {
         this.innerColour = innerColour;
         this.atmoColourLow = atmoColourLow;
         this.atmoColourMid = atmoColourMid;
-        this.atmoColourHigh = atmoColourHigh;
     }
     Update() {
         //Do orbital physics
@@ -116,9 +115,8 @@ class Planet {
 
         
         atmoGrad.addColorStop(0, this.atmoColourLow);
-        atmoGrad.addColorStop(0.33, this.atmoColourMid);
-        atmoGrad.addColorStop(0.66, this.atmoColourHigh);
-        atmoGrad.addColorStop(1, 'black');
+        atmoGrad.addColorStop(0.3, this.atmoColourMid);
+        atmoGrad.addColorStop(0.9, 'transparent');
 
         r_core_fill(atmoGrad);
         r_core_beginPath();
@@ -204,7 +202,7 @@ const PAGES = [
 
 //Planets
 var g_planets = [
-    new Planet("Earth", new Vec2(0, 0), new Vec2(0, 0), 1000, 1250, 'rgb(150, 200, 50)', 'rgb(150, 75, 10)', 'rgb(200, 253, 255)', 'rgb(115, 151, 206)', 'rgb(17, 23, 40)')
+    new Planet("Earth", new Vec2(0, 0), new Vec2(0, 0), 1000, 1250, 'rgb(150, 200, 50)', 'rgb(150, 75, 10)', 'rgb(200, 253, 255)', 'rgb(101, 128, 168)')
 ];
 
 
