@@ -13,6 +13,7 @@ TODO:
 * Seperate classes into seperate module files  
 * Make a renderer class  
 * Make a game class  
+* Make a planet loader to load planets from files (json)  
 * Implement player drawing  
 * Implement player movement  
 * Implement gravity  

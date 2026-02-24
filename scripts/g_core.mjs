@@ -204,7 +204,7 @@ const PAGES = [
 
 //Planets
 var g_planets = [
-    new Planet("Earth", new Vec2(0, 0), new Vec2(0, 0), 1000, 1100, 'rgb(150, 200, 50)', 'rgb(150, 75, 10)', 'rgb(200, 253, 255)', 'rgb(115, 151, 206)', 'rgb(17, 23, 40)')
+    new Planet("Earth", new Vec2(0, 0), new Vec2(0, 0), 1000, 1250, 'rgb(150, 200, 50)', 'rgb(150, 75, 10)', 'rgb(200, 253, 255)', 'rgb(115, 151, 206)', 'rgb(17, 23, 40)')
 ];
 
 
