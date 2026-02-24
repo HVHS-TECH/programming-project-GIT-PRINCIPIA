@@ -15,6 +15,9 @@
 export {g_core_update}
 export {g_core_initialize}
 export {g_core_initializeState}
+export {Vec2}
+export {Planet}
+export {g_planets}
 
 //----------------------------------------------------------------------//
 
@@ -24,6 +27,11 @@ export {g_core_initializeState}
 //----------------------------------------------------------------------//
 
 import {r_core_setHasCnv} from "./r_core.mjs";
+import {r_core_radGradient} from "./r_core.mjs";
+import {r_core_fill} from "./r_core.mjs";
+import {r_core_fillShape} from "./r_core.mjs";
+import {r_core_beginPath} from "./r_core.mjs";
+import {r_core_arc} from "./r_core.mjs";
 
 //----------------------------------------------------------------------//
 
@@ -45,10 +53,7 @@ class Page {
         this.hasCnv = hasCnv; //For r_core_setHasCnv
         this.OnLoad = onLoad; //Called on page load
     }
-    //Called when the page loads
-    OnLoad() {
-
-    }
+    OnLoad(){}
 }
 //----------------------------------------------------------------------//
 
@@ -62,22 +67,20 @@ class Vec2 {
         this.y = y;
     }
     add(other) {
-        this.x += other.x;
-        this.y += other.y;
+        return new Vec2(this.x + other.x, this.y + other.y);
     }
     sub(other) {
-        this.x -= other.x;
-        this.y -= other.y;
+        return new Vec2(this.x - other.x, this.y - other.y);
     }
     mul(other) {
-        this.x *= other.x;
-        this.y *= other.y;
+        return new Vec2(this.x * other.x, this.y * other.y);
     }
     div(other) {
-        this.x /= other.x;
-        this.y /= other.y;
+        return new Vec2(this.x / other.x, this.y / other.y);
     }
 }
+
+//Dot product of two Vec2-s
 function dot(a, b) {
     return a.x * b.x + a.y * b.y;
 }
@@ -87,22 +90,53 @@ function dot(a, b) {
 //----------------------------------------------------------------------//
 //Planet class
 class Planet {
-    constructor(name, pos, vel, radius, atmo_radius, colour, atmo_colour_low, atmo_colour_mid, atmo_colour_high) {
+    
+    constructor(name, pos, vel, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid, atmoColourHigh) {
         this.name = name;
         this.pos = pos;
         this.vel = vel;
         this.radius = radius;
-        this.atmo_radius = atmo_radius;
+        this.atmoRadius = atmoRadius;
         this.colour = colour;
-        this.atmo_colour_low = atmo_colour_low;
-        this.atmo_colour_mid = atmo_colour_mid;
-        this.atmo_colour_high = atmo_colour_high;
+        this.innerColour = innerColour;
+        this.atmoColourLow = atmoColourLow;
+        this.atmoColourMid = atmoColourMid;
+        this.atmoColourHigh = atmoColourHigh;
     }
     Update() {
         //Do orbital physics
     }
     Draw() {
         //Draw planet
+        var relPos = this.pos.add(player_pos);
+        
+        var atmoGrad = r_core_radGradient(relPos, relPos, this.radius, this.atmoRadius);
+
+        
+        atmoGrad.addColorStop(0, this.atmoColourLow);
+        atmoGrad.addColorStop(0.33, this.atmoColourMid);
+        atmoGrad.addColorStop(0.66, this.atmoColourHigh);
+        atmoGrad.addColorStop(1, 'black');
+
+        r_core_fill(atmoGrad);
+        r_core_beginPath();
+        r_core_arc(relPos, this.atmoRadius, Math.PI * 2);
+        r_core_fillShape();
+
+
+        var groundGrad = r_core_radGradient(relPos, relPos, 0, this.radius);
+
+        groundGrad.addColorStop(0.75, 'black');
+        groundGrad.addColorStop(0.98, this.innerColour);
+        groundGrad.addColorStop(0.99, this.colour);
+        groundGrad.addColorStop(1, this.colour);
+
+        r_core_fill(groundGrad);
+        r_core_beginPath();
+        r_core_arc(relPos, this.radius, Math.PI * 2);
+        r_core_fillShape();
+
+        
     }
 }
 //----------------------------------------------------------------------//
@@ -151,16 +185,14 @@ const PAGES = [
 ];
 
 //Planets
-var planets = [
-    new Planet("Earth", 0, 0, )
+var g_planets = [
+    new Planet("Earth", new Vec2(0, 0), new Vec2(0, 0), 1000, 1100, 'rgb(150, 200, 50)', 'rgb(150, 75, 10)', 'rgb(200, 253, 255)', 'rgb(115, 151, 206)', 'rgb(17, 23, 40)')
 ];
 
 
 //Player
-var player_x; 
-var player_y;
-var player_vel_x;
-var player_vel_y;
+var player_pos;
+var player_vel;
 var player_dir; //Direction
 var player_ang_vel; //Angular velocity, used for smooth rotation
 
@@ -172,29 +204,35 @@ var player_ang_vel; //Angular velocity, used for smooth rotation
 
 
 //----------------------------------------------------------------------//
-//g_core_initialize()                   //
-//called in g_startup.mjs during setup()//
-//initializes the game state            //
+//g_core_initialize()                   
+//called in g_startup.mjs during setup()
+//initializes the game state            
 function g_core_initialize() {
-
+    //Player
+    player_pos = new Vec2(0, 1000);
+    player_vel = new Vec2(0, 0);
 }
 //----------------------------------------------------------------------//
 
 
 //----------------------------------------------------------------------//
-//g_core_update()                    //
-//called in g_startup.mjs every frame//
-//manages update logic               //
+//g_core_update()                    
+//called in g_startup.mjs every frame
+//manages update logic               
 function g_core_update() {
 
+    //Update planets
+    for (var p = 0; p < g_planets.length; p++) {
+        g_planets[p].Update();
+    }
 }
 //----------------------------------------------------------------------//
 
 
 //----------------------------------------------------------------------//
-//g_core_setPage(title)                                      //
-//sets the current page to the href of the page in PAGES with//
-//the title title                                            //
+//g_core_setPage(title)                                      
+//sets the current page to the href of the page in PAGES with
+//the title title                                            
 function g_core_setPage(title) {
     var p = getPage(title);
     window.location.href = PAGES[p].href;
@@ -203,10 +241,10 @@ function g_core_setPage(title) {
 
 
 //----------------------------------------------------------------------//
-//g_core_initializeState(title)     //
-//title: the title of the page      //
-//called in g_startup.mjs in setup()//
-//sets the state based on title     //
+//g_core_initializeState(title)     
+//title: the title of the page      
+//called in g_startup.mjs in setup()
+//sets the state based on title     
 function g_core_initializeState(title) {
     var p = getPage(title);
     PAGES[p].OnLoad();
@@ -220,10 +258,10 @@ function g_core_initializeState(title) {
 
 
 //----------------------------------------------------------------------//
-//getPage(title)                               //
-//Gets the index into PAGES pointer to the page//
-//with the title title                         //
-//defualts to current page title               //
+//getPage(title)                               
+//Gets the index into PAGES pointer to the page
+//with the title title                         
+//defualts to current page title               
 function getPage(title = document.title) {
     var p;
     for (p = 0; p < PAGES.length; p++) {
