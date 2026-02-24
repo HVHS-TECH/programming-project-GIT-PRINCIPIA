@@ -107,3 +107,4 @@ export class Renderer {
     }
     //----------------------------------------------------------------------//
 }
+export var renderer = new Renderer(); //Renderer instance, could be initialized in game.mjs

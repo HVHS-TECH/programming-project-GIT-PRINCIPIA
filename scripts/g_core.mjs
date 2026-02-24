@@ -12,13 +12,13 @@
 //                            ---Exports---                             //
 //----------------------------------------------------------------------//
 
-export {g_core_update}
-export {g_core_initialize}
-export {g_core_initializeState}
-export {Vec2}
-export {Planet}
-export {Player}
-export {g_planets}
+export { g_core_update }
+export { g_core_initialize }
+export { g_core_initializeState }
+export { Vec2 }
+export { Planet }
+export { Player }
+export { g_planets }
 
 
 //----------------------------------------------------------------------//
@@ -28,12 +28,12 @@ export {g_planets}
 //                            ---Imports---                             //
 //----------------------------------------------------------------------//
 
-import {r_core_setHasCnv} from "./r_core.mjs";
-import {r_core_radGradient} from "./r_core.mjs";
-import {r_core_fill} from "./r_core.mjs";
-import {r_core_fillShape} from "./r_core.mjs";
-import {r_core_beginPath} from "./r_core.mjs";
-import {r_core_arc} from "./r_core.mjs";
+import { r_core_setHasCnv } from "./r_core.mjs";
+import { r_core_radGradient } from "./r_core.mjs";
+import { r_core_fill } from "./r_core.mjs";
+import { r_core_fillShape } from "./r_core.mjs";
+import { r_core_beginPath } from "./r_core.mjs";
+import { r_core_arc } from "./r_core.mjs";
 
 //----------------------------------------------------------------------//
 
@@ -55,7 +55,7 @@ class Page {
         this.hasCnv = hasCnv; //For r_core_setHasCnv
         this.OnLoad = onLoad; //Called on page load
     }
-    OnLoad(){}
+    OnLoad() { }
 }
 //----------------------------------------------------------------------//
 
@@ -92,7 +92,7 @@ function dot(a, b) {
 //----------------------------------------------------------------------//
 //Planet class
 class Planet {
-    
+
     constructor(name, pos, vel, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid) {
         this.name = name;
         this.pos = pos;
@@ -110,10 +110,10 @@ class Planet {
     Draw() {
         //Draw planet
         var relPos = this.pos.add(Player.pos);
-        
+
         var atmoGrad = r_core_radGradient(relPos, relPos, this.radius, this.atmoRadius);
 
-        
+
         atmoGrad.addColorStop(0, this.atmoColourLow);
         atmoGrad.addColorStop(0.3, this.atmoColourMid);
         atmoGrad.addColorStop(0.9, 'transparent');
@@ -136,7 +136,7 @@ class Planet {
         r_core_arc(relPos, this.radius, Math.PI * 2);
         r_core_fillShape();
 
-        
+
     }
 }
 //----------------------------------------------------------------------//
@@ -152,7 +152,7 @@ class Player {
 
     }
     static Draw() {
-        
+
     }
 }
 //----------------------------------------------------------------------//
@@ -170,30 +170,30 @@ const GAME_TITLE = "Astro Explorer";
 const END_TITLE = "Astro Explorer - End Screen";
 
 const PAGES = [
-    new Page(INDEX_TITLE, "../index.html", false, 
-        function(){
+    new Page(INDEX_TITLE, "../index.html", false,
+        function () {
             //Immediately redirect to the home page
             g_core_setPage(HOME_TITLE);
         }
     ),
 
 
-    new Page(HOME_TITLE, "../html/start.html", false, 
-        function(){
+    new Page(HOME_TITLE, "../html/start.html", false,
+        function () {
 
         }
     ),
 
 
-    new Page(GAME_TITLE, "../html/game.html", true, 
-        function(){
+    new Page(GAME_TITLE, "../html/game.html", true,
+        function () {
 
         }
     ),
 
 
-    new Page(END_TITLE, "../html/end.html", false, 
-        function(){
+    new Page(END_TITLE, "../html/end.html", false,
+        function () {
 
         }
     )
