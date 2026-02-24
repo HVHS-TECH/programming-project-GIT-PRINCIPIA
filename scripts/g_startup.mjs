@@ -26,6 +26,7 @@ import {g_core_initialize} from './g_core.mjs';
 import {g_core_initializeState} from './g_core.mjs';
 
 import {r_core_initialize} from './r_core.mjs';
+import {r_core_render} from './r_core.mjs';
 
 
 //----------------------------------------------------------------------//
@@ -64,6 +65,7 @@ function setup() {
 //------------------//
 function draw() {
     g_core_update(); //Perform update logic
+    r_core_render(); //Render the scene
     requestAnimationFrame(draw);
 }
 //----------------------------------------------------------------------//

@@ -14,6 +14,7 @@
 
 export {r_core_initialize}
 export {r_core_setHasCnv}
+export {r_core_render}
 
 //----------------------------------------------------------------------//
 
@@ -71,15 +72,16 @@ function r_core_initialize() {
 //----------------------------------------------------------------------//
 
 
-
 //----------------------------------------------------------------------//
-//r_core_setHasCanvas(_hasCnv)                       //
-//called in g_core.mjs setState from g_startup.mjs  //
-//sets whether or not to initialize the canvas      //
-function r_core_setHasCnv(_hasCnv) {
-    hasCnv = _hasCnv;
+//r_core_render()                  //
+//called in g_startup.mjs in draw()//
+//renders the scene                //
+function r_core_render() {
+    //render the scene
+    
 }
 //----------------------------------------------------------------------//
+
 
 
 
@@ -93,6 +95,14 @@ function r_core_setHasCnv(_hasCnv) {
 
 
 
+//----------------------------------------------------------------------//
+//r_core_setHasCanvas(_hasCnv)                       //
+//called in g_core.mjs setState from g_startup.mjs  //
+//sets whether or not to initialize the canvas      //
+function r_core_setHasCnv(_hasCnv) {
+    hasCnv = _hasCnv;
+}
+//----------------------------------------------------------------------//
 
 
 

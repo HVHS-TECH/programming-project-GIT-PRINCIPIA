@@ -33,6 +33,10 @@ import {r_core_setHasCnv} from "./r_core.mjs";
 //Classes
 //----------------------------------------------------------------------//
 
+
+
+
+//----------------------------------------------------------------------//
 //Page class
 class Page {
     constructor(title, href, hasCnv, onLoad) {
@@ -46,6 +50,63 @@ class Page {
 
     }
 }
+//----------------------------------------------------------------------//
+
+
+
+//----------------------------------------------------------------------//
+//Vector 2
+class Vec2 {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    add(other) {
+        this.x += other.x;
+        this.y += other.y;
+    }
+    sub(other) {
+        this.x -= other.x;
+        this.y -= other.y;
+    }
+    mul(other) {
+        this.x *= other.x;
+        this.y *= other.y;
+    }
+    div(other) {
+        this.x /= other.x;
+        this.y /= other.y;
+    }
+}
+function dot(a, b) {
+    return a.x * b.x + a.y * b.y;
+}
+//----------------------------------------------------------------------//
+
+
+//----------------------------------------------------------------------//
+//Planet class
+class Planet {
+    constructor(name, pos, vel, radius, atmo_radius, colour, atmo_colour_low, atmo_colour_mid, atmo_colour_high) {
+        this.name = name;
+        this.pos = pos;
+        this.vel = vel;
+        this.radius = radius;
+        this.atmo_radius = atmo_radius;
+        this.colour = colour;
+        this.atmo_colour_low = atmo_colour_low;
+        this.atmo_colour_mid = atmo_colour_mid;
+        this.atmo_colour_high = atmo_colour_high;
+    }
+    Update() {
+        //Do orbital physics
+    }
+    Draw() {
+        //Draw planet
+    }
+}
+//----------------------------------------------------------------------//
+
 
 //----------------------------------------------------------------------//
 //Variables
@@ -61,6 +122,7 @@ const END_TITLE = "Astro Explorer - End Screen";
 const PAGES = [
     new Page(INDEX_TITLE, "../index.html", false, 
         function(){
+            //Immediately redirect to the home page
             g_core_setPage(HOME_TITLE);
         }
     ),
@@ -88,6 +150,20 @@ const PAGES = [
 
 ];
 
+//Planets
+var planets = [
+    new Planet("Earth", 0, 0, )
+];
+
+
+//Player
+var player_x; 
+var player_y;
+var player_vel_x;
+var player_vel_y;
+var player_dir; //Direction
+var player_ang_vel; //Angular velocity, used for smooth rotation
+
 
 
 //----------------------------------------------------------------------//
@@ -113,6 +189,7 @@ function g_core_update() {
 
 }
 //----------------------------------------------------------------------//
+
 
 //----------------------------------------------------------------------//
 //g_core_setPage(title)                                      //
@@ -146,18 +223,8 @@ function g_core_initializeState(title) {
 //getPage(title)                               //
 //Gets the index into PAGES pointer to the page//
 //with the title title                         //
-function getPage(title) {
-    var p;
-    for (p = 0; p < PAGES.length; p++) {
-        if (PAGES[p].title == title) {
-            break;
-        }
-    }
-    return p;
-}
-//Overload with no title, gets document.title
-function getPage() {
-    var title = document.title;
+//defualts to current page title               //
+function getPage(title = document.title) {
     var p;
     for (p = 0; p < PAGES.length; p++) {
         if (PAGES[p].title == title) {
