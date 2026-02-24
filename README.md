@@ -7,3 +7,17 @@ r : renderer
 
 function name prefixes:  
 cb : callback  
+
+
+TODO:  
+* Seperate classes into seperate module files  
+* Make a renderer class  
+* Make a game class  
+* Implement player drawing  
+* Implement player movement  
+* Implement gravity  
+* Implement fuel  
+* Implement refueling  
+* Implement score on planet land  
+* Implement zoom  
+* Implement lagrange point visualization  
