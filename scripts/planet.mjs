@@ -6,7 +6,8 @@
 //An object to represent a planet, handling rendering and update logic  //
 //----------------------------------------------------------------------//
 import {Vec2} from './miscellaneous.mjs';
-import { Renderer, renderer } from './renderer.mjs';
+import { Renderer } from './renderer.mjs';
+import { Game } from './game.mjs';
 export class Planet {
     
     constructor(name, pos, vel, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid) {
