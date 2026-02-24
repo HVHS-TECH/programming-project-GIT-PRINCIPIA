@@ -7,3 +7,9 @@ r : renderer
 
 function name prefixes:  
 cb : callback  
+
+
+TODO:  
+* Seperate classes into seperate module files  
+* Make a renderer class  
+* Make a game class  
