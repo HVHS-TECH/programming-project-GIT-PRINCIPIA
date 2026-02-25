@@ -5,21 +5,32 @@
 //Renderer class                                                        //
 //Manages render functions and canvas setup                             //
 //----------------------------------------------------------------------//
-import {Planet, Player, Vec2, g_planets} from './g_core.mjs';
+import {Planet} from './planet.mjs';
+import { Player } from './player.mjs';
+import { Vec2 } from './miscellaneous.mjs';
+import { Game } from './game.mjs';
 export class Renderer {
     constructor() {
         //Initialize the canvas
         
-        this.cnvWidth = window.innerWidth - CNV_PADDING;
-        this.cnvHeight = window.innerHeight - CNV_PADDING;
+        this.cnvWidth = window.innerWidth;
+        this.cnvHeight = window.innerHeight;
         this.canvas = document.getElementById("canvas");
-        this.cnv = this.canvas.getContext("2d");
-        this.canvas.width = this.cnvWidth;
-        this.canvas.height = this.cnvHeight;
-        this.cnvHalfDimen = new Vec2(this.cnvWidth / 2, this.cnvHeight / 2);
+        this.hasCnv = true;
+        if (this.canvas == null) {
+            this.hasCnv = false;
+        }
+        else {
 
-        //Set the callbacks
-        window.addEventListener('resize', this.cb_windowResized);
+        
+        
+            this.canvas.width = this.cnvWidth;
+            this.canvas.height = this.cnvHeight;
+            this.cnvHalfDimen = new Vec2(this.cnvWidth / 2, this.cnvHeight / 2);
+
+            //Set the callbacks
+            window.addEventListener('resize', this.cb_windowResized);
+        }
     }
 
     Render() {
@@ -40,6 +51,8 @@ export class Renderer {
         Player.Draw();
     }
 
+
+
     //----------------------------------------------------------------------//
     //radGradient(start, end, inner, outer)                  
     //returns a radial gradient based on the start and end positions and radii    
@@ -48,6 +61,10 @@ export class Renderer {
     //inner: start radius
     //outer: end radius        
     radGradient(start, end, inner, outer) {
+        if (this.canvas == null) {
+            console.warn("Renderer.radGradient called on a page with no canvas. This might break things.");
+            return null;
+        }
         start = start.add(this.cnvHalfDimen);
         end = end.add(this.cnvHalfDimen);
         var gradient = this.cnv.createRadialGradient(start.x, start.y, inner, end.x, end.y, outer);
@@ -61,6 +78,10 @@ export class Renderer {
     //fill(style)
     //sets the fillStyle of the canvas
     fill(style) {
+        if (this.canvas == null) {
+            console.warn("Renderer.fill called on a page with no canvas. This might break things.");
+            return;
+        }
         this.cnv.fillStyle = style;
     }
     //----------------------------------------------------------------------//
@@ -69,6 +90,10 @@ export class Renderer {
     //beginPath()
     //runs cnv.beginPath()
     beginPath() {
+        if (this.canvas == null) {
+            console.warn("Renderer.beginPath called on a page with no canvas. This might break things.");
+            return;
+        }
         this.cnv.beginPath();
     }
     //----------------------------------------------------------------------//
@@ -77,6 +102,10 @@ export class Renderer {
     //arc(pos, rad, ang)
     //runs cnv.arc
     arc(pos, rad, ang) {
+        if (this.canvas == null) {
+            console.warn("Renderer.arc called on a page with no canvas. This might break things.");
+            return;
+        }
         pos = pos.add(this.cnvHalfDimen);
         this.cnv.arc(pos.x, pos.y, rad, 0, ang);
     }
@@ -86,6 +115,10 @@ export class Renderer {
     //fillShape()
     //fills the drawn shape / path
     fillShape() {
+        if (this.canvas == null) {
+            console.warn("Renderer.fillShape called on a page with no canvas. This might break things.");
+            return;
+        }
         this.cnv.fill();
     }
     //----------------------------------------------------------------------//

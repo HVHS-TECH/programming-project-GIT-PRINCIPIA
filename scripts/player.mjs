@@ -6,6 +6,7 @@
 //Manages player movement and logic, as well as player rendering        //
 //----------------------------------------------------------------------//
 import { Input } from "./input.mjs";
+import { Vec2 } from "./miscellaneous.mjs";
 export class Player {
     static pos = new Vec2(0, 1000);
     static vel = new Vec2(0, 0);
