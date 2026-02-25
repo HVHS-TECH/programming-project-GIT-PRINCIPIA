@@ -35,14 +35,32 @@ export class VertSlider extends UIelement {
         this.value = 0;
     }
     Draw() {
-        var tr = this.pos.add(new Vec2(width / 2, height / 2));
-        var tl = this.pos.add(new Vec2(-width / 2, height / 2));
-        var br = this.pos.add(new Vec2(width / 2, -height / 2));
-        var bl = this.pos.add(new Vec2(-width / 2, -height / 2));
+        //----------------------------------------------------------------------//
+        //Draw the background
+        var tr = this.pos.add(new Vec2(this.width / 2, this.height / 2));
+        var tl = this.pos.add(new Vec2(-this.width / 2, this.height / 2));
+        var br = this.pos.add(new Vec2(this.width / 2, -this.height / 2));
+        var bl = this.pos.add(new Vec2(-this.width / 2, -this.height / 2));
 
         var vertices = [tr, tl, br, bl];
-        Game.renderer.fill(background);
+        Game.renderer.fill(this.background);
         Game.renderer.drawPolygon(vertices);
+        //----------------------------------------------------------------------//
+
+
+        //----------------------------------------------------------------------//
+        //Draw the fill (slider)
+        //Prefix f for fill
+        //This.value is from 0 - 1, so we must scale it by this.height
+        var ftr = this.pos.add(new Vec2(this.width / 2, -this.height / 2 + this.value * this.height));
+        var ftl = this.pos.add(new Vec2(-this.width / 2, -this.height / 2 + this.value * this.height));
+        var fbr = this.pos.add(new Vec2(this.width / 2, -this.height / 2));
+        var fbl = this.pos.add(new Vec2(-this.width / 2, -this.height / 2));
+
+        var fvertices = [ftr, ftl, fbr, fbl];
+        Game.renderer.fill(this.fillColour);
+        Game.renderer.drawPolygon(fvertices);
+        //----------------------------------------------------------------------//
     }
     GetInput() {
         return this.value;

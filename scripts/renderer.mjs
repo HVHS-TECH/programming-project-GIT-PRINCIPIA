@@ -9,6 +9,7 @@ import {Planet} from './planet.mjs';
 import { Player } from './player.mjs';
 import { Vec2 } from './miscellaneous.mjs';
 import { Game } from './game.mjs';
+import { VertSlider } from './ui_element.mjs';
 export class Renderer {
     constructor() {
         //Initialize the canvas

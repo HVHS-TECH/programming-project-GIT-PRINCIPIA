@@ -15,6 +15,7 @@ import { Page, Vec2 } from "./miscellaneous.mjs";
 
 import { Player } from "./player.mjs";
 import { Input } from "./input.mjs";
+import { VertSlider } from "./ui_element.mjs";
 export class Game {
     
     //Planets
@@ -77,6 +78,12 @@ export class Game {
         )
 
     ];
+    //UI
+    static UI_ELEMENTS = [
+        new VertSlider(new Vec2(0,0), 50, 300, 'white', 'black', 'black', 0)
+
+    ];
+
     static G = 0.01; //Gravitational constant
 
     static Start() {
