@@ -24,6 +24,6 @@ export class Input {
     }
     static KeyDown(keyName) {
         // keyName should match event.code, e.g. "KeyA", "ArrowUp", "Space"
-        return !!Input.keysDown[keyName];
+        return (!!Input.keysDown[keyName]) ? 1 : 0;
     }
 }

@@ -35,8 +35,6 @@ export class Renderer {
 
     Render() {
         //render the scene
-
-
         this.fill('black'); //Set the background to space
 
 
@@ -61,15 +59,14 @@ export class Renderer {
     //inner: start radius
     //outer: end radius        
     radGradient(start, end, inner, outer) {
-        if (this.canvas == null) {
+        if (!this.hasCnv) {
             console.warn("Renderer.radGradient called on a page with no canvas. This might break things.");
             return null;
         }
-        start = start.add(this.cnvHalfDimen);
-        end = end.add(this.cnvHalfDimen);
-
+        start = this.worldToCanvas(start);
+        end = this.worldToCanvas(end);
         
-        var gradient = this.cnv.createRadialGradient(start.x, start.y, inner, end.x, end.y, outer);
+        var gradient = this.cnv.createRadialGradient(start.x, start.y, inner * Player.zoom, end.x, end.y, outer * Player.zoom);
         return gradient;
     }
     //----------------------------------------------------------------------//
@@ -80,7 +77,7 @@ export class Renderer {
     //fill(style)
     //sets the fillStyle of the canvas
     fill(style) {
-        if (this.canvas == null) {
+        if (!this.hasCnv) {
             console.warn("Renderer.fill called on a page with no canvas. This might break things.");
             return;
         }
@@ -92,11 +89,20 @@ export class Renderer {
     //beginPath()
     //runs cnv.beginPath()
     beginPath() {
-        if (this.canvas == null) {
+        if (!this.hasCnv) {
             console.warn("Renderer.beginPath called on a page with no canvas. This might break things.");
             return;
         }
         this.cnv.beginPath();
+    }
+    //closePath()
+    //runs cnv.closePath()
+    closePath() {
+        if (!this.hasCnv) {
+            console.warn("Renderer.beginPath called on a page with no canvas. This might break things.");
+            return;
+        }
+        this.cnv.closePath();
     }
     //----------------------------------------------------------------------//
 
@@ -104,12 +110,12 @@ export class Renderer {
     //arc(pos, rad, ang)
     //runs cnv.arc
     arc(pos, rad, ang) {
-        if (this.canvas == null) {
+        if (!this.hasCnv) {
             console.warn("Renderer.arc called on a page with no canvas. This might break things.");
             return;
         }
-        pos = pos.add(this.cnvHalfDimen);
-        this.cnv.arc(pos.x, pos.y, rad, 0, ang);
+        pos = this.worldToCanvas(pos);
+        this.cnv.arc(pos.x, pos.y, rad * Player.zoom, 0, ang);
     }
     //----------------------------------------------------------------------//
 
@@ -117,7 +123,7 @@ export class Renderer {
     //fillShape()
     //fills the drawn shape / path
     fillShape() {
-        if (this.canvas == null) {
+        if (!this.hasCnv) {
             console.warn("Renderer.fillShape called on a page with no canvas. This might break things.");
             return;
         }
@@ -130,6 +136,10 @@ export class Renderer {
     //cb_windowResized()
     //resizes the canvas to match the screen size
     cb_windowResized() {
+        if (!this.hasCnv) {
+            console.warn("Renderer.cb_windowResized called on a page with no canvas. This might break things.");
+            return;
+        }
         //Calculate the new canvas dimensions
         this.cnvWidth = window.innerWidth;
         this.cnvHeight = window.innerHeight; 
@@ -141,4 +151,42 @@ export class Renderer {
 
     }
     //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //drawPolygon(vertices)
+    //draws a polygon using the array vertices
+    drawPolygon(vertices) {
+        if (!this.hasCnv) {
+            console.warn("Renderer.drawPolygon called on a page with no canvas. This might break things.");
+            return;
+        }
+        this.beginPath();
+        var v0 = this.worldToCanvas(vertices[0]);
+        this.cnv.moveTo(v0.x, v0.y);
+
+        //Starts at i = 1 because vertices[0] has just been handled
+        for (var i = 1; i < vertices.length; i++) {
+            var v = this.worldToCanvas(vertices[i]);
+            this.cnv.lineTo(v.x, v.y);
+        }
+        this.closePath();
+
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //Helper functions                                                      //
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //worldToCanvas(pos)
+    //converts a world position to a canvas (screen) position
+    worldToCanvas(pos) {
+        pos = pos.sub(Player.pos);
+        pos = pos.mul(new Vec2(Player.zoom, Player.zoom));
+        pos = pos.add(this.cnvHalfDimen);
+        return pos;
+    }
+    //----------------------------------------------------------------------//
+    
 }

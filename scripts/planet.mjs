@@ -11,25 +11,40 @@ import { Game } from './game.mjs';
 import { Player } from './player.mjs';
 export class Planet {
     
-    constructor(name, pos, vel, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid) {
+    constructor(name, pos, vel, mass, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid) {
         this.name = name;
         this.pos = pos;
         this.vel = vel;
+        this.mass = mass;
         this.radius = radius;
         this.atmoRadius = atmoRadius;
         this.colour = colour;
         this.innerColour = innerColour;
         this.atmoColourLow = atmoColourLow;
         this.atmoColourMid = atmoColourMid;
+        
     }
     Update() {
         //Do orbital physics
+        //Loop through all the planets
+        for (var p = 0; p < Game.PLANETS.length; p++) {
+            //If the planet is this, don't apply a force
+            if (Game.PLANETS[p] == this) continue;
+            var other = Game.PLANETS[p];
+            var delta = other.pos.sub(this.pos);
+            var dist = delta.len();
+            var deltaNorm = delta.norm();
+            var force = Game.G * other.mass / (dist * dist);
+            this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
+
+        }
+        //Integrate postiion
+        this.pos = this.pos.add(this.vel);
     }
     Draw() {
         //Draw planet
-        var relPos = this.pos.add(Player.pos);
-        
-        var atmoGrad = Game.renderer.radGradient(relPos, relPos, this.radius, this.atmoRadius);
+        //var relPos = this.pos.sub(Player.pos);
+        var atmoGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius);
 
         
         atmoGrad.addColorStop(0, this.atmoColourLow);
@@ -38,11 +53,11 @@ export class Planet {
 
         Game.renderer.fill(atmoGrad);
         Game.renderer.beginPath();
-        Game.renderer.arc(relPos, this.atmoRadius, Math.PI * 2);
+        Game.renderer.arc(this.pos, this.atmoRadius, Math.PI * 2);
         Game.renderer.fillShape();
 
 
-        var groundGrad = Game.renderer.radGradient(relPos, relPos, 0, this.radius);
+        var groundGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius);
 
         groundGrad.addColorStop(0.75, 'black');
         groundGrad.addColorStop(0.98, this.innerColour);
@@ -51,7 +66,7 @@ export class Planet {
 
         Game.renderer.fill(groundGrad);
         Game.renderer.beginPath();
-        Game.renderer.arc(relPos, this.radius, Math.PI * 2);
+        Game.renderer.arc(this.pos, this.radius, Math.PI * 2);
         Game.renderer.fillShape();
 
         
