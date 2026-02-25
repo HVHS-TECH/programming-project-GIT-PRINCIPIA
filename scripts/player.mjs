@@ -18,7 +18,7 @@ export class Player {
     static maxFuel = 100;
     static fuel = 100;
     static fuelUsedPerFrame = 0.01;
-    static thrusterForce = 0.01;
+    static thrusterForce = 0.005;
     static Update() {
         if (Player.fuel != 0) {
             var inputForward = (Input.KeyDown("KeyW") - Input.KeyDown("KeyS")) * Player.thrusterForce;
