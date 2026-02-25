@@ -13,17 +13,17 @@ export class Input {
 
     static Initialize() {
         document.addEventListener('keydown', function(event) {
-            keysDown[event.code] = true;
+            Input.keysDown[event.code] = true;
         });
 
         document.addEventListener('keyup', function(event) {
-            keysDown[event.code] = false;
+            Input.keysDown[event.code] = false;
         });
 
         
     }
-    KeyDown(keyName) {
+    static KeyDown(keyName) {
         // keyName should match event.code, e.g. "KeyA", "ArrowUp", "Space"
-        return !!keysDown[keyName];
+        return !!Input.keysDown[keyName];
     }
 }

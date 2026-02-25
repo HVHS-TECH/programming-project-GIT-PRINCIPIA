@@ -23,7 +23,7 @@ export class Renderer {
         else {
 
         
-        
+            this.cnv = this.canvas.getContext("2d");
             this.canvas.width = this.cnvWidth;
             this.canvas.height = this.cnvHeight;
             this.cnvHalfDimen = new Vec2(this.cnvWidth / 2, this.cnvHeight / 2);
@@ -37,14 +37,14 @@ export class Renderer {
         //render the scene
 
 
-        r_core_fill('black'); //Set the background to space
+        this.fill('black'); //Set the background to space
 
 
         this.cnv.fillRect(0, 0, this.canvas.width, this.canvas.height); //Fill the background
 
         //Render the planets
-        for (var p = 0; p < g_planets.length; p++) {
-            g_planets[p].Draw();
+        for (var p = 0; p < Game.PLANETS.length; p++) {
+            Game.PLANETS[p].Draw();
         }
 
         //Render the player
@@ -67,6 +67,8 @@ export class Renderer {
         }
         start = start.add(this.cnvHalfDimen);
         end = end.add(this.cnvHalfDimen);
+
+        
         var gradient = this.cnv.createRadialGradient(start.x, start.y, inner, end.x, end.y, outer);
         return gradient;
     }
@@ -129,8 +131,8 @@ export class Renderer {
     //resizes the canvas to match the screen size
     cb_windowResized() {
         //Calculate the new canvas dimensions
-        this.cnvWidth = window.innerWidth - CNV_PADDING;
-        this.cnvHeight = window.innerHeight - CNV_PADDING; 
+        this.cnvWidth = window.innerWidth;
+        this.cnvHeight = window.innerHeight; 
         this.cnvHalfDimen = new Vec2(this.cnvWidth / 2, this.cnvHeight / 2);
         //Resize the canvas
         this.cnv.width = this.cnvWidth;

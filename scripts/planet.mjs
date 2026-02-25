@@ -8,6 +8,7 @@
 import {Vec2} from './miscellaneous.mjs';
 import { Renderer } from './renderer.mjs';
 import { Game } from './game.mjs';
+import { Player } from './player.mjs';
 export class Planet {
     
     constructor(name, pos, vel, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid) {
@@ -28,30 +29,30 @@ export class Planet {
         //Draw planet
         var relPos = this.pos.add(Player.pos);
         
-        var atmoGrad = renderer.radGradient(relPos, relPos, this.radius, this.atmoRadius);
+        var atmoGrad = Game.renderer.radGradient(relPos, relPos, this.radius, this.atmoRadius);
 
         
         atmoGrad.addColorStop(0, this.atmoColourLow);
         atmoGrad.addColorStop(0.3, this.atmoColourMid);
         atmoGrad.addColorStop(0.9, 'transparent');
 
-        renderer.fill(atmoGrad);
-        renderer.beginPath();
-        renderer.arc(relPos, this.atmoRadius, Math.PI * 2);
-        renderer.fillShape();
+        Game.renderer.fill(atmoGrad);
+        Game.renderer.beginPath();
+        Game.renderer.arc(relPos, this.atmoRadius, Math.PI * 2);
+        Game.renderer.fillShape();
 
 
-        var groundGrad = renderer.radGradient(relPos, relPos, 0, this.radius);
+        var groundGrad = Game.renderer.radGradient(relPos, relPos, 0, this.radius);
 
         groundGrad.addColorStop(0.75, 'black');
         groundGrad.addColorStop(0.98, this.innerColour);
         groundGrad.addColorStop(0.99, this.colour);
         groundGrad.addColorStop(1, this.colour);
 
-        renderer.fill(groundGrad);
-        renderer.beginPath();
-        renderer.arc(relPos, this.radius, Math.PI * 2);
-        renderer.fillShape();
+        Game.renderer.fill(groundGrad);
+        Game.renderer.beginPath();
+        Game.renderer.arc(relPos, this.radius, Math.PI * 2);
+        Game.renderer.fillShape();
 
         
     }

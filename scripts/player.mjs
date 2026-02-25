@@ -13,7 +13,8 @@ export class Player {
     static dir = 0;
     static ang_vel = 0;
     static Update() {
-
+        this.pos.x += Input.KeyDown("D") - Input.KeyDown("A");
+        this.pos.y += Input.KeyDown("W") - Input.KeyDown("S");
     }
     static Draw() {
 
