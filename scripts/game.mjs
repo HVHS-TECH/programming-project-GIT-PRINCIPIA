@@ -48,7 +48,7 @@ export class Game {
     static END_TITLE = "Astro Explorer - End Screen";
 
     static PAGES = [
-        new Page(Game.INDEX_TITLE, "../index.html", false,
+        new Page(Game.INDEX_TITLE, "./index.html", false,
             function () {
                 //Immediately redirect to the home page
                 Game.setPage(Game.HOME_TITLE);
@@ -56,21 +56,21 @@ export class Game {
         ),
 
 
-        new Page(Game.HOME_TITLE, "../html/start.html", false,
+        new Page(Game.HOME_TITLE, "./html/start.html", false,
             function () {
 
             }
         ),
 
 
-        new Page(Game.GAME_TITLE, "../html/game.html", true,
+        new Page(Game.GAME_TITLE, "./html/game.html", true,
             function () {
 
             }
         ),
 
 
-        new Page(Game.END_TITLE, "../html/end.html", false,
+        new Page(Game.END_TITLE, "./html/end.html", false,
             function () {
 
             }
