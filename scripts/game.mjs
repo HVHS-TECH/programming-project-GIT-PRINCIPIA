@@ -23,9 +23,9 @@ export class Game {
     static HOME_TITLE = "Astro Explorer - Title Screen";
     static GAME_TITLE = "Astro Explorer";
     static END_TITLE = "Astro Explorer - End Screen";
-    static PLANET_PATH = '../gamedata/planets/';
     //Planets
     static PLANETS = Loader.LoadPlanets();/*[
+    
         new Planet(
             "Earth", //Name
             new Vec2(0, 0), //pos
@@ -85,7 +85,7 @@ export class Game {
     static UI_ELEMENTS = [
         new VertMeter(new Vec2(80,0), 'left', 80, 700, 'rgb(65, 21, 21)', 'rgb(85, 255, 0)', 'rgb(0, 140, 255)', 5, "PlayerFuel"), //Fuel
         new VertMeter(new Vec2(200,0), 'left', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat"),  //Heat
-        new Navball(new Vec2(0, 80), 'bottom', 120, 'rgb(200, 200, 200)', 'rgb(50, 75, 100)', 'rgb(50, 150, 50)', 'rgb(100, 100, 100)', 5, "PlayerDir", "PlayerVel", "PlayerVelDir") //Navball
+        new Navball(new Vec2(0, 140), 'bottom', 120, 'rgb(200, 200, 200)', 'rgb(50, 75, 100)', 'rgb(50, 150, 50)', 'rgb(100, 100, 100)', 5, "PlayerDir", "PlayerVel", "PlayerVelDir") //Navball
 
     ];
 
@@ -131,15 +131,20 @@ export class Game {
     //Start()
     //called on page load
     static Start() {
+        console.log("Game.Start");
         Player.pos = new Vec2(0, 750);
         Player.vel = new Vec2(-1.15, 0);
         Player.zoom = 1;
         Player.dir = 0;
         Player.ang_vel = 0;
-
+        console.log("Game.Start(): initializing");
+        console.dir(Game.PLANETS[0]);
         Game.initializeState();
+        //Game.PLANETS = Loader.LoadPlanets();
         Input.Initialize();
+        console.log("Game.Start(): initialized");
         requestAnimationFrame(Game.Update);
+        
     }
     //----------------------------------------------------------------------//
 
@@ -148,14 +153,19 @@ export class Game {
     //called every frame
     //manages game logic, then renders scene using renderer
     static Update() {
+        console.log("Game.Update()");
         for (var p = 0; p < Game.PLANETS.length; p++) {
             Game.PLANETS[p].Update();
         }
+        console.log("Game.Update() - planets done");
         for (var e = 0; e < Game.UI_ELEMENTS.length; e++) {
             Game.UI_ELEMENTS[e].Update();
         }
+        console.log("Game.Update() - ui done");
         Player.Update();
+        console.log("Game.Update() - player done");
         Game.renderer.Render();
+        console.log("Game.Update() - rendering done");
         requestAnimationFrame(Game.Update);
     }
     //----------------------------------------------------------------------//
@@ -209,13 +219,19 @@ export class Game {
     //getRefVar(name)
     //returns the return value of the get method of the reference variable with the same name as 'name'
     static getRefVar(name) {
-        var r = -1;
+        var r;
+        var res = -1;
+        console.log("Game.getRefVar");
         for (r = 0; r < Game.REF_VARIABLES.length; r++) {
             if (Game.REF_VARIABLES[r].name == name) {
+                res = r;
                 break;
-            } else {r = -1} //Track if there is no reference with that name
+            } else {
+                res = -1;//Track if there is no reference with that name
+            } 
         }
-        if (r > -1) {
+        console.log("Game.getRefVar - done searching");
+        if (res > -1) {
             return Game.REF_VARIABLES[r].get();
         } else {
             console.warn("Game.getRefVar: there is no variable with name '" + name + "'");

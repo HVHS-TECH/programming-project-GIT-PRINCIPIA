@@ -66,13 +66,18 @@ export class Player {
         
     }
     static Draw() {
+        this.DrawPlayer(new Vec2(0,0), false);
+    }
+    static DrawPlayer(offset, screenSpace) {
+        if (!screenSpace) offset = offset.add(Player.pos);
+
         var deltaFront = new Vec2(Math.sin(Player.dir) * 10, Math.cos(Player.dir) * 10);
         var deltaRight = new Vec2(Math.sin(Player.dir + Math.PI / 2) * 3, Math.cos(Player.dir + Math.PI / 2) * 3);
         var deltaLeft = new Vec2(Math.sin(Player.dir + Math.PI / 2) * -3, Math.cos(Player.dir + Math.PI / 2) * -3);
-        var vertices = [Player.pos.add(deltaFront), Player.pos.add(deltaRight), Player.pos.add(deltaLeft)];
+        var vertices = [offset.add(deltaFront), offset.add(deltaRight), offset.add(deltaLeft)];
 
         Game.renderer.fill('white');
-        Game.renderer.drawPolygon(vertices, false);
+        Game.renderer.drawPolygon(vertices, screenSpace);
         Game.renderer.fillShape();
     }
 }

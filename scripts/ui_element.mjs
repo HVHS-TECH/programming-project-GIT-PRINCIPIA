@@ -109,9 +109,9 @@ export class VertMeter extends UIelement {
 
 //Navball, displays a copy of the 
 export class Navball extends UIelement {
-    constructor(pos, align, diameter, playerColour, backgroundColour, textColour, outlineColour, outlineWidth, dirRefName, velRefName, velDirRefName) {
-        super(pos, align, diameter, diameter);
-        this.diameter = diameter;
+    constructor(pos, align, radius, playerColour, backgroundColour, textColour, outlineColour, outlineWidth, dirRefName, velRefName, velDirRefName) {
+        super(pos, align, radius * 2, radius * 2);
+        this.radius = radius;
         this.playerColour = playerColour;
         this.backgroundColour = backgroundColour;
         this.textColour = textColour;
@@ -136,10 +136,19 @@ export class Navball extends UIelement {
         Game.renderer.fill(this.backgroundColour);
         Game.renderer.stroke(this.outlineColour, this.outlineWidth);
         Game.renderer.beginPath();
-        Game.renderer.arc(alignment_mul_scaleCnvSize_half_vec2.add(this.pos), this.diameter, Math.PI, true);
+        Game.renderer.arc(alignment_mul_scaleCnvSize_half_vec2.add(this.pos), this.radius, Math.PI * 2, true);
         Game.renderer.closePath();
         Game.renderer.fillShape();
         Game.renderer.strokeShape();
+        //----------------------------------------------------------------------//
+
+        //----------------------------------------------------------------------//
+        //Draw the velocity arrow
+        //----------------------------------------------------------------------//
+
+        //----------------------------------------------------------------------//
+        //Draw the player
+        Player.DrawPlayer(alignment_mul_scaleCnvSize_half_vec2.add(this.pos), true);
         //----------------------------------------------------------------------//
     }
 }

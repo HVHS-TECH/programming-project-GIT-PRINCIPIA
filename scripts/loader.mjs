@@ -13,10 +13,10 @@ export class Loader {
     //----------------------------------------------------------------------//
     //LoadPlanets()
     //Returns a list of planet objects
-    static LoadPlanets(path) {
-        var ret = [];
-        const jsonObject = Loader.GetJSONobject(path + 'earth.json');
-        ret.push(Loader.JSONobjectToPlanet(jsonObject));
+    static LoadPlanets() {
+        const jsonObject = Loader.GetJSONobject('../gamedata/planets/earth.json');
+        var ret = [Loader.JSONobjectToPlanet(jsonObject)];
+        console.dir(ret); //Debug
         return ret;
     }
     //----------------------------------------------------------------------//

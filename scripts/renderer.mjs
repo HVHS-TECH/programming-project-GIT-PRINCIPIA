@@ -140,7 +140,7 @@ export class Renderer {
             return;
         }
         pos = this.worldToCanvas(pos, screenSpace);
-        this.cnv.arc(pos.x, pos.y, rad * Player.zoom / 1000 * this.cnvHeight, 0, ang);
+        this.cnv.arc(pos.x, pos.y, rad * ((screenSpace) ? 1 : (Player.zoom / 1000 * this.cnvHeight)), 0, ang);
     }
     //----------------------------------------------------------------------//
 
