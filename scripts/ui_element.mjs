@@ -42,9 +42,12 @@ export class VertSlider extends UIelement {
         var br = this.pos.add(new Vec2(this.width / 2, -this.height / 2));
         var bl = this.pos.add(new Vec2(-this.width / 2, -this.height / 2));
 
-        var vertices = [tr, tl, br, bl];
+        
+
+        var vertices = [tr, tl, bl, br];
         Game.renderer.fill(this.background);
-        Game.renderer.drawPolygon(vertices);
+        Game.renderer.rect(tl, br, true);
+        Game.renderer.fillShape();
         //----------------------------------------------------------------------//
 
 
@@ -59,7 +62,8 @@ export class VertSlider extends UIelement {
 
         var fvertices = [ftr, ftl, fbr, fbl];
         Game.renderer.fill(this.fillColour);
-        Game.renderer.drawPolygon(fvertices);
+        Game.renderer.rect(tl, br, true);
+        Game.renderer.fillShape();
         //----------------------------------------------------------------------//
     }
     GetInput() {

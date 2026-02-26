@@ -80,7 +80,7 @@ export class Game {
     ];
     //UI
     static UI_ELEMENTS = [
-        new VertSlider(new Vec2(0,0), 50, 300, 'white', 'black', 'black', 0)
+        new VertSlider(new Vec2(0,0), 50, 300, 'white', 'white', 'white', 0)
 
     ];
 

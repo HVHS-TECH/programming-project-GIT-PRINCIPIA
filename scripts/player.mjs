@@ -71,7 +71,7 @@ export class Player {
         var vertices = [Player.pos.add(deltaFront), Player.pos.add(deltaRight), Player.pos.add(deltaLeft)];
 
         Game.renderer.fill('white');
-        Game.renderer.drawPolygon(vertices);
+        Game.renderer.drawPolygon(vertices, false);
         Game.renderer.fillShape();
     }
 }
