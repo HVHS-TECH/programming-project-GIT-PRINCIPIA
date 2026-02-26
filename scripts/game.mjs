@@ -15,10 +15,15 @@ import { Page, Vec2, RefVar } from "./miscellaneous.mjs";
 
 import { Player } from "./player.mjs";
 import { Input } from "./input.mjs";
-import { VertMeter } from "./ui_element.mjs";
+import { Navball, VertMeter } from "./ui_element.mjs";
 import { Loader } from "./loader.mjs";
 export class Game {
-    
+
+    static INDEX_TITLE = "Astro Explorer - Index";
+    static HOME_TITLE = "Astro Explorer - Title Screen";
+    static GAME_TITLE = "Astro Explorer";
+    static END_TITLE = "Astro Explorer - End Screen";
+    static PLANET_PATH = '../gamedata/planets/';
     //Planets
     static PLANETS = Loader.LoadPlanets();/*[
         new Planet(
@@ -44,10 +49,7 @@ export class Game {
     ];*/
     static renderer = new Renderer(); 
 
-    static INDEX_TITLE = "Astro Explorer - Index";
-    static HOME_TITLE = "Astro Explorer - Title Screen";
-    static GAME_TITLE = "Astro Explorer";
-    static END_TITLE = "Astro Explorer - End Screen";
+    
 
     static PAGES = [
         new Page(Game.INDEX_TITLE, "./index.html", false,
@@ -82,7 +84,8 @@ export class Game {
     //UI
     static UI_ELEMENTS = [
         new VertMeter(new Vec2(80,0), 'left', 80, 700, 'rgb(65, 21, 21)', 'rgb(85, 255, 0)', 'rgb(0, 140, 255)', 5, "PlayerFuel"), //Fuel
-        new VertMeter(new Vec2(200,0), 'left', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat")  //heat
+        new VertMeter(new Vec2(200,0), 'left', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat"),  //Heat
+        new Navball(new Vec2(0, 80), 'bottom', 120, 'rgb(200, 200, 200)', 'rgb(50, 75, 100)', 'rgb(50, 150, 50)', 'rgb(100, 100, 100)', 5, "PlayerDir", "PlayerVel", "PlayerVelDir") //Navball
 
     ];
 
@@ -98,6 +101,24 @@ export class Game {
             "PlayerHeat",
             function() { //Get
                 return 0.5; //Not implemented yet
+            }
+        ),
+        new RefVar(
+            "PlayerDir",
+            function() { //Get
+                return Player.dir; 
+            }
+        ),
+        new RefVar(
+            "PlayerVel",
+            function() { //Get
+                return Player.vel.len(); 
+            }
+        ),
+        new RefVar(
+            "PlayerVelDir",
+            function() { //Get
+                return Player.vel.dir(); 
             }
         )
     ];
@@ -188,13 +209,19 @@ export class Game {
     //getRefVar(name)
     //returns the return value of the get method of the reference variable with the same name as 'name'
     static getRefVar(name) {
-        var r;
+        var r = -1;
         for (r = 0; r < Game.REF_VARIABLES.length; r++) {
             if (Game.REF_VARIABLES[r].name == name) {
                 break;
-            }
+            } else {r = -1} //Track if there is no reference with that name
         }
-        return Game.REF_VARIABLES[r].get();
+        if (r > -1) {
+            return Game.REF_VARIABLES[r].get();
+        } else {
+            console.warn("Game.getRefVar: there is no variable with name '" + name + "'");
+            return 0;
+        }
+        
     }
     //----------------------------------------------------------------------//
 

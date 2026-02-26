@@ -109,19 +109,38 @@ export class VertMeter extends UIelement {
 
 //Navball, displays a copy of the 
 export class Navball extends UIelement {
-    constructor(pos, align, diameter, playerColour, backgroundColour, outlineColour, outlineWidth) {
+    constructor(pos, align, diameter, playerColour, backgroundColour, textColour, outlineColour, outlineWidth, dirRefName, velRefName, velDirRefName) {
         super(pos, align, diameter, diameter);
         this.diameter = diameter;
         this.playerColour = playerColour;
         this.backgroundColour = backgroundColour;
+        this.textColour = textColour;
         this.outlineColour = outlineColour;
         this.outlineWidth = outlineWidth;
+        this.dir = 0;
+        this.vel = 0;
+        this.velDir = 0;
     }
     Update() {
-
+        this.dir = Game.getRefVar(this.dirRefName);
+        this.vel = Game.getRefVar(this.velRefName);
+        this.velDir = Game.getRefVar(this.velDirRefName);
     }
-    Draw() {
 
+    Draw() {
+        var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
+        var alignment_mul_scaleCnvSize_half_vec2 = this.alignment.mul(scaleCnvSize_half_vec2);
+
+        //----------------------------------------------------------------------//
+        //Draw the background
+        Game.renderer.fill(this.backgroundColour);
+        Game.renderer.stroke(this.outlineColour, this.outlineWidth);
+        Game.renderer.beginPath();
+        Game.renderer.arc(alignment_mul_scaleCnvSize_half_vec2.add(this.pos), this.diameter, Math.PI, true);
+        Game.renderer.closePath();
+        Game.renderer.fillShape();
+        Game.renderer.strokeShape();
+        //----------------------------------------------------------------------//
     }
 }
 
