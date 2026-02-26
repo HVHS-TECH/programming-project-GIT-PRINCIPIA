@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------//
 import { Planet } from "./planet.mjs"
 import { Vec2 } from "./miscellaneous.mjs";
-var getJSONobject_result; //Used for the callback in GetJSONobject()
+//Loader class, 
 export class Loader {
 
     //----------------------------------------------------------------------//
@@ -42,8 +42,12 @@ export class Loader {
     //GetJSONobject(path)
     //Returns the JSON object in the file at path
     static GetJSONobject(path) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', path, false); // false = synchronous
+        xhr.send(null);
+        const fileContents = xhr.responseText;
 
-        return null;//Needs implementation - asynchronous or synchronous???
+        return JSON.parse(fileContents);
     }
     //----------------------------------------------------------------------//
 }
