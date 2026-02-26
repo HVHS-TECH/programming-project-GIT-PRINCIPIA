@@ -61,9 +61,16 @@ export class Vec2 {
     len() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
+
+    //Normalized Vec2
     norm() {
         var length = this.len();
         return this.div(new Vec2(length, length));
+    }
+
+    //Direction of Vec2
+    dir() {
+        return Math.atan2(-this.y, this.x) - Math.PI / 2;
     }
     //Dot product of two Vec2-s
     static dot(a, b) {

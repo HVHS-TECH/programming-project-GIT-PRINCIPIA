@@ -49,7 +49,8 @@ export class Player {
                     dist = delta.len();
                     Player.pos = Player.pos.sub(deltaNorm.mul(new Vec2(0.01, 0.01)));
                 }
-                
+                Player.dir = delta.dir(); //Lock the player outward
+                Player.ang_vel = 0;
                 break;
             }
             var force = Game.G * other.mass / (dist * dist);
