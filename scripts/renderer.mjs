@@ -9,13 +9,14 @@ import {Planet} from './planet.mjs';
 import { Player } from './player.mjs';
 import { Vec2 } from './miscellaneous.mjs';
 import { Game } from './game.mjs';
-import { VertSlider } from './ui_element.mjs';
+import { UIelement } from './ui_element.mjs';
 export class Renderer {
     constructor() {
         //Initialize the canvas
         
         this.cnvWidth = window.innerWidth;
         this.cnvHeight = window.innerHeight;
+        this.scaleCnvSize = 1000; //Size of the virtual canvas - see worldToCanvas();
         this.canvas = document.getElementById("canvas");
         this.hasCnv = true;
         if (this.canvas == null) {
@@ -37,8 +38,8 @@ export class Renderer {
     Render() {
         //render the scene
         this.fill('black'); //Set the background to space
-        this.rect(this.cnvHalfDimen.mul(new Vec2(-1, -1)), this.cnvHalfDimen, true); //Fill the background
-
+        this.cnv.rect(0, 0, this.cnvWidth, this.cnvHeight); //Fill the background
+        this.fillShape();
         
         //Render the planets
         for (var p = 0; p < Game.PLANETS.length; p++) {
@@ -73,7 +74,7 @@ export class Renderer {
         start = this.worldToCanvas(start, screenSpace);
         end = this.worldToCanvas(end, screenSpace);
         
-        var gradient = this.cnv.createRadialGradient(start.x, start.y, inner * Player.zoom, end.x, end.y, outer * Player.zoom);
+        var gradient = this.cnv.createRadialGradient(start.x, start.y, inner * Player.zoom / 1000 * this.cnvHeight, end.x, end.y, outer * Player.zoom / 1000 * this.cnvHeight);
         return gradient;
     }
     //----------------------------------------------------------------------//
@@ -90,6 +91,22 @@ export class Renderer {
         }
         this.cnv.fillStyle = style;
     }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //stroke(style, width)
+    //sets the stroke style of the canvas
+    //sets the stroke width of the canvas
+    stroke(style, width) {
+        if (!this.hasCnv) {
+            console.warn("Renderer.stroke called on a page with no canvas. This might break things.");
+            return;
+        }
+        this.cnv.strokeStyle = style;
+        this.cnv.lineWidth = width;
+    }
+
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
@@ -123,7 +140,7 @@ export class Renderer {
             return;
         }
         pos = this.worldToCanvas(pos, screenSpace);
-        this.cnv.arc(pos.x, pos.y, rad * Player.zoom, 0, ang);
+        this.cnv.arc(pos.x, pos.y, rad * Player.zoom / 1000 * this.cnvHeight, 0, ang);
     }
     //----------------------------------------------------------------------//
 
@@ -139,22 +156,31 @@ export class Renderer {
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //strokeShape()
+    //strokes the drawn shape / path
+    strokeShape() {
+        if (!this.hasCnv) {
+            console.warn("Renderer.strokeShape called on a page with no canvas. This might break things.");
+            return;
+        }
+        this.cnv.stroke();
+    }
+    //----------------------------------------------------------------------//
+    
 
     //----------------------------------------------------------------------//
     //cb_windowResized()
     //resizes the canvas to match the screen size
     cb_windowResized() {
-        if (!this.hasCnv) {
-            console.warn("Renderer.cb_windowResized called on a page with no canvas. This might break things.");
-            return;
-        }
         //Calculate the new canvas dimensions
         this.cnvWidth = window.innerWidth;
         this.cnvHeight = window.innerHeight; 
         this.cnvHalfDimen = new Vec2(this.cnvWidth / 2, this.cnvHeight / 2);
         //Resize the canvas
-        this.cnv.width = this.cnvWidth;
-        this.cnv.height = this.cnvHeight;
+        if (this.cnv == null) this.cnv = this.canvas.getContext("2d");
+        this.canvas.width = this.cnvWidth;
+        this.canvas.height = this.cnvHeight;
         console.log("Window resized");
 
     }
@@ -189,9 +215,11 @@ export class Renderer {
     //and the bottom right corner at br
     //screenSpace: are the points relative to the player? (true = no, false = yes)
     rect(tl, br, screenSpace) {
-        tl = this.worldToCanvas(tl, screenSpace);
-        br = this.worldToCanvas(br, screenSpace);
-        this.cnv.rect(tl.x, tl.y, br.x, br.y);
+        //tl = this.worldToCanvas(tl, screenSpace);
+        //br = this.worldToCanvas(br, screenSpace);
+
+        var vertices = [tl, new Vec2(br.x, tl.y), br, new Vec2(tl.x, br.y)];
+        this.drawPolygon(vertices, screenSpace);
     }
     //----------------------------------------------------------------------//
 
@@ -210,6 +238,8 @@ export class Renderer {
             pos = pos.sub(Player.pos);
             pos = pos.mul(new Vec2(Player.zoom, Player.zoom));
         }
+        pos = pos.div(new Vec2(this.scaleCnvSize, -this.scaleCnvSize));
+        pos = pos.mul(new Vec2(this.cnvHeight, this.cnvHeight));
         pos = pos.add(this.cnvHalfDimen);
         return pos;
     }

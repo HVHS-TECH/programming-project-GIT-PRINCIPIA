@@ -79,3 +79,16 @@ export class Vec2 {
 
 
 //----------------------------------------------------------------------//
+
+
+
+//----------------------------------------------------------------------//
+//Reference variable - used to pass a value as a reference
+export class RefVar {
+    constructor(name, get) {
+        this.name = name;
+        this.get = get;
+    }
+    get() {}
+}
+//----------------------------------------------------------------------//

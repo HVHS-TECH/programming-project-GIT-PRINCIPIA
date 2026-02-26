@@ -1,0 +1,14 @@
+{
+    "name": "earth",
+    "x": 0,
+    "y": 0,
+    "xVel": 0,
+    "yVel": 0,
+    "mass": 100000,
+    "radius": 500, 
+    "atmoRadius": 750, 
+    "colour": "rgb(150, 200, 50)", 
+    "innerColour": "rgb(150, 75, 10)", 
+    "atmoColourLow": "rgb(200, 253, 255)", 
+    "atmoColourMid": "rgb(101, 128, 168)" 
+}

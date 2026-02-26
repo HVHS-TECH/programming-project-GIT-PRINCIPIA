@@ -17,13 +17,13 @@ export class Player {
     static zoom = 1;
     static maxFuel = 100;
     static fuel = 100;
-    static fuelUsedPerFrame = 0.01;
-    static thrusterForce = 0.005;
+    static fuelUsedPerFrame = 0.05;
+    static thrusterForce = 0.006;
     static Update() {
         if (Player.fuel != 0) {
             var inputForward = (Input.KeyDown("KeyW") - Input.KeyDown("KeyS")) * Player.thrusterForce;
             Player.vel.x += Math.sin(Player.dir) * inputForward;
-            Player.vel.y -= Math.cos(Player.dir) * inputForward;
+            Player.vel.y += Math.cos(Player.dir) * inputForward;
             Player.fuel -= (inputForward != 0) ? Player.fuelUsedPerFrame : 0;
             if (Player.fuel < 0) Player.fuel = 0;
         }
@@ -65,9 +65,9 @@ export class Player {
         
     }
     static Draw() {
-        var deltaFront = new Vec2(Math.sin(Player.dir) * 10, -Math.cos(Player.dir) * 10);
-        var deltaRight = new Vec2(Math.sin(Player.dir + Math.PI / 2) * 3, -Math.cos(Player.dir + Math.PI / 2) * 3);
-        var deltaLeft = new Vec2(Math.sin(Player.dir + Math.PI / 2) * -3, -Math.cos(Player.dir + Math.PI / 2) * -3);
+        var deltaFront = new Vec2(Math.sin(Player.dir) * 10, Math.cos(Player.dir) * 10);
+        var deltaRight = new Vec2(Math.sin(Player.dir + Math.PI / 2) * 3, Math.cos(Player.dir + Math.PI / 2) * 3);
+        var deltaLeft = new Vec2(Math.sin(Player.dir + Math.PI / 2) * -3, Math.cos(Player.dir + Math.PI / 2) * -3);
         var vertices = [Player.pos.add(deltaFront), Player.pos.add(deltaRight), Player.pos.add(deltaLeft)];
 
         Game.renderer.fill('white');
