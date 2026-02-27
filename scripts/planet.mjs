@@ -44,7 +44,7 @@ export class Planet {
     Draw() {
         //Draw planet
         //var relPos = this.pos.sub(Player.pos);
-        var atmoGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, false);
+        var atmoGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
 
         
         atmoGrad.addColorStop(0, this.atmoColourLow);
@@ -53,11 +53,11 @@ export class Planet {
 
         Game.renderer.fill(atmoGrad);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.atmoRadius, Math.PI * 2, false);
+        Game.renderer.arc(this.pos, this.atmoRadius, Math.PI * 2, true, true);
         Game.renderer.fillShape();
 
 
-        var groundGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, false);
+        var groundGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
 
         groundGrad.addColorStop(0.75, 'black');
         groundGrad.addColorStop(0.98, this.innerColour);
@@ -66,7 +66,7 @@ export class Planet {
 
         Game.renderer.fill(groundGrad);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius, Math.PI * 2), false;
+        Game.renderer.arc(this.pos, this.radius, Math.PI * 2, true, true);
         Game.renderer.fillShape();
 
         

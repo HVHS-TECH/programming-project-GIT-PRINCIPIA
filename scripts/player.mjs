@@ -19,6 +19,8 @@ export class Player {
     static fuel = 100;
     static fuelUsedPerFrame = 0.05;
     static thrusterForce = 0.006;
+    static height = 10;
+    static width = 6;
     static Update() {
         if (Player.fuel != 0) {
             var inputForward = (Input.KeyDown("KeyW") - Input.KeyDown("KeyS")) * Player.thrusterForce;
@@ -38,7 +40,7 @@ export class Player {
         for (var p = 0 ; p < Game.PLANETS.length; p++) {
             var other = Game.PLANETS[p];
             var delta = other.pos.sub(Player.pos);
-            var dist = delta.len();
+            var dist = delta.len() - Player.height / 2;
             var deltaNorm = delta.norm();
 
             //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
@@ -46,7 +48,7 @@ export class Player {
                 Player.vel = other.vel;
                 while (dist < other.radius) {
                     delta = other.pos.sub(Player.pos);
-                    dist = delta.len();
+                    dist = delta.len() - Player.height / 2;
                     Player.pos = Player.pos.sub(deltaNorm.mul(new Vec2(0.01, 0.01)));
                 }
                 Player.dir = delta.dir(); //Lock the player outward
@@ -66,18 +68,23 @@ export class Player {
         
     }
     static Draw() {
-        this.DrawPlayer(new Vec2(0,0), false);
+        this.DrawPlayer(new Vec2(0,0), 1, true, true);
     }
-    static DrawPlayer(offset, screenSpace) {
-        if (!screenSpace) offset = offset.add(Player.pos);
+    static DrawPlayer(offset, scale, playerRelative, doScreenScale) {
+        if (playerRelative) offset = offset.add(Player.pos);
 
-        var deltaFront = new Vec2(Math.sin(Player.dir) * 10, Math.cos(Player.dir) * 10);
-        var deltaRight = new Vec2(Math.sin(Player.dir + Math.PI / 2) * 3, Math.cos(Player.dir + Math.PI / 2) * 3);
-        var deltaLeft = new Vec2(Math.sin(Player.dir + Math.PI / 2) * -3, Math.cos(Player.dir + Math.PI / 2) * -3);
+        
+        const heightOffset = new Vec2(Math.sin(Player.dir) * Player.height * scale, Math.cos(Player.dir) * Player.height * scale);
+        const widthOffset = new Vec2(Math.sin(Player.dir + Math.PI / 2) * Player.width * scale, Math.cos(Player.dir + Math.PI / 2) * Player.width * scale);
+
+        //Draw the player, centered
+        var deltaFront = heightOffset.mul(new Vec2(0.5, 0.5));
+        var deltaRight = heightOffset.mul(new Vec2(-0.5, -0.5)).add(widthOffset.mul(new Vec2(0.5, 0.5)));
+        var deltaLeft = heightOffset.mul(new Vec2(-0.5, -0.5)).add(widthOffset.mul(new Vec2(-0.5, -0.5)));
         var vertices = [offset.add(deltaFront), offset.add(deltaRight), offset.add(deltaLeft)];
 
         Game.renderer.fill('white');
-        Game.renderer.drawPolygon(vertices, screenSpace);
+        Game.renderer.drawPolygon(vertices, playerRelative, doScreenScale);
         Game.renderer.fillShape();
     }
 }

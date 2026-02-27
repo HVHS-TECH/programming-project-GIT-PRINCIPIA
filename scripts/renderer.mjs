@@ -65,16 +65,20 @@ export class Renderer {
     //end: end pos
     //inner: start radius
     //outer: end radius   
-    //screenSpace: is the position relative to the player? (true = no, false = yes)
-    radGradient(start, end, inner, outer, screenSpace) {
+    //playerRelative: is the point relative to the player
+    //scale: should the function manage alignment and screen size scaling?
+    radGradient(start, end, inner, outer, playerRelative, scale) {
         if (!this.hasCnv) {
             console.warn("Renderer.radGradient called on a page with no canvas. This might break things.");
             return null;
         }
-        start = this.worldToCanvas(start, screenSpace);
-        end = this.worldToCanvas(end, screenSpace);
+        start = this.worldToCanvas(start, playerRelative, scale);
+        end = this.worldToCanvas(end, playerRelative, scale);
+
+        inner = this.worldToCanvasNum(inner, playerRelative, scale);
+        outer = this.worldToCanvasNum(outer, playerRelative, scale);
         
-        var gradient = this.cnv.createRadialGradient(start.x, start.y, inner * Player.zoom / 1000 * this.cnvHeight, end.x, end.y, outer * Player.zoom / 1000 * this.cnvHeight);
+        var gradient = this.cnv.createRadialGradient(start.x, start.y, inner, end.x, end.y, outer);
         return gradient;
     }
     //----------------------------------------------------------------------//
@@ -106,7 +110,15 @@ export class Renderer {
         this.cnv.strokeStyle = style;
         this.cnv.lineWidth = width;
     }
-
+    //lineDash(dash)
+    //dash: array of length - seperation pairs
+    lineDash(dash) {
+        if (!this.hasCnv) {
+            console.warn("Renderer.lineDash called on a page with no canvas. This might break things.");
+            return;
+        }
+        this.cnv.setLineDash(dash);
+    }
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
@@ -133,14 +145,16 @@ export class Renderer {
     //----------------------------------------------------------------------//
     //arc(pos, rad, ang)
     //runs cnv.arc
-    //screenSpace: is the position relative to the player? (true = no, false = yes)
-    arc(pos, rad, ang, screenSpace) {
+    //playerRelative: is the point relative to the player
+    //scale: should the function manage alignment and screen size scaling?
+    arc(pos, rad, ang, playerRelative, scale) {
         if (!this.hasCnv) {
             console.warn("Renderer.arc called on a page with no canvas. This might break things.");
             return;
         }
-        pos = this.worldToCanvas(pos, screenSpace);
-        this.cnv.arc(pos.x, pos.y, rad * ((screenSpace) ? 1 : (Player.zoom / 1000 * this.cnvHeight)), 0, ang);
+        pos = this.worldToCanvas(pos, playerRelative, scale);
+        rad = this.worldToCanvasNum(rad, playerRelative, scale);
+        this.cnv.arc(pos.x, pos.y, rad, 0, ang);
     }
     //----------------------------------------------------------------------//
 
@@ -189,19 +203,20 @@ export class Renderer {
     //----------------------------------------------------------------------//
     //drawPolygon(vertices)
     //draws a polygon using an array of vertices
-    //screenSpace: are the vertices relative to the player (true = no, false = yes)
-    drawPolygon(vertices, screenSpace) {
+    //playerRelative: is the point relative to the player
+    //scale: should the function manage alignment and screen size scaling?
+    drawPolygon(vertices, playerRelative, scale) {
         if (!this.hasCnv) {
             console.warn("Renderer.drawPolygon called on a page with no canvas. This might break things.");
             return;
         }
         this.beginPath();
-        var v0 = this.worldToCanvas(vertices[0], screenSpace);
+        var v0 = this.worldToCanvas(vertices[0], playerRelative, scale);
         this.cnv.moveTo(v0.x, v0.y);
 
         //Starts at i = 1 because vertices[0] has just been handled
         for (var i = 1; i < vertices.length; i++) {
-            var v = this.worldToCanvas(vertices[i], screenSpace);
+            var v = this.worldToCanvas(vertices[i], playerRelative, scale);
             this.cnv.lineTo(v.x, v.y);
         }
         this.closePath();
@@ -213,16 +228,28 @@ export class Renderer {
     //rect(tl, br)
     //creates a rectangle with the top left corner at tl
     //and the bottom right corner at br
-    //screenSpace: are the points relative to the player? (true = no, false = yes)
-    rect(tl, br, screenSpace) {
-        //tl = this.worldToCanvas(tl, screenSpace);
-        //br = this.worldToCanvas(br, screenSpace);
+    //playerRelative: is the point relative to the player
+    //scale: should the function manage alignment and screen size scaling?
+    rect(tl, br, playerRelative, scale) {
 
         var vertices = [tl, new Vec2(br.x, tl.y), br, new Vec2(tl.x, br.y)];
-        this.drawPolygon(vertices, screenSpace);
+        this.drawPolygon(vertices, playerRelative, scale);
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //line(a, b, screenSpace)
+    //draws a line from a - b
+    //playerRelative: is the point relative to the player
+    //scale: should the function manage alignment and screen size scaling?
+    line(a, b, playerRelative, scale) {
+        a = this.worldToCanvas(a, playerRelative, scale);
+        b = this.worldToCanvas(b, playerRelative, scale);
+        
+        this.cnv.moveTo(a.x, a.y);
+        this.cnv.lineTo(b.x, b.y);
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //Helper functions                                                      //
@@ -232,16 +259,31 @@ export class Renderer {
     //worldToCanvas(pos)
     //converts a world position to a canvas (screen) position
     //screenSpace: is the point relative to the player (true = no, false = yes)
-    worldToCanvas(pos, screenSpace) {
+    worldToCanvas(pos, playerRelative, scale) {
         
-        if (!screenSpace) {
+        if (playerRelative) {
             pos = pos.sub(Player.pos);
             pos = pos.mul(new Vec2(Player.zoom, Player.zoom));
         }
-        pos = pos.div(new Vec2(this.scaleCnvSize, -this.scaleCnvSize));
-        pos = pos.mul(new Vec2(this.cnvHeight, this.cnvHeight));
-        pos = pos.add(this.cnvHalfDimen);
+        pos = pos.mul(new Vec2(1, -1)); //Canvas y is inverted
+        if (scale) {
+            pos = pos.div(new Vec2(this.scaleCnvSize, this.scaleCnvSize));
+            pos = pos.mul(new Vec2(this.cnvHeight, this.cnvHeight));
+            pos = pos.add(this.cnvHalfDimen);
+        }
+        
+        
         return pos;
+    }
+    worldToCanvasNum(num, playerRelative, scale) {
+        if (playerRelative) {
+            num *= Player.zoom;
+        }
+        if (scale) {
+            num /= this.scaleCnvSize;
+            num *= this.cnvHeight;
+        }
+        return num;
     }
     //----------------------------------------------------------------------//
     
