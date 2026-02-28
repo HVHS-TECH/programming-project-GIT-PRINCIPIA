@@ -121,6 +121,7 @@ export class Navball extends UIelement {
         this.playerVelScale = this.radius;
         this.velDirRefName = velDirRefName;
         this.velRefName = velRefName;
+
     }
     Update() {
         this.vel = Game.getRefVar(this.velRefName);
@@ -157,15 +158,18 @@ export class Navball extends UIelement {
             p.y = py;
             return p;
         }
-        const SPACING = 50; //Spacing between wind streaks
-        const SIZE = 50; //Length of wind streaks
+        function clamp(v, min, max) {
+            return Math.min(Math.max(v, min), max);
+        }
+        const SPACING = 100; //Spacing between wind streaks
+        const SIZE = 100; //Length of wind streaks
         const LENGTH = Math.ceil(this.radius / (SPACING + SIZE) * 10); //Length of array
         var lineDashArray = [];
         for (var i = 0; i < LENGTH; i++) {
             lineDashArray.push(SIZE);
             lineDashArray.push(SPACING);
         }
-        for (var l = -this.radius; l <= this.radius; l += this.radius * 2 / NUM_LINES) {
+        for (var l = -this.radius; l <= this.radius; l += this.radius * 2 / (NUM_LINES * 0.4)) {
 
 
             const widthHalf = Math.sqrt(this.radius * this.radius - l * l);
@@ -180,16 +184,14 @@ export class Navball extends UIelement {
             p2 = p2.add(center);
             const SPEED = 1000;
             //(SIZE + SPACING) * LENGTH + (new Date().getTime() % (5000)) * 10
-            const TIME = new Date().getTime();
-            var lineDashArrayStart = [ Math.min(Math.max(
+            const TIME = new Date().getTime() + Math.sin(l / 10) * 2000 - Math.cos(l / 20) * 3000;
+            var lineDashArrayStart = [ 
+                clamp((TIME % (2 * SPEED * SPACING / SIZE)) / (SPEED * SPACING / SIZE) * SPACING - SPACING - SIZE, 0, SIZE), //SIZE 2
+                clamp((TIME % (2 * SPEED * SPACING / SIZE)) / (SPEED * SPACING / SIZE) * SPACING - SIZE, 0, SPACING), //SPACING 2
+                clamp((TIME % (2 * SPEED * SPACING / SIZE)) / SPEED * SIZE, 0, SIZE), //SIZE 1
+                SPACING //SPACING 1
 
-                    ((TIME * SIZE / SPACING + SPEED) % (SPEED + SPEED * SIZE / SPACING)) / (SPEED) * (SPACING)
-
-                , 0), SIZE),  Math.min(Math.max(
-                    
-                    ((TIME) % (SPEED + SPEED * SPACING / SIZE)) / (SPEED) * (SIZE)
-
-                , 0), SPACING)];
+                    ];
             lineDashArrayStart.push(...lineDashArray);
             Game.renderer.stroke('rgb(200, 200, 200)', 5);
             Game.renderer.lineDash(lineDashArrayStart);
