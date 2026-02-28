@@ -17,6 +17,8 @@ import { Player } from "./player.mjs";
 import { Input } from "./input.mjs";
 import { Navball, VertMeter } from "./ui_element.mjs";
 import { Loader } from "./loader.mjs";
+
+import { Particle } from "./particle.mjs";
 export class Game {
 
     static INDEX_TITLE = "Astro Explorer - Index";
@@ -89,6 +91,9 @@ export class Game {
 
     ];
 
+    //Particles
+    static PARTICLES = [];
+
     //References
     static REF_VARIABLES = [
         new RefVar(
@@ -148,18 +153,28 @@ export class Game {
     //manages game logic, then renders scene using renderer
     static Update() {
         console.log("Game.Update()");
+
         for (var p = 0; p < Game.PLANETS.length; p++) {
             Game.PLANETS[p].Update();
         }
         console.log("Game.Update() - planets done");
+
         for (var e = 0; e < Game.UI_ELEMENTS.length; e++) {
             Game.UI_ELEMENTS[e].Update();
         }
         console.log("Game.Update() - ui done");
+
+        for (var i = 0; i < Game.PARTICLES.length; i++) {
+            Game.PARTICLES[i].Update();
+        }
+        console.log("Game.Update() - particles done");
+
         Player.Update();
         console.log("Game.Update() - player done");
+
         Game.renderer.Render();
         console.log("Game.Update() - rendering done");
+        
         requestAnimationFrame(Game.Update);
     }
     //----------------------------------------------------------------------//

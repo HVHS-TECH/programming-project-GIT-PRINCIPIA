@@ -49,6 +49,11 @@ export class Renderer {
             Game.PLANETS[p].Draw();
         }
 
+        //Render the particles
+        for (var p = 0; p < Game.PARTICLES.length; p++) {
+            Game.PARTICLES[p].Draw();
+        }
+
         
         //Render the player
         Player.Draw();
