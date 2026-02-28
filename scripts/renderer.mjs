@@ -36,6 +36,9 @@ export class Renderer {
     }
 
     Render() {
+        this.cnvWidth = window.innerWidth;
+        this.cnvHeight = window.innerHeight; 
+        this.cnvHalfDimen = new Vec2(this.cnvWidth / 2, this.cnvHeight / 2);
         //render the scene
         this.fill('black'); //Set the background to space
         this.cnv.rect(0, 0, this.cnvWidth, this.cnvHeight); //Fill the background
@@ -102,20 +105,27 @@ export class Renderer {
     //stroke(style, width)
     //sets the stroke style of the canvas
     //sets the stroke width of the canvas
-    stroke(style, width) {
+    //playerRelative: is the point relative to the player (zoom or position, when applicable)
+    //scale: should the function manage alignment and screen size scaling?
+    stroke(style, width, playerRelative, scale) {
         if (!this.hasCnv) {
             console.warn("Renderer.stroke called on a page with no canvas. This might break things.");
             return;
         }
         this.cnv.strokeStyle = style;
-        this.cnv.lineWidth = width;
+        this.cnv.lineWidth = this.worldToCanvasNum(width, playerRelative, scale);
     }
     //lineDash(dash)
     //dash: array of length - seperation pairs
-    lineDash(dash) {
+    //playerRelative: is the point relative to the player (zoom or position, when applicable)
+    //scale: should the function manage alignment and screen size scaling?
+    lineDash(dash, playerRelative, scale) {
         if (!this.hasCnv) {
             console.warn("Renderer.lineDash called on a page with no canvas. This might break things.");
             return;
+        }
+        for (var i = 0; i < dash.length; i++) {
+            dash[i] = this.worldToCanvasNum(dash[i], playerRelative, scale);
         }
         this.cnv.setLineDash(dash);
     }

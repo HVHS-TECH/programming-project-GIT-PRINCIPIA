@@ -73,7 +73,7 @@ export class VertMeter extends UIelement {
         var br = center.add(new Vec2(this.width / 2, -this.height / 2));
 
         
-        Game.renderer.stroke(this.outlineColour, this.outlineWidth);
+        Game.renderer.stroke(this.outlineColour, this.outlineWidth, false, true);
         Game.renderer.fill(this.background);
         Game.renderer.rect(tl, br, false, true);
         Game.renderer.fillShape();
@@ -161,8 +161,8 @@ export class Navball extends UIelement {
         function clamp(v, min, max) {
             return Math.min(Math.max(v, min), max);
         }
-        const SPACING = 200; //Spacing between wind streaks
-        const SIZE = 50; //Length of wind streaks
+        const SPACING = 250; //Spacing between wind streaks
+        const SIZE = 100; //Length of wind streaks
         const LENGTH = Math.ceil(this.radius / (SPACING + SIZE) * 10); //Length of array
         var lineDashArray = [];
         for (var i = 0; i < LENGTH; i++) {
@@ -183,8 +183,8 @@ export class Navball extends UIelement {
             p1 = p1.add(center);
             p2 = p2.add(center);
 
-            const TIME = (new Date().getTime()) + Math.sin(l / 10) * 34000 - Math.cos(l / 20) * 3000;
-            const SPEED = 100;
+            const TIME = (new Date().getTime()) + Math.sin(l / 10 + new Date().getTime() / 200000) * 34000 - Math.cos(l / 20 + new Date().getTime() / 200000) * 3000;
+            const SPEED = 1000;// - this.vel;
             const A = (SPACING + SIZE) / SPACING
             const MODULUS = TIME % (A * SPEED * SPACING / SIZE);
             //(SIZE + SPACING) * LENGTH + (new Date().getTime() % (5000)) * 10
@@ -194,8 +194,8 @@ export class Navball extends UIelement {
 
                     ];
             lineDashArrayStart.push(...lineDashArray);
-            Game.renderer.stroke('rgb(200, 200, 200)', 5);
-            Game.renderer.lineDash(lineDashArrayStart);
+            Game.renderer.stroke('rgb(200, 200, 200)', 5, false, true);
+            Game.renderer.lineDash(lineDashArrayStart, false, true);
             Game.renderer.beginPath();
             Game.renderer.line(p1, p2, false, true); 
             Game.renderer.strokeShape();
@@ -212,14 +212,14 @@ export class Navball extends UIelement {
 
 
         //----------------------------------------------------------------------//
-        //Draw the player at 10 times size
+        //Draw the player at an enlarged size
         Player.DrawPlayer(center, this.playerScale, false, true);
         //----------------------------------------------------------------------//
 
 
         //----------------------------------------------------------------------//
         //Draw the background outline last
-        Game.renderer.stroke(this.outlineColour, this.outlineWidth);
+        Game.renderer.stroke(this.outlineColour, this.outlineWidth, false, true);
         Game.renderer.beginPath();
         Game.renderer.arc(center, this.radius, Math.PI * 2, false, true);
         Game.renderer.closePath();

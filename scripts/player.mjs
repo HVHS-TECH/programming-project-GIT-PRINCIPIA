@@ -21,21 +21,44 @@ export class Player {
     static thrusterForce = 0.006;
     static height = 10;
     static width = 6;
+
+    //----------------------------------------------------------------------//
+    //Update()
+    //called every frame
     static Update() {
+        Player.UpdateThruster();
+        Player.ApplyGravity();
+        Player.ApplyAtmosphericEffects();
+        Player.Integrate();
+        
+        
+
+
+        
+        
+        
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //UpdateThruster()
+    //Manages thruster and fuel
+    static UpdateThruster() {
         if (Player.fuel != 0) {
-            var inputForward = (Input.KeyDown("KeyW") - Input.KeyDown("KeyS")) * Player.thrusterForce;
+            var inputForward = (Input.KeyDown("KeyW")) * Player.thrusterForce;
             Player.vel.x += Math.sin(Player.dir) * inputForward;
             Player.vel.y += Math.cos(Player.dir) * inputForward;
             Player.fuel -= (inputForward != 0) ? Player.fuelUsedPerFrame : 0;
             if (Player.fuel < 0) Player.fuel = 0;
         }
-        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.01;
-        
-        Player.ang_vel += rotate / (Player.ang_vel * 1 + 1);
-        Player.ang_vel *= 0.7;
-        
+    }
+    //----------------------------------------------------------------------//
 
 
+    //----------------------------------------------------------------------//
+    //ApplyGravity()
+    //Applies gravitational attraction from planets to the player
+    static ApplyGravity() {
         //Apply gravity
         for (var p = 0 ; p < Game.PLANETS.length; p++) {
             var other = Game.PLANETS[p];
@@ -58,6 +81,23 @@ export class Player {
             var force = Game.G * other.mass / (dist * dist);
             Player.vel = Player.vel.add(deltaNorm.mul(new Vec2(force, force)));
         }
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //ApplyAtmosphericEffects()
+    //Applys aerodynamic forces and reentry heating to the player
+    static ApplyAtmosphericEffects() {
+
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //Integrate()
+    //Integrates the players position and rotation
+    static Integrate() {
         //Integrate position
         Player.pos = Player.pos.add(Player.vel);
 
@@ -65,11 +105,27 @@ export class Player {
         Player.dir += Player.ang_vel;
 
         Player.zoom *= ((Input.KeyDown("ArrowUp") * 0.01 + 1) / (Input.KeyDown("ArrowDown") * 0.01 + 1));
+
+        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.01;
         
+        Player.ang_vel += rotate / (Player.ang_vel * 1 + 1);
+        Player.ang_vel *= 0.7;
     }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //Draw()
+    //Calls DrawPlayer() with default values
     static Draw() {
         this.DrawPlayer(new Vec2(0,0), 1, true, true);
     }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //DrawPlayer()
+    //Draws the player based on an offset, scale, and whether it is relative to the player position and or scales with screen size
     static DrawPlayer(offset, scale, playerRelative, doScreenScale) {
         if (playerRelative) offset = offset.add(Player.pos);
 
@@ -87,4 +143,5 @@ export class Player {
         Game.renderer.drawPolygon(vertices, playerRelative, doScreenScale);
         Game.renderer.fillShape();
     }
+    //----------------------------------------------------------------------//
 }
