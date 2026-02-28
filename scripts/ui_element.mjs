@@ -161,8 +161,8 @@ export class Navball extends UIelement {
         function clamp(v, min, max) {
             return Math.min(Math.max(v, min), max);
         }
-        const SPACING = 100; //Spacing between wind streaks
-        const SIZE = 100; //Length of wind streaks
+        const SPACING = 200; //Spacing between wind streaks
+        const SIZE = 50; //Length of wind streaks
         const LENGTH = Math.ceil(this.radius / (SPACING + SIZE) * 10); //Length of array
         var lineDashArray = [];
         for (var i = 0; i < LENGTH; i++) {
@@ -182,14 +182,15 @@ export class Navball extends UIelement {
 
             p1 = p1.add(center);
             p2 = p2.add(center);
-            const SPEED = 1000;
+
+            const TIME = (new Date().getTime()) + Math.sin(l / 10) * 34000 - Math.cos(l / 20) * 3000;
+            const SPEED = 100;
+            const A = (SPACING + SIZE) / SPACING
+            const MODULUS = TIME % (A * SPEED * SPACING / SIZE);
             //(SIZE + SPACING) * LENGTH + (new Date().getTime() % (5000)) * 10
-            const TIME = new Date().getTime() + Math.sin(l / 10) * 2000 - Math.cos(l / 20) * 3000;
             var lineDashArrayStart = [ 
-                clamp((TIME % (2 * SPEED * SPACING / SIZE)) / (SPEED * SPACING / SIZE) * SPACING - SPACING - SIZE, 0, SIZE), //SIZE 2
-                clamp((TIME % (2 * SPEED * SPACING / SIZE)) / (SPEED * SPACING / SIZE) * SPACING - SIZE, 0, SPACING), //SPACING 2
-                clamp((TIME % (2 * SPEED * SPACING / SIZE)) / SPEED * SIZE, 0, SIZE), //SIZE 1
-                SPACING //SPACING 1
+                clamp((MODULUS) / (SPEED) * SIZE - SPACING, 0, SIZE), //SIZE 1
+                clamp((MODULUS) / (SPEED * SPACING / SIZE) * SPACING, 0, SPACING) //SPACING 1
 
                     ];
             lineDashArrayStart.push(...lineDashArray);
