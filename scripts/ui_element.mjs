@@ -157,9 +157,9 @@ export class Navball extends UIelement {
             p.y = py;
             return p;
         }
-        const SPACING = 100; //Spacing between wind streaks
+        const SPACING = 50; //Spacing between wind streaks
         const SIZE = 50; //Length of wind streaks
-        const LENGTH = Math.ceil(this.radius / (SPACING + SIZE)); //Length of array
+        const LENGTH = Math.ceil(this.radius / (SPACING + SIZE) * 10); //Length of array
         var lineDashArray = [];
         for (var i = 0; i < LENGTH; i++) {
             lineDashArray.push(SIZE);
@@ -178,21 +178,23 @@ export class Navball extends UIelement {
 
             p1 = p1.add(center);
             p2 = p2.add(center);
-
+            const SPEED = 1000;
             //(SIZE + SPACING) * LENGTH + (new Date().getTime() % (5000)) * 10
-            var lineDashArrayStart = [Math.min(Math.max(
-                    (new Date().getTime() % (SIZE * 10)) / (SIZE / 10) - SIZE
+            const TIME = new Date().getTime();
+            var lineDashArrayStart = [ Math.min(Math.max(
 
-                , 0), SPACING), Math.min(Math.max(
+                    ((TIME * SIZE / SPACING + SPEED) % (SPEED + SPEED * SIZE / SPACING)) / (SPEED) * (SPACING)
 
-                    ((new Date().getTime()) % (SPACING * 10)) / (SPACING / 10) - 0
+                , 0), SIZE),  Math.min(Math.max(
+                    
+                    ((TIME) % (SPEED + SPEED * SPACING / SIZE)) / (SPEED) * (SIZE)
 
                 , 0), SPACING)];
             lineDashArrayStart.push(...lineDashArray);
             Game.renderer.stroke('rgb(200, 200, 200)', 5);
             Game.renderer.lineDash(lineDashArrayStart);
             Game.renderer.beginPath();
-            Game.renderer.line(p1, p2, false, true); //from p2 to p1 not p1 to p2 so that the direction of the line dash is inverted
+            Game.renderer.line(p1, p2, false, true); 
             Game.renderer.strokeShape();
             Game.renderer.lineDash([]);
         }
