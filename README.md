@@ -7,10 +7,10 @@ cb : callback
 
 
 TODO:  
-* Make a planet loader to load planets from files (json)
+* Make a planet loader to load planets from files (json) (WIP)
 * Implement UI (WIP)  
 * Implement refueling  
 * Implement score on planet land  
 * Implement lagrange point visualization  
-* Implement thruster, explosion and reentry particles, and a particle class  
-* Implement reentry physics  
+* Implement thruster, explosion and reentry particles, and a particle class (WIP)
+* Implement reentry physics (WIP)
