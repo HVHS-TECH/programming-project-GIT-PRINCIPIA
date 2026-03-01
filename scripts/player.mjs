@@ -102,7 +102,7 @@ export class Player {
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
         
         Player.ang_vel += rotate / (Player.ang_vel * 1 + 1);
-        Player.ang_vel *= 0.95;
+        Player.ang_vel *= 0.92;
     }
     //----------------------------------------------------------------------//
 

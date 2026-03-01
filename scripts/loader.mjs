@@ -14,8 +14,20 @@ export class Loader {
     //LoadPlanets()
     //Returns a list of planet objects
     static LoadPlanets() {
-        const jsonObject = Loader.GetJSONobject('../gamedata/planets/earth.json');
-        var ret = [Loader.JSONobjectToPlanet(jsonObject)];
+        //Since js cannot list the files in a directory, we must store the paths in one file
+        const PLANET_REFERENCES_JSON = Loader.GetJSONobject('../gamedata/planets/references.json'); 
+        const PLANET_REFERENCES_JSON_LIST = PLANET_REFERENCES_JSON.planets;
+
+        
+        
+        var ret = [];
+        //Load all the planets from the planets list 'PLANET_REFERENCES_JSON_LIST'
+        for (var i = 0; i < PLANET_REFERENCES_JSON_LIST.length; i++) {
+            const JSON_OBJECT = Loader.GetJSONobject("../gamedata/planets/" + PLANET_REFERENCES_JSON_LIST[i]);
+            const PLANET = Loader.JSONobjectToPlanet(JSON_OBJECT);
+            ret.push(PLANET);
+        }
+        console.log("Loader.LoadPlanets: loaded planet array: ");
         console.dir(ret); //Debug
         return ret;
     }
