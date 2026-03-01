@@ -49,10 +49,12 @@ export class Game {
             'rgb(49, 49, 49)', 'rgb(7, 7, 7)' //atmo colours
         )
     ];*/
+
+    //The game renderer
     static renderer = new Renderer(); 
 
     
-
+    //A list of the pages that make up the game. Each one has a title, a href, a 'hasCnv' boolean, and an onLoad() function
     static PAGES = [
         new Page(Game.INDEX_TITLE, "./index.html", false,
             function () {
@@ -83,7 +85,9 @@ export class Game {
         )
 
     ];
-    //UI
+
+
+    //The UI elements that make up the screen
     static UI_ELEMENTS = [
         new VertMeter(new Vec2(80,0), 'left', 80, 700, 'rgb(0, 0, 0)', 'rgb(85, 255, 0)', 'rgb(0, 140, 255)', 5, "PlayerFuel"), //Fuel
         new VertMeter(new Vec2(-80,0), 'right', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat"),  //Heat
@@ -91,10 +95,10 @@ export class Game {
 
     ];
 
-    //Particles
+    //The particles that exist in the world
     static PARTICLES = [];
 
-    //References
+    //References to other variables for flexibility
     static REF_VARIABLES = [
         new RefVar(
             "PlayerFuel",
@@ -124,7 +128,7 @@ export class Game {
 
      
 
-    static G = 0.01; //Gravitational constant
+    static G = 0.01; //Universal gravitational constant
 
     //----------------------------------------------------------------------//
     //Start()
@@ -147,6 +151,7 @@ export class Game {
         
     }
     //----------------------------------------------------------------------//
+
 
     //----------------------------------------------------------------------//
     //Update()
@@ -180,10 +185,11 @@ export class Game {
     }
     //----------------------------------------------------------------------//
     
+
     //----------------------------------------------------------------------//
     //setPage(title)                                      
     //sets the current page to the href of the page in PAGES with
-    //the title title                                            
+    //the title 'title'                                            
     static setPage(title) {
         var p = Game.getPage(title);
         window.location.href = Game.PAGES[p].href;
@@ -194,7 +200,8 @@ export class Game {
     //----------------------------------------------------------------------//
     //initializeState(title)     
     //title: the title of the page      
-    //sets the state based on title     
+    //sets the state based on 'title'   
+    //defualts to current page title  
     static initializeState(title = document.title) {
         var p = Game.getPage(title);
         Game.PAGES[p].OnLoad();
@@ -210,7 +217,7 @@ export class Game {
     //----------------------------------------------------------------------//
     //getPage(title)                               
     //Gets the index into PAGES pointer to the page
-    //with the title title                         
+    //with the title 'title'                         
     //defualts to current page title               
     static getPage(title = document.title) {
         var p;

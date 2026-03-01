@@ -30,13 +30,6 @@ export class Player {
         Player.ApplyGravity();
         Player.ApplyAtmosphericEffects();
         Player.Integrate();
-        
-        
-
-
-        
-        
-        
     }
     //----------------------------------------------------------------------//
 

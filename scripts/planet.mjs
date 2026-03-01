@@ -24,6 +24,10 @@ export class Planet {
         this.atmoColourMid = atmoColourMid;
         
     }
+
+    //----------------------------------------------------------------------//
+    //Update()
+    //Called every frame
     Update() {
         //Do orbital physics
         //Loop through all the planets
@@ -41,6 +45,12 @@ export class Planet {
         //Integrate postiion
         this.pos = this.pos.add(this.vel);
     }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //Draw()
+    //Draws the planet and its features (atmosphere etc)
     Draw() {
         //Draw planet
         //var relPos = this.pos.sub(Player.pos);
@@ -68,7 +78,6 @@ export class Planet {
         Game.renderer.beginPath();
         Game.renderer.arc(this.pos, this.radius, Math.PI * 2, true, true);
         Game.renderer.fillShape();
-
-        
     }
+    //----------------------------------------------------------------------//
 }

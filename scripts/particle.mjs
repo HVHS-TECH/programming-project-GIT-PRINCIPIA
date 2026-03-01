@@ -23,16 +23,33 @@ export class Particle {
         this.update = update;
         this.onDeath = onDeath;
     }
+
+    //----------------------------------------------------------------------//
+    //Update()
+    //Updates the particle position and other variables
     Update() {
         this.pos = this.pos.add(this.vel);
         this.rot += this.angVel;
         this.update();
     }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //OnDeath()
+    //Called when particle is destroyed
     OnDeath() {
         this.onDeath();
 
     }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //Draw()
+    //Draws the particle
     Draw() {
         
     }
+    //----------------------------------------------------------------------//
 }
