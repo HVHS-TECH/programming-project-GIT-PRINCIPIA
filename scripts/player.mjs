@@ -106,10 +106,10 @@ export class Player {
 
         Player.zoom *= ((Input.KeyDown("ArrowUp") * 0.01 + 1) / (Input.KeyDown("ArrowDown") * 0.01 + 1));
 
-        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.01;
+        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
         
         Player.ang_vel += rotate / (Player.ang_vel * 1 + 1);
-        Player.ang_vel *= 0.7;
+        Player.ang_vel *= 0.9;
     }
     //----------------------------------------------------------------------//
 
