@@ -157,8 +157,8 @@ export class Renderer {
     //sets the stroke style of the canvas
     //sets the stroke width of the canvas
     //playerRelative: is the point relative to the player (zoom or position, when applicable)
-    //scale: should the function manage alignment and screen size scaling?
-    stroke(style, width, playerRelative, scale) {
+    //scaleWithScreen: should the function manage alignment and screen size scaling?
+    stroke(style, width, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
             console.warn("Renderer.stroke called on a page with no canvas. This might break things.");
@@ -167,7 +167,7 @@ export class Renderer {
 
         //----------------------------------------//
         //Transform the variables into canvas space, if applicable
-        width = this.worldToCanvasNum(width, playerRelative, scale);
+        width = this.worldToCanvasNum(width, playerRelative, scaleWithScreen);
         //----------------------------------------//
 
         this.cnv.lineWidth = width;
@@ -180,8 +180,8 @@ export class Renderer {
     //lineDash(dash)
     //dash: array of length - seperation pairs
     //playerRelative: is the point relative to the player (zoom or position, when applicable)
-    //scale: should the function manage alignment and screen size scaling?
-    lineDash(dash, playerRelative, scale) {
+    //scaleWithScreen: should the function manage alignment and screen size scaling?
+    lineDash(dash, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
             console.warn("Renderer.lineDash called on a page with no canvas. This might break things.");
@@ -191,7 +191,7 @@ export class Renderer {
         //----------------------------------------//
         //Transform the variables into canvas space, if applicable
         for (var i = 0; i < dash.length; i++) {
-            dash[i] = this.worldToCanvasNum(dash[i], playerRelative, scale);
+            dash[i] = this.worldToCanvasNum(dash[i], playerRelative, scaleWithScreen);
         }
         //----------------------------------------//
 
@@ -231,8 +231,8 @@ export class Renderer {
     //arc(pos, rad, ang)
     //runs cnv.arc
     //playerRelative: is the point relative to the player
-    //scale: should the function manage alignment and screen size scaling?
-    arc(pos, rad, ang, playerRelative, scale) {
+    //scaleWithScreen: should the function manage alignment and screen size scaling?
+    arc(pos, rad, ang, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
             console.warn("Renderer.arc called on a page with no canvas. This might break things.");
@@ -241,8 +241,8 @@ export class Renderer {
 
         //----------------------------------------//
         //Transform the variables into canvas space, if applicable
-        pos = this.worldToCanvas(pos, playerRelative, scale);
-        rad = this.worldToCanvasNum(rad, playerRelative, scale);
+        pos = this.worldToCanvas(pos, playerRelative, scaleWithScreen);
+        rad = this.worldToCanvasNum(rad, playerRelative, scaleWithScreen);
         //----------------------------------------//
         
         this.cnv.arc(pos.x, pos.y, rad, 0, ang);
@@ -305,8 +305,8 @@ export class Renderer {
     //drawPolygon(vertices)
     //draws a polygon using an array of vertices
     //playerRelative: is the point relative to the player
-    //scale: should the function manage alignment and screen size scaling?
-    drawPolygon(vertices, playerRelative, scale) {
+    //scaleWithScreen: should the function manage alignment and screen size scaling?
+    drawPolygon(vertices, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
             console.warn("Renderer.drawPolygon called on a page with no canvas. This might break things.");
@@ -314,12 +314,12 @@ export class Renderer {
         }
 
         this.beginPath();
-        var v0 = this.worldToCanvas(vertices[0], playerRelative, scale);
+        var v0 = this.worldToCanvas(vertices[0], playerRelative, scaleWithScreen);
         this.cnv.moveTo(v0.x, v0.y);
 
         //Starts at i = 1 because vertices[0] has just been handled
         for (var i = 1; i < vertices.length; i++) {
-            var v = this.worldToCanvas(vertices[i], playerRelative, scale);
+            var v = this.worldToCanvas(vertices[i], playerRelative, scaleWithScreen);
             this.cnv.lineTo(v.x, v.y);
         }
 
@@ -333,8 +333,8 @@ export class Renderer {
     //creates a rectangle with the top left corner at tl
     //and the bottom right corner at br
     //playerRelative: is the point relative to the player
-    //scale: should the function manage alignment and screen size scaling?
-    rect(tl, br, playerRelative, scale) {
+    //scaleWithScreen: should the function manage alignment and screen size scaling?
+    rect(tl, br, playerRelative, scaleWithScreen) {
         //----------------------------------------//
         //IMPORTANT
         //DONT transform the variables into canvas space, as Renderer.drawPolygon() does this for us
@@ -343,7 +343,7 @@ export class Renderer {
 
 
         var vertices = [tl, new Vec2(br.x, tl.y), br, new Vec2(tl.x, br.y)];
-        this.drawPolygon(vertices, playerRelative, scale);
+        this.drawPolygon(vertices, playerRelative, scaleWithScreen);
     }
     //----------------------------------------------------------------------//
 
@@ -351,8 +351,8 @@ export class Renderer {
     //line(a, b, screenSpace)
     //draws a line from a - b
     //playerRelative: is the point relative to the player
-    //scale: should the function manage alignment and screen size scaling?
-    line(a, b, playerRelative, scale) {
+    //scaleWithScreen: should the function manage alignment and screen size scaling?
+    line(a, b, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
             console.warn("Renderer.drawPolygon called on a page with no canvas. This might break things.");
@@ -361,8 +361,8 @@ export class Renderer {
 
         //----------------------------------------//
         //Transform the variables into canvas space, if applicable
-        a = this.worldToCanvas(a, playerRelative, scale);
-        b = this.worldToCanvas(b, playerRelative, scale);
+        a = this.worldToCanvas(a, playerRelative, scaleWithScreen);
+        b = this.worldToCanvas(b, playerRelative, scaleWithScreen);
         //----------------------------------------//
         
         this.cnv.moveTo(a.x, a.y);
@@ -378,8 +378,8 @@ export class Renderer {
     //worldToCanvas(pos, playerRelative, scale)
     //converts a world position to a canvas (screen) position
     //playerRelative: is the point relative to the player
-    //scale: should the function manage alignment and screen size scaling?
-    worldToCanvas(pos, playerRelative, scale) {
+    //scaleWithScreen: should the function manage alignment and screen size scaling?
+    worldToCanvas(pos, playerRelative, scaleWithScreen) {
         //----------------------------------------//
         //Transform based on player position and zoom
         if (playerRelative) {
@@ -394,7 +394,7 @@ export class Renderer {
 
         //----------------------------------------//
         //Transform based on screen dimensions
-        if (scale) {
+        if (scaleWithScreen) {
             pos = pos.div(new Vec2(this.scaleCnvSize, this.scaleCnvSize));
             pos = pos.mul(new Vec2(this.cnvHeight, this.cnvHeight));
             pos = pos.add(this.cnvHalfDimen);
@@ -411,8 +411,8 @@ export class Renderer {
     //worldToCanvasNum(num, playerRelative, scale)
     //Transforms the number from world space to canvas space
     //playerRelative: is the number relative to the player zoom
-    //scale: should the function manage screen size scaling?
-    worldToCanvasNum(num, playerRelative, scale) {
+    //scaleWithScreen: should the function manage screen size scaling?
+    worldToCanvasNum(num, playerRelative, scaleWithScreen) {
         //----------------------------------------//
         //Transform based on zoom
         if (playerRelative) {
@@ -423,7 +423,7 @@ export class Renderer {
 
         //----------------------------------------//
         //Transform based on screen size
-        if (scale) {
+        if (scaleWithScreen) {
             num /= this.scaleCnvSize;
             num *= this.cnvHeight;
         }
