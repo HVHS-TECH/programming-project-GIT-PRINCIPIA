@@ -10,6 +10,7 @@
 import { Vec2 } from "./miscellaneous.mjs"
 import { Game } from "./game.mjs";
 import { Renderer } from "./renderer.mjs";
+import { Time } from "./time.mjs";
 
 
 export class Particle {
@@ -32,8 +33,11 @@ export class Particle {
     //Update()
     //Updates the particle position and other variables
     Update() {
-        this.pos = this.pos.add(this.vel);
-        this.rot += this.angVel;
+        //Integrate position based on velocity and delta time
+        this.pos = this.pos.add(this.vel.mul(Time.scaleDeltaTime));
+
+        //Integrate rotation based on angular velocity and delta time
+        this.rot += this.angVel * Time.scaleDeltaTime;
         this.update();
         this.frame ++;
     }

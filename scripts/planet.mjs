@@ -9,6 +9,7 @@ import {Vec2} from './miscellaneous.mjs';
 import { Renderer } from './renderer.mjs';
 import { Game } from './game.mjs';
 import { Player } from './player.mjs';
+import { Time } from './time.mjs';
 export class Planet {
     
     constructor(name, pos, vel, mass, radius, atmoRadius, colour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid) {
@@ -45,8 +46,8 @@ export class Planet {
             this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
 
         }
-        //Integrate postiion
-        this.pos = this.pos.add(this.vel);
+        //Integrate postiion based on velocity and delta time
+        this.pos = this.pos.add(this.vel.mul(Time.scaleDeltaTime));
     }
     //----------------------------------------------------------------------//
 

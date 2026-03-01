@@ -9,6 +9,7 @@ import { Game } from "./game.mjs";
 import { Input } from "./input.mjs";
 import { Vec2 } from "./miscellaneous.mjs";
 import { Renderer } from "./renderer.mjs";
+import { Time } from "./time.mjs";
 export class Player {
     static pos = new Vec2(0, 0);
     static vel = new Vec2(0, 0);
@@ -39,9 +40,13 @@ export class Player {
     static UpdateThruster() {
         if (Player.fuel != 0) {
             var inputForward = (Input.KeyDown("KeyW")) * Player.thrusterForce;
-            Player.vel.x += Math.sin(Player.dir) * inputForward;
-            Player.vel.y += Math.cos(Player.dir) * inputForward;
-            Player.fuel -= (inputForward != 0) ? Player.fuelUsedPerFrame : 0;
+
+            //Integrate velocity based on input and delta time
+            Player.vel.x += Math.sin(Player.dir) * inputForward * Time.scaleDeltaTime;
+            Player.vel.y += Math.cos(Player.dir) * inputForward * Time.scaleDeltaTime;
+
+            //Reduce fuel based on fuel consumption and delta time
+            Player.fuel -= (inputForward != 0) ? Player.fuelUsedPerFrame * Time.scaleDeltaTime : 0;
             if (Player.fuel < 0) Player.fuel = 0;
         }
     }
@@ -91,13 +96,14 @@ export class Player {
     //Integrate()
     //Integrates the players position and rotation
     static Integrate() {
-        //Integrate position
-        Player.pos = Player.pos.add(Player.vel);
+        //Integrate position based on velocity and delta time
+        Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
 
-        //Integrate rotation
-        Player.dir += Player.ang_vel;
+        //Integrate rotation based on angular velocity and delta time
+        Player.dir += Player.ang_vel * Time.scaleDeltaTime;
 
-        Player.zoom *= ((Input.KeyDown("ArrowUp") * 0.01 + 1) / (Input.KeyDown("ArrowDown") * 0.01 + 1));
+        //Integrate zoom based on input and delta time
+        Player.zoom *= ((Input.KeyDown("ArrowUp") * 0.01 + 1) / (Input.KeyDown("ArrowDown") * 0.01 + 1)) * Time.scaleDeltaTime;
 
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
         
