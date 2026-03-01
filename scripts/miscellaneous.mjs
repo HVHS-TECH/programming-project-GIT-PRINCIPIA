@@ -34,7 +34,7 @@ export class Vec2 {
     //returns the vec2 representing this + other
     add(other) {
         var v = other;
-        if (typeof other == Number) {
+        if (typeof other == "number") {
             v = new Vec2(other, other);
         }
         return new Vec2(this.x + v.x, this.y + v.y);
@@ -46,7 +46,7 @@ export class Vec2 {
     //returns the vec2 representing this - other
     sub(other) {
         var v = other;
-        if (typeof other == Number) {
+        if (typeof other == "number") {
             v = new Vec2(other, other);
         }
         return new Vec2(this.x - v.x, this.y - v.y);
@@ -58,7 +58,7 @@ export class Vec2 {
     //returns the vec2 representing this * other
     mul(other) {
         var v = other;
-        if (typeof other == Number) {
+        if (typeof other == "number") {
             v = new Vec2(other, other);
         }
         return new Vec2(this.x * v.x, this.y * v.y);
@@ -70,7 +70,7 @@ export class Vec2 {
     //returns the vec2 representing this / other
     div(other) {
         var v = other;
-        if (typeof other == Number) {
+        if (typeof other == "number") {
             v = new Vec2(other, other);
         }
         if (v.x == 0 || v.y == 0) {
@@ -123,11 +123,42 @@ export class Vec2 {
         return delta.len();
     }
     //----------------------------------------------------------------------//
+
+    //----------------------------------------//
+    //rotatePoint(p, angle)
+    //p: point
+    //rotates point 'p' through angle 'angle'
+    static rotatePoint(p, angle) {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        var px = p.x * cos - p.y * sin;
+        var py = p.x * sin + p.y * cos;
+        p.x = px;
+        p.y = py;
+        return p;
+    }
+    rotate(angle) {
+        return Vec2.rotatePoint(this, angle);
+    }
+    //----------------------------------------//
+
+
 }
 
 
 //----------------------------------------------------------------------//
 
+
+
+
+//----------------------------------------//
+//clamp(v, min, max)
+//v: value
+//clamps 'v' between 'min' and 'max'
+export function clamp(v, min, max) {
+    return Math.min(Math.max(v, min), max);
+}
+//----------------------------------------//
 
 
 //----------------------------------------------------------------------//

@@ -8,7 +8,7 @@
 
 import { Renderer } from "./renderer.mjs";
 import { Game } from "./game.mjs";
-import { Vec2 } from "./miscellaneous.mjs";
+import { Vec2, clamp} from "./miscellaneous.mjs";
 import { Player } from "./player.mjs";
 
 export class UIelement {
@@ -199,30 +199,7 @@ export class Navball extends UIelement {
         
         
         
-        //----------------------------------------//
-        //rotatePoint(p, angle)
-        //p: point
-        //rotates point 'p' through angle 'angle'
-        function rotatePoint(p, angle) {
-            const cos = Math.cos(angle);
-            const sin = Math.sin(angle);
-            var px = p.x * cos - p.y * sin;
-            var py = p.x * sin + p.y * cos;
-            p.x = px;
-            p.y = py;
-            return p;
-        }
-        //----------------------------------------//
-
-
-        //----------------------------------------//
-        //clamp(v, min, max)
-        //v: value
-        //clamps 'v' between 'min' and 'max'
-        function clamp(v, min, max) {
-            return Math.min(Math.max(v, min), max);
-        }
-        //----------------------------------------//
+        
 
 
         //----------------------------------------//
@@ -252,8 +229,8 @@ export class Navball extends UIelement {
             var p2 = new Vec2(widthHalf, l);
 
             //Rotate p1 and p2 by slope around center
-            p1 = rotatePoint(p1, -this.velDir + Math.PI / 2);
-            p2 = rotatePoint(p2, -this.velDir + Math.PI / 2);
+            p1 = p1.rotate(-this.velDir + Math.PI / 2);
+            p2 = p2.rotate(-this.velDir + Math.PI / 2);
 
             p1 = p1.add(center);
             p2 = p2.add(center);
