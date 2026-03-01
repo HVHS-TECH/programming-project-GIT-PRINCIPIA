@@ -69,7 +69,7 @@ export class Game {
     static UI_ELEMENTS = [
         new VertMeter(new Vec2(-80,0), 'right', 80, 700, 'rgb(100, 0, 0)', 'rgb(85, 255, 0)', 'rgb(0, 140, 255)', 5, "PlayerFuel"), //Fuel
         new VertMeter(new Vec2(80,0), 'left', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat"),  //Heat
-        new Navball(new Vec2(0, 140), 'bottom', 120, 'rgb(200, 200, 200)', 'rgb(50, 75, 100)', 'rgb(50, 150, 50)', 'rgb(100, 100, 100)', 5, "PlayerVel", "PlayerVelDir") //Navball
+        new Navball(new Vec2(0, 140), 'bottom', 120, 'rgb(200, 200, 200)', 'rgb(50, 75, 100)', 'rgb(200, 200, 200)', 'rgb(50, 150, 50)', 'rgb(100, 100, 100)', 5, "PlayerVel", "PlayerVelDir") //Navball
 
     ];
 
@@ -145,8 +145,13 @@ export class Game {
         console.log("Game.Start: initializing");
 
         Game.initializeState();
-        Game.PLANETS = Loader.LoadPlanets(); //Also initializes player position and velocity to starting planet
-        //Player.pos = Game.PLANETS[0].pos.add(new Vec2(0, Game.PLANETS[0].radius));
+
+        //Only try to load planets if the page has a canvas to display them
+        //hasCnv is initialized in Game.initializeState()
+        if (Game.renderer.hasCnv) {
+            Game.PLANETS = Loader.LoadPlanets(); //Also initializes player position and velocity to starting planet
+        }
+        
         Input.Initialize();
         console.log("Game.Start: initialized");
         requestAnimationFrame(Game.Update);
@@ -236,15 +241,17 @@ export class Game {
         var res = -1;
         for (r = 0; r < Game.REF_VARIABLES.length; r++) {
             if (Game.REF_VARIABLES[r].name == name) {
-                res = r;
+                res = r;//Track if there is a reference with that name
                 break;
             } else {
-                res = -1;//Track if there is no reference with that name
+                res = -1;//Track if there isn't a reference with that name
             } 
         }
         if (res > -1) {
+            //A reference was found with name 'name'
             return Game.REF_VARIABLES[r].get();
         } else {
+            //Res == -1, so no reference was found with the correct name
             console.warn(
                 "Game.getRefVar: there is no variable with name '"
                  + name + 

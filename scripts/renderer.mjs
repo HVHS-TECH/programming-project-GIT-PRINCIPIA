@@ -58,9 +58,7 @@ export class Renderer {
 
         //----------------------------------------//
         //Background
-        this.fill('black'); //Set the background to space
-        this.cnv.rect(0, 0, this.cnvWidth, this.cnvHeight); //Fill the background
-        this.fillShape();
+        this.background('black');
         //----------------------------------------//
 
         
@@ -97,6 +95,15 @@ export class Renderer {
     //----------------------------------------------------------------------//
 
 
+    //----------------------------------------------------------------------//
+    //background(style)
+    //sets the background style (colour)
+    background(style) {
+        this.fill(style);
+        this.cnv.rect(0, 0, this.cnvWidth, this.cnvHeight);
+        this.fillShape();
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //radGradient(start, end, inner, outer)                  

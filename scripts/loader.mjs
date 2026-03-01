@@ -44,6 +44,7 @@ export class Loader {
 
     //----------------------------------------------------------------------//
     //JSONobjectToPlanet(jsonObject)
+    //Returns a planet generated from jsonObject
     static JSONobjectToPlanet(jsonObject) {
         return new Planet(
             jsonObject.name, 

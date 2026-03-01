@@ -49,8 +49,6 @@ export class VertMeter extends UIelement {
     constructor(pos, align, width, height, background, fillColour, outlineColour, outlineWidth, valueRefVarName) {
         super(pos, align, width, height);
         
-
-
         this.background = background; //BG colour
         this.fillColour = fillColour;
         this.outlineColour = outlineColour;
@@ -77,9 +75,6 @@ export class VertMeter extends UIelement {
         this.DrawBackground(center);
 
         this.DrawSlider(center);
-
-
-        
     }
     //----------------------------------------------------------------------//
 
@@ -90,15 +85,9 @@ export class VertMeter extends UIelement {
     DrawBackground(center) {
         //----------------------------------------//
         //Draw the background
-        //-cnvWidth / 2 --------------------- -scaleCnvSize / 2 ------------------ center ------------------- scaleCnvSize / 2 ---------------------- cnvWidth / 2//
-        
-        
-
-
         var tl = center.add(new Vec2(-this.width / 2, this.height / 2));
         var br = center.add(new Vec2(this.width / 2, -this.height / 2));
 
-        
         Game.renderer.stroke(this.outlineColour, this.outlineWidth, false, true);
         Game.renderer.fill(this.background);
         Game.renderer.rect(tl, br, false, true);
@@ -139,11 +128,12 @@ export class VertMeter extends UIelement {
 
 //Navball, displays a copy of the 
 export class Navball extends UIelement {
-    constructor(pos, align, radius, playerColour, backgroundColour, textColour, outlineColour, outlineWidth, velRefName, velDirRefName) {
+    constructor(pos, align, radius, playerColour, backgroundColour, windStreakColour, textColour, outlineColour, outlineWidth, velRefName, velDirRefName) {
         super(pos, align, radius * 2, radius * 2);
         this.radius = radius;
         this.playerColour = playerColour;
         this.backgroundColour = backgroundColour;
+        this.windStreakColour = windStreakColour;
         this.textColour = textColour;
         this.outlineColour = outlineColour;
         this.outlineWidth = outlineWidth;
@@ -206,9 +196,8 @@ export class Navball extends UIelement {
     //DrawWindStreaks()
     //Draws the 'wind streaks' indicating the player velocity direction
     DrawWindStreaks(center) {
-        //Draw the velocity lines (like wind)
         
-        const NUM_LINES = 20;
+        
         
         //----------------------------------------//
         //rotatePoint(p, angle)
@@ -240,6 +229,7 @@ export class Navball extends UIelement {
         //Settings, could be moved to constructor
         const SPACING = 250; //Spacing between wind streaks
         const SIZE = 100; //Length of wind streaks
+        const NUM_LINES = 20; //Number of lines across the navball - some are skipped
         //----------------------------------------//
 
         //----------------------------------------//
@@ -291,8 +281,13 @@ export class Navball extends UIelement {
 
             //----------------------------------------//
             //Render the line
-            const WIDTH = clamp(this.radius * 2 / (NUM_LINES * 2), 3, 10);
-            Game.renderer.stroke('rgb(200, 200, 200)', WIDTH, false, true);
+
+            //Don't let the width get too small or large
+            const WIDTH = clamp(this.radius * 2 / (NUM_LINES * 2), 
+                3, //Min size
+                10 //Max size
+            );
+            Game.renderer.stroke(this.windStreakColour, WIDTH, false, true);
             Game.renderer.lineDash(lineDashArrayStart, false, true);
             Game.renderer.beginPath();
             Game.renderer.line(p1, p2, false, true); 
@@ -340,6 +335,14 @@ export class Navball extends UIelement {
 //When multiplied by an alignment vector (e.g [-1, 0] for left center), this produces coordinates that 
 //will - after being transformed by Renderer.worldToCanvas()) - correspond to that side of the screen.
 function GetScaleCnvSizeHalf() {
-    return new Vec2(Game.renderer.cnvWidth / Game.renderer.cnvHeight * Game.renderer.scaleCnvSize, Game.renderer.scaleCnvSize).div(new Vec2(2,2));
+    return new Vec2(
+        //Multiply scaleCnvSize by the aspect ration
+        Game.renderer.cnvWidth / Game.renderer.cnvHeight * Game.renderer.scaleCnvSize, 
+
+        //Y is just scaleCnvSize
+        Game.renderer.scaleCnvSize)
+
+        //Divide by two to get the half size
+        .div(new Vec2(2,2));
 }
 //----------------------------------------------------------------------//
