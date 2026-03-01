@@ -67,8 +67,8 @@ export class Game {
 
     //The UI elements that make up the screen
     static UI_ELEMENTS = [
-        new VertMeter(new Vec2(80,0), 'left', 80, 700, 'rgb(0, 0, 0)', 'rgb(85, 255, 0)', 'rgb(0, 140, 255)', 5, "PlayerFuel"), //Fuel
-        new VertMeter(new Vec2(-80,0), 'right', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat"),  //Heat
+        new VertMeter(new Vec2(-80,0), 'right', 80, 700, 'rgb(0, 0, 0)', 'rgb(85, 255, 0)', 'rgb(0, 140, 255)', 5, "PlayerFuel"), //Fuel
+        new VertMeter(new Vec2(80,0), 'left', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat"),  //Heat
         new Navball(new Vec2(0, 140), 'bottom', 120, 'rgb(200, 200, 200)', 'rgb(50, 75, 100)', 'rgb(50, 150, 50)', 'rgb(100, 100, 100)', 5, "PlayerVel", "PlayerVelDir") //Navball
 
     ];
