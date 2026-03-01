@@ -26,7 +26,7 @@ export class Game {
     static GAME_TITLE = "Astro Explorer";
     static END_TITLE = "Astro Explorer - End Screen";
     //Planets
-    static PLANETS = Loader.LoadPlanets();/*[
+    static PLANETS = [];/*[
     
         new Planet(
             "Earth", //Name
@@ -137,8 +137,9 @@ export class Game {
         Player.dir = 0;
         Player.ang_vel = 0;
         console.log("Game.Start(): initializing");
-        console.dir(Game.PLANETS[0]);
+
         Game.initializeState();
+        Game.PLANETS = Loader.LoadPlanets();
         //Game.PLANETS = Loader.LoadPlanets();
         Input.Initialize();
         console.log("Game.Start(): initialized");
@@ -174,7 +175,7 @@ export class Game {
 
         Game.renderer.Render();
         console.log("Game.Update() - rendering done");
-        
+
         requestAnimationFrame(Game.Update);
     }
     //----------------------------------------------------------------------//
