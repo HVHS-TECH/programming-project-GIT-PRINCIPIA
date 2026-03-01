@@ -1,8 +1,8 @@
 {
     "name": "earth",
     "x": 0,
-    "y": 0,
-    "xVel": -5,
+    "y": 2000,
+    "xVel": -5.7,
     "yVel": 0,
     "mass": 100000,
     "radius": 500, 
