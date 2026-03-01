@@ -240,7 +240,8 @@ export class Navball extends UIelement {
         //Settings, could be moved to constructor
         const SPACING = 250; //Spacing between wind streaks
         const SIZE = 100; //Length of wind streaks
-        const SPEED = 1000;// - this.vel;
+        const SPEED = 1000;//Math.round((10000 / (this.vel + 1)) * 100) / 100;// round to nearest 0.01
+        console.log(this.vel);
         //----------------------------------------//
 
         //----------------------------------------//
@@ -273,8 +274,8 @@ export class Navball extends UIelement {
 
             //----------------------------------------//
             //Spread out the equation into smaller chunks
-            const TIME = (new Date().getTime()) + Math.sin(l / 10 + new Date().getTime() / 200000) * 34000 - Math.cos(l / 20 + new Date().getTime() / 200000) * 3000;
             const A = (SPACING + SIZE) / SPACING
+            const TIME = (new Date().getTime()) + Math.sin(l / 10 + new Date().getTime() / 200000) * 34000 - Math.cos(l / 20 + new Date().getTime() / 200000) * 3000;
             const MODULUS = TIME % (A * SPEED * SPACING / SIZE);
             //----------------------------------------//
 
@@ -292,7 +293,8 @@ export class Navball extends UIelement {
 
             //----------------------------------------//
             //Render the line
-            Game.renderer.stroke('rgb(200, 200, 200)', 5, false, true);
+            const WIDTH = clamp(this.radius * 2 / (NUM_LINES * 2), 3, 10);
+            Game.renderer.stroke('rgb(200, 200, 200)', WIDTH, false, true);
             Game.renderer.lineDash(lineDashArrayStart, false, true);
             Game.renderer.beginPath();
             Game.renderer.line(p1, p2, false, true); 
