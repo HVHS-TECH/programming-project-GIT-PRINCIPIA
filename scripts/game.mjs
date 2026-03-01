@@ -26,29 +26,7 @@ export class Game {
     static GAME_TITLE = "Astro Explorer";
     static END_TITLE = "Astro Explorer - End Screen";
     //Planets
-    static PLANETS = [];/*[
-    
-        new Planet(
-            "Earth", //Name
-            new Vec2(0, 0), //pos
-            new Vec2(0, 0), //vel
-            100000, //mass
-            500, //radius
-            750, //atmo radius
-            'rgb(150, 200, 50)', 'rgb(150, 75, 10)', //ground colours
-            'rgb(200, 253, 255)', 'rgb(101, 128, 168)' //atmo colours
-        ),
-        new Planet(
-            "Moon", //Name
-            new Vec2(0, 2000), //pos
-            new Vec2(-0.5, 0), //vel
-            1000, //mass
-            100, //radius
-            130, //atmo radius
-            'rgb(102, 107, 107)', 'rgb(32, 32, 32)', //ground colours
-            'rgb(49, 49, 49)', 'rgb(7, 7, 7)' //atmo colours
-        )
-    ];*/
+    static PLANETS = [];
 
     //The game renderer
     static renderer = new Renderer(); 
@@ -115,13 +93,39 @@ export class Game {
         new RefVar(
             "PlayerVel",
             function() { //Get
-                return Player.vel.len(); 
+                var vel = Player.vel;
+                var closest_planet = 0;
+                var closest_planet_dist = 1000000000000;
+                for (var p = 0; p < Game.PLANETS.length; p++) {
+                    
+                    var dist = Vec2.dist(Game.PLANETS[p].pos, Player.pos) - Game.PLANETS[p].radius;
+                    if (dist < closest_planet_dist) {
+                        closest_planet = p;
+                        closest_planet_dist = dist;
+                    }
+
+                }
+                vel = vel.sub(Game.PLANETS[closest_planet].vel);
+                return vel.len(); 
             }
         ),
         new RefVar(
             "PlayerVelDir",
             function() { //Get
-                return Player.vel.dir(); 
+                var vel = Player.vel;
+                var closest_planet = 0;
+                var closest_planet_dist = 1000000000000;
+                for (var p = 0; p < Game.PLANETS.length; p++) {
+                    
+                    var dist = Vec2.dist(Game.PLANETS[p].pos, Player.pos);
+                    if (dist < closest_planet_dist) {
+                        closest_planet = p;
+                        closest_planet_dist = dist;
+                    }
+
+                }
+                vel = vel.sub(Game.PLANETS[closest_planet].vel);
+                return vel.dir();
             }
         )
     ];
@@ -136,7 +140,7 @@ export class Game {
     static Start() {
         console.log("Game.Start");
         Player.pos = new Vec2(0, 750);
-        Player.vel = new Vec2(-1.15, 0);
+        Player.vel = new Vec2(-6.15, 0);
         Player.zoom = 1;
         Player.dir = 0;
         Player.ang_vel = 0;

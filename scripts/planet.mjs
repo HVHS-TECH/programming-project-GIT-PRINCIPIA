@@ -11,7 +11,7 @@ import { Game } from './game.mjs';
 import { Player } from './player.mjs';
 export class Planet {
     
-    constructor(name, pos, vel, mass, radius, atmoRadius, colour, innerColour, atmoColourLow, atmoColourMid) {
+    constructor(name, pos, vel, mass, radius, atmoRadius, colour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid) {
         this.name = name;
         this.pos = pos;
         this.vel = vel;
@@ -20,6 +20,9 @@ export class Planet {
         this.atmoRadius = atmoRadius;
         this.colour = colour;
         this.innerColour = innerColour;
+        this.mantleColour = mantleColour;
+        this.outerCoreColour = outerCoreColour;
+        this.innerCoreColour = innerCoreColour;
         this.atmoColourLow = atmoColourLow;
         this.atmoColourMid = atmoColourMid;
         
@@ -69,7 +72,11 @@ export class Planet {
 
         var groundGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
 
-        groundGrad.addColorStop(0.75, 'black');
+        groundGrad.addColorStop(0.2, this.innerCoreColour);
+        groundGrad.addColorStop(0.4, this.outerCoreColour);
+        //groundGrad.addColorStop(0.5, this.outerCoreColour);
+        groundGrad.addColorStop(0.7, this.mantleColour);
+        groundGrad.addColorStop(0.8, this.mantleColour);
         groundGrad.addColorStop(0.98, this.innerColour);
         groundGrad.addColorStop(0.99, this.colour);
         groundGrad.addColorStop(1, this.colour);

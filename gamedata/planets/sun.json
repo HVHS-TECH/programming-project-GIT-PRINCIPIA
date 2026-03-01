@@ -1,0 +1,17 @@
+{
+    "name": "sun",
+    "x": 0,
+    "y": -10000,
+    "xVel": 0,
+    "yVel": 0,
+    "mass": 30000000,
+    "radius": 2000, 
+    "atmoRadius": 8000, 
+    "colour": "rgb(250, 200, 150)", 
+    "innerColour": "rgb(255, 230, 200)", 
+    "mantleColour": "rgb(255, 235, 210)",
+    "outerCoreColour": "rgb(255, 240, 220)",
+    "innerCoreColour": "rgb(255, 250, 230)",
+    "atmoColourLow": "rgb(253, 253, 253)", 
+    "atmoColourMid": "rgb(100, 100, 100)" 
+}

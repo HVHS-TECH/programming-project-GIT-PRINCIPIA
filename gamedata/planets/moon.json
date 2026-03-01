@@ -2,13 +2,16 @@
     "name": "moon",
     "x": 0,
     "y": 1000,
-    "xVel": -1,
+    "xVel": -6,
     "yVel": 0,
     "mass": 4000,
     "radius": 100, 
     "atmoRadius": 0, 
     "colour": "rgb(200, 200, 200)", 
     "innerColour": "rgb(100, 100, 100)", 
+    "mantleColour": "rgb(20, 20, 20)",
+    "outerCoreColour": "rgb(0, 0, 0)",
+    "innerCoreColour": "rgb(0, 0, 0)",
     "atmoColourLow": "rgb(0, 0, 0)", 
     "atmoColourMid": "rgb(0, 0, 0)" 
 }

@@ -1,6 +1,7 @@
 {
     "planets": [
         "earth.json",
-        "moon.json"
+        "moon.json",
+        "sun.json"
     ]
 }

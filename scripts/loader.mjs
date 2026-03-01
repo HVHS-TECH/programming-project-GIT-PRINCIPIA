@@ -45,6 +45,9 @@ export class Loader {
             jsonObject.atmoRadius,
             jsonObject.colour,
             jsonObject.innerColour,
+            jsonObject.mantleColour,
+            jsonObject.outerCoreColour,
+            jsonObject.innerCoreColour,
             jsonObject.atmoColourLow,
             jsonObject.atmoColourMid
         );

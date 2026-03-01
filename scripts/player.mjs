@@ -26,10 +26,10 @@ export class Player {
     //Update()
     //called every frame
     static Update() {
+        Player.Integrate();
         Player.UpdateThruster();
         Player.ApplyGravity();
         Player.ApplyAtmosphericEffects();
-        Player.Integrate();
     }
     //----------------------------------------------------------------------//
 
