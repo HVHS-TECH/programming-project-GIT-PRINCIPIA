@@ -6,6 +6,7 @@
 //Manages loading planets, images and assets, etc                       //
 //----------------------------------------------------------------------//
 import { Planet } from "./planet.mjs"
+import { Player } from "./player.mjs";
 import { Vec2 } from "./miscellaneous.mjs";
 //Loader class, 
 export class Loader {
@@ -17,6 +18,7 @@ export class Loader {
         //Since js cannot list the files in a directory, we must store the paths in one file
         const PLANET_REFERENCES_JSON = Loader.GetJSONobject('../gamedata/planets/references.json'); 
         const PLANET_REFERENCES_JSON_LIST = PLANET_REFERENCES_JSON.planets;
+        const STARTING_PLANET_NAME = PLANET_REFERENCES_JSON.starting_body;
 
         
         
@@ -26,6 +28,13 @@ export class Loader {
             const JSON_OBJECT = Loader.GetJSONobject("../gamedata/planets/" + PLANET_REFERENCES_JSON_LIST[i]);
             const PLANET = Loader.JSONobjectToPlanet(JSON_OBJECT);
             ret.push(PLANET);
+        }
+        for (var i = 0; i < ret.length; i++) {
+            if (ret[i].name == STARTING_PLANET_NAME) {
+                Player.pos = ret[i].pos.add(new Vec2(0, ret[i].radius));
+                Player.vel = ret[i].vel;
+                console.log("Player starting position set to be on '" + STARTING_PLANET_NAME + "'");
+            }
         }
         console.log("Loader.LoadPlanets: loaded planet array: ");
         console.dir(ret); //Debug

@@ -153,7 +153,7 @@ export class Navball extends UIelement {
         this.playerVelScale = this.radius;
         this.velDirRefName = velDirRefName;
         this.velRefName = velRefName;
-
+        this.frame = 100000;
     }
 
     //----------------------------------------------------------------------//
@@ -240,8 +240,6 @@ export class Navball extends UIelement {
         //Settings, could be moved to constructor
         const SPACING = 250; //Spacing between wind streaks
         const SIZE = 100; //Length of wind streaks
-        const SPEED = 1000;//Math.round((10000 / (this.vel + 1)) * 100) / 100;// round to nearest 0.01
-        console.log(this.vel);
         //----------------------------------------//
 
         //----------------------------------------//
@@ -275,15 +273,15 @@ export class Navball extends UIelement {
             //----------------------------------------//
             //Spread out the equation into smaller chunks
             const A = (SPACING + SIZE) / SPACING
-            const TIME = (new Date().getTime()) + Math.sin(l / 10 + new Date().getTime() / 200000) * 34000 - Math.cos(l / 20 + new Date().getTime() / 200000) * 3000;
-            const MODULUS = TIME % (A * SPEED * SPACING / SIZE);
+            const TIME = (this.frame) + Math.sin(l / 10 + this.frame / 200000) * 34000 - Math.cos(l / 20 + this.frame / 200000) * 3000;
+            const MODULUS = TIME % (A * SPACING / SIZE);
             //----------------------------------------//
 
             //----------------------------------------//
             //Populate start of array with segments that grow in length to imitate movement
             var lineDashArrayStart = [ 
-                clamp((MODULUS) / (SPEED) * SIZE - SPACING, 0, SIZE), //SIZE 1
-                clamp((MODULUS) / (SPEED * SPACING / SIZE) * SPACING, 0, SPACING) //SPACING 1
+                clamp((MODULUS) * SIZE - SPACING, 0, SIZE), //SIZE 1
+                clamp((MODULUS) / (SPACING / SIZE) * SPACING, 0, SPACING) //SPACING 1
 
                     ];
             //----------------------------------------//
@@ -306,7 +304,8 @@ export class Navball extends UIelement {
         }
         //----------------------------------------//
 
-
+        const SPEED_MUL = 0.15;
+        this.frame += this.vel * SPEED_MUL;
     }
     //----------------------------------------------------------------------//
 

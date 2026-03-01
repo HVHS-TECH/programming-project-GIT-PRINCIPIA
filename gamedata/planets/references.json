@@ -3,5 +3,6 @@
         "earth.json",
         "moon.json",
         "sun.json"
-    ]
+    ],
+    "starting_body": "earth"
 }

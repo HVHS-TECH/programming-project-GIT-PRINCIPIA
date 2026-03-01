@@ -139,18 +139,16 @@ export class Game {
     //called on page load
     static Start() {
         console.log("Game.Start");
-        Player.pos = new Vec2(0, 750);
-        Player.vel = new Vec2(-6.15, 0);
         Player.zoom = 1;
         Player.dir = 0;
         Player.ang_vel = 0;
-        console.log("Game.Start(): initializing");
+        console.log("Game.Start: initializing");
 
         Game.initializeState();
-        Game.PLANETS = Loader.LoadPlanets();
-        //Game.PLANETS = Loader.LoadPlanets();
+        Game.PLANETS = Loader.LoadPlanets(); //Also initializes player position and velocity to starting planet
+        //Player.pos = Game.PLANETS[0].pos.add(new Vec2(0, Game.PLANETS[0].radius));
         Input.Initialize();
-        console.log("Game.Start(): initialized");
+        console.log("Game.Start: initialized");
         requestAnimationFrame(Game.Update);
         
     }
@@ -162,28 +160,22 @@ export class Game {
     //called every frame
     //manages game logic, then renders scene using renderer
     static Update() {
-        console.log("Game.Update()");
 
         for (var p = 0; p < Game.PLANETS.length; p++) {
             Game.PLANETS[p].Update();
         }
-        console.log("Game.Update() - planets done");
 
         for (var e = 0; e < Game.UI_ELEMENTS.length; e++) {
             Game.UI_ELEMENTS[e].Update();
         }
-        console.log("Game.Update() - ui done");
 
         for (var i = 0; i < Game.PARTICLES.length; i++) {
             Game.PARTICLES[i].Update();
         }
-        console.log("Game.Update() - particles done");
 
         Player.Update();
-        console.log("Game.Update() - player done");
 
         Game.renderer.Render();
-        console.log("Game.Update() - rendering done");
 
         requestAnimationFrame(Game.Update);
     }
@@ -242,7 +234,6 @@ export class Game {
     static getRefVar(name) {
         var r;
         var res = -1;
-        console.log("Game.getRefVar");
         for (r = 0; r < Game.REF_VARIABLES.length; r++) {
             if (Game.REF_VARIABLES[r].name == name) {
                 res = r;
@@ -251,11 +242,14 @@ export class Game {
                 res = -1;//Track if there is no reference with that name
             } 
         }
-        console.log("Game.getRefVar - done searching");
         if (res > -1) {
             return Game.REF_VARIABLES[r].get();
         } else {
-            console.warn("Game.getRefVar: there is no variable with name '" + name + "'");
+            console.warn(
+                "Game.getRefVar: there is no variable with name '"
+                 + name + 
+                 "'\n" +
+                "returning 0 - this might break things!");
             return 0;
         }
         
