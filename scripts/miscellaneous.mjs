@@ -94,8 +94,7 @@ export class Vec2 {
     //norm()
     //returns this divided by this.len()
     norm() {
-        var length = this.len();
-        return this.div(new Vec2(length, length));
+        return this.div(this.len());
     }
     //----------------------------------------------------------------------//
 

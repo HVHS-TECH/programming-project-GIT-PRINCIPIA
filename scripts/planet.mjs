@@ -42,12 +42,12 @@ export class Planet {
             var delta = other.pos.sub(this.pos);
             var dist = delta.len();
             var deltaNorm = delta.norm();
-            var force = Game.G * other.mass / (dist * dist);
+            var force = Game.G * other.mass / (dist * dist) * Time.scaleDeltaTime;
             this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
 
         }
         //Integrate postiion based on velocity and delta time
-        this.pos = this.pos.add(this.vel.mul(Time.scaleDeltaTime));
+        this.pos = this.pos.add(this.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
     }
     //----------------------------------------------------------------------//
 
@@ -57,7 +57,6 @@ export class Planet {
     //Draws the planet and its features (atmosphere etc)
     Draw() {
         //Draw planet
-        //var relPos = this.pos.sub(Player.pos);
         var atmoGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
 
         

@@ -36,6 +36,12 @@ export class Particle {
     //Update()
     //Updates the particle position and other variables
     Update() {
+        //is the particle 'dead'?
+        if (this.frame > this.lifetime) {
+            this.OnDeath();
+            return;
+        }
+
         //Update colour
         if (this.frame / this.lifetime < 0.5) {
             //Lerp between start and mid colours
@@ -45,14 +51,11 @@ export class Particle {
             //lerp between mid and end colours
             this.currColour = Colour.lerp(this.midColour, this.endColour, this.frame / this.lifetime * 2 - 1);
         }
-        if (this.frame > this.lifetime) {
-            this.OnDeath();
-            return;
-        }
+        
 
 
         //Integrate position based on velocity and delta time
-        this.pos = this.pos.add(this.vel.mul(Time.scaleDeltaTime));
+        this.pos = this.pos.add(this.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
 
         //Integrate rotation based on angular velocity and delta time
         this.rot += this.angVel * Time.scaleDeltaTime;

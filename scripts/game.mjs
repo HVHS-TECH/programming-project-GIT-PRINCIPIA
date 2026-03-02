@@ -19,6 +19,8 @@ import { Navball, VertMeter } from "./ui_element.mjs";
 import { Loader } from "./loader.mjs";
 
 import { Particle } from "./particle.mjs";
+
+import { Time } from "./time.mjs";
 export class Game {
 
     static INDEX_TITLE = "Astro Explorer - Index";
@@ -142,13 +144,19 @@ export class Game {
     //called on page load
     static Start() {
         console.log("Game.Start");
-        Player.zoom = 1;
+
+        //----------------------------------------//
+        //Initialize player
+        Player.zoom = 3;
         Player.dir = 0;
         Player.ang_vel = 0;
+        //----------------------------------------//
+
         console.log("Game.Start: initializing");
 
         Game.initializeState();
 
+        //----------------------------------------//
         //Only try to load planets / particles if the page has a canvas to display them
         //hasCnv is initialized in Game.initializeState()
         if (Game.renderer.hasCnv) {
@@ -157,9 +165,17 @@ export class Game {
                 Game.PARTICLES[i] = new Particle(new Vec2(0,0), 0, new Vec2(0,0), 0, 0, Colour.rgb(0,0,0), Colour.rgb(0,0,0), Colour.rgb(0,0,0), -1, function(){}, function(){});
             }
         }
+        //----------------------------------------//
         
         
         Input.Initialize();
+
+        //----------------------------------------//
+        //Prevent scaleDeltaTime from being VERY large on the first frame due to planet loading etc
+        Time.Update();
+        Time.Update();
+        //----------------------------------------//
+        
         console.log("Game.Start: initialized");
         requestAnimationFrame(Game.Update);
         
@@ -190,6 +206,8 @@ export class Game {
         }
 
         Player.Update();
+
+        Time.Update();
 
         Game.renderer.Render();
 

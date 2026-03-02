@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------//
 
 export class Time {
-    static deltaTime = 1; //Time since last frame
+    static deltaTime = 1; //Time since last frame in seconds
     static scaleDeltaTime = 1; //DeltaTime x 60 - e.g 1 when fps == 60, 0.5 when fps == 120, 2 when fps == 30
     static last = 0; //Date.now() of last frame
     static fps = 0;
@@ -21,10 +21,12 @@ export class Time {
         //----------------------------------------//
         //Delta time
         const NOW = Date.now();
-        Time.deltaTime = NOW - last;
-        Time.scaleDeltaTime = Time.deltaTime * 60; //deltaTime x target fps
+        Time.deltaTime = (NOW - Time.last) / 1000; //in seconds
+        Time.scaleDeltaTime = (Time.deltaTime * 60); //deltaTime x target fps
+        console.log("Delta time: " + Time.deltaTime + ", Scale delta time: " + Time.scaleDeltaTime);
         Time.last = NOW;
         Time.fps = 1 / Time.deltaTime;
+        console.log("Fps: " + Time.fps);
         //----------------------------------------//
 
         Time.frame++;
