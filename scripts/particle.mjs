@@ -30,7 +30,6 @@ export class Particle {
         this.onDeath = onDeath;
         this.frame = 0;
         this.id = Time.frame;
-        Game.PARTICLES.push(this);
     }
 
     //----------------------------------------------------------------------//
@@ -68,7 +67,6 @@ export class Particle {
     //Called when particle is destroyed
     OnDeath() {
         this.onDeath();
-        Game.cacheRemoveParticle(this.id);
     }
     //----------------------------------------------------------------------//
 

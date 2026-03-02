@@ -74,8 +74,8 @@ export class Game {
     ];
 
     //The particles that exist in the world
-    static PARTICLES = [];
-    static particlesToRemove = []; //Particles cached to remove
+    //Initialize an array of null with length 100
+    static PARTICLES = Array.apply(null, Array(1000).map(function(){}));
 
     //References to other variables for flexibility
     static REF_VARIABLES = [
@@ -149,11 +149,15 @@ export class Game {
 
         Game.initializeState();
 
-        //Only try to load planets if the page has a canvas to display them
+        //Only try to load planets / particles if the page has a canvas to display them
         //hasCnv is initialized in Game.initializeState()
         if (Game.renderer.hasCnv) {
             Game.PLANETS = Loader.LoadPlanets(); //Also initializes player position and velocity to starting planet
+            for (var i = 0; i < Game.PARTICLES.length; i++) {
+                Game.PARTICLES[i] = new Particle(new Vec2(0,0), 0, new Vec2(0,0), 0, 0, Colour.rgb(0,0,0), Colour.rgb(0,0,0), Colour.rgb(0,0,0), -1, function(){}, function(){});
+            }
         }
+        
         
         Input.Initialize();
         console.log("Game.Start: initialized");
@@ -178,15 +182,12 @@ export class Game {
         }
 
         for (var i = 0; i < Game.PARTICLES.length; i++) {
-            Game.PARTICLES[i].Update();
+            if (Game.PARTICLES[i].frame < Game.PARTICLES[i].lifetime) {
+                //Particle is alive, update
+                Game.PARTICLES[i].Update();
+            }
+            
         }
-        //Delete particles
-        const TO_REMOVE = Game.particlesToRemove;
-        Game.PARTICLES = Game.PARTICLES.filter(
-            function(item){
-                return TO_REMOVE.includes(item.id);
-            }, TO_REMOVE);
-        Game.particlesToRemove = [];
 
         Player.Update();
 
@@ -275,11 +276,21 @@ export class Game {
 
     
     //----------------------------------------------------------------------//
-    //cacheRemoveParticle(id)
-    //since we cannot remove a particle from an array while looping through that array, we cache it to be removed later
-    static cacheRemoveParticle(id) {
-        Game.particlesToRemove.push(id);
+    //addParticle(particle)
+    //adds 'particle' 
+    static addParticle(particle) {
+        for (var i = 0; i < Game.PARTICLES.length; i++) {
+            if (Game.PARTICLES[i].frame >= Game.PARTICLES[i].lifetime) {
+                //Particle is dead, reuse slot
+                Game.PARTICLES[i] = particle;
+                return;
+            }
+        }
+        console.warn("Game.addParticle: No particle slots remaining - replacing last item in array - this might break things!");
+        Game.PARTICLES[Game.PARTICLES.length - 1] = particle;
     }
+    //----------------------------------------------------------------------//
+
     
 }
 

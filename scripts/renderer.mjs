@@ -71,9 +71,12 @@ export class Renderer {
 
 
         //----------------------------------------//
-        //Render the particles
+        //Render the particles that are alive
         for (var p = 0; p < Game.PARTICLES.length; p++) {
-            Game.PARTICLES[p].Draw();
+            if (Game.PARTICLES[p].frame < Game.PARTICLES[p].lifetime) {
+                //Particle is alive, draw
+                Game.PARTICLES[p].Draw();
+            }
         }
         //----------------------------------------//
 

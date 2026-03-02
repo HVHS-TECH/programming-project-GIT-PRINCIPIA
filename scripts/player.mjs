@@ -68,31 +68,57 @@ export class Player {
                             Math.cos(PARTICLE_DIR) * SPEED
                         )
                     );
-                    new Particle(Player.pos.add(PARTICLE_POS), Player.dir, 
+                    Game.addParticle(new Particle(Player.pos.add(PARTICLE_POS), Player.dir, 
                     particleVel, 0, 
                     PARTICLE_WIDTH, 
                     Colour.rgb(255, 178, 115), 
                     Colour.rgba(255, 102, 0, 0.49), 
                     Colour.rgba(0, 0, 0, 0), 
-                    1000,
+                    10,
 
                         function(){ //Update
                             this.width += 1 - (this.frame / this.lifetime * 2) * Time.scaleDeltaTime;
+                            for (var p = 0; p < Game.PLANETS.length; p++) {
+                                var other = Game.PLANETS[p];
+                                var delta = other.pos.sub(this.pos);
+                                var dist = delta.len() - this.width / 2;
+                                var deltaNorm = delta.norm();
+
+                                //If the particle is colliding with the planet, change the particle's velocity and shift it to above the surface to resolve the collision.
+                                if (dist < other.radius) {
+                                    this.vel = other.vel;
+                                    while (dist < other.radius) {
+                                        delta = other.pos.sub(this.pos);
+                                        dist = delta.len() - this.width / 2;
+                                        this.pos = this.pos.sub(deltaNorm.mul(new Vec2(0.05, 0.05)));
+                                    }
+                                    const LEN = this.vel.len();
+                                    
+                                    this.vel = (Math.random() > 0.5) ? deltaNorm.rotate(-Math.PI / 4).mul(LEN / 50) : deltaNorm.rotate(Math.PI / 4).mul(LEN / 50)
+                                    this.dir = delta.dir(); //Lock the player outward
+                                    this.ang_vel = 0;
+                                    break;
+                                }
+                                var force = Game.G * other.mass / (dist * dist);
+                                this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
+                            }
+                        
                         }, 
 
 
                         function(){ //OnDeath
                             const PARTICLE_POS = this.pos;
                             const PARTICLE_VEL = this.vel;
-                            new Particle(Player.pos.add(PARTICLE_POS), Player.dir, 
-                            particleVel, 0, 
+                            
+                            Game.addParticle(new Particle(PARTICLE_POS, this.dir, 
+                            PARTICLE_VEL, 0, 
                             PARTICLE_WIDTH, 
                             Colour.rgb(255, 178, 115), 
                             Colour.rgba(255, 102, 0, 0.49), 
-                            Colour.rgba(0, 0, 0, 0), 10, 
-                            function(){}, function(){});
+                            Colour.rgba(0, 0, 0, 0), 1000, 
+                            function(){}, function(){}));
                         }
-                    );
+                    ));
                 }
             }
 
