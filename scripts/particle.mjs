@@ -7,32 +7,51 @@
 //----------------------------------------------------------------------//
 
 
-import { Vec2 } from "./miscellaneous.mjs"
+import { Vec2, Colour, lerp } from "./miscellaneous.mjs"
 import { Game } from "./game.mjs";
 import { Renderer } from "./renderer.mjs";
 import { Time } from "./time.mjs";
 
 
+
 export class Particle {
-    constructor(pos, rot, vel, angVel, width, startColour, midColour, endColour, update, onDeath) {
+    constructor(pos, rot, vel, angVel, width, startColour, midColour, endColour, lifetime, update, onDeath) {
         this.pos = pos;
         this.rot = rot;
         this.vel = vel;
         this.angVel = angVel;
         this.width = width;
+        this.currColour = Colour.rgb(255,255,255);
         this.startColour = startColour;
         this.midColour = midColour;
         this.endColour = endColour;
+        this.lifetime = lifetime;
         this.update = update;
         this.onDeath = onDeath;
-
         this.frame = 0;
+        this.id = Time.frame;
+        Game.PARTICLES.push(this);
     }
 
     //----------------------------------------------------------------------//
     //Update()
     //Updates the particle position and other variables
     Update() {
+        //Update colour
+        if (this.frame / this.lifetime < 0.5) {
+            //Lerp between start and mid colours
+            this.currColour = Colour.lerp(this.startColour, this.midColour, this.frame / this.lifetime * 2);
+
+        } else {
+            //lerp between mid and end colours
+            this.currColour = Colour.lerp(this.midColour, this.endColour, this.frame / this.lifetime * 2 - 1);
+        }
+        if (this.frame > this.lifetime) {
+            this.OnDeath();
+            return;
+        }
+
+
         //Integrate position based on velocity and delta time
         this.pos = this.pos.add(this.vel.mul(Time.scaleDeltaTime));
 
@@ -49,7 +68,7 @@ export class Particle {
     //Called when particle is destroyed
     OnDeath() {
         this.onDeath();
-
+        Game.cacheRemoveParticle(this.id);
     }
     //----------------------------------------------------------------------//
 
@@ -87,7 +106,7 @@ export class Particle {
 
 
         //Draw
-        Game.renderer.fill(this.startColour);
+        Game.renderer.fill(this.currColour);
         Game.renderer.drawPolygon([tl, tr, br, bl], true, true);
         Game.renderer.fillShape();
 

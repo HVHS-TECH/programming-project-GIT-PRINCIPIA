@@ -11,7 +11,7 @@
 
 import { Renderer } from "./renderer.mjs";
 import { Planet } from "./planet.mjs";
-import { Page, Vec2, RefVar } from "./miscellaneous.mjs";
+import { Page, Vec2, RefVar, Colour } from "./miscellaneous.mjs";
 
 import { Player } from "./player.mjs";
 import { Input } from "./input.mjs";
@@ -67,14 +67,15 @@ export class Game {
 
     //The UI elements that make up the screen
     static UI_ELEMENTS = [
-        new VertMeter(new Vec2(-80,0), 'right', 80, 700, 'rgb(100, 0, 0)', 'rgb(85, 255, 0)', 'rgb(0, 140, 255)', 5, "PlayerFuel"), //Fuel
-        new VertMeter(new Vec2(80,0), 'left', 80, 700, 'rgb(20, 68, 20)', 'rgb(255, 128, 0)', 'rgb(0, 140, 255)', 5, "PlayerHeat"),  //Heat
-        new Navball(new Vec2(0, 180), 'bottom', 160, 'rgb(200, 200, 200)', 'rgb(50, 75, 100)', 'rgb(200, 200, 200)', 'rgb(50, 150, 50)', 'rgb(100, 100, 100)', 5, "PlayerVel", "PlayerVelDir") //Navball
+        new VertMeter(new Vec2(-80,0), 'right', 80, 700, Colour.rgb(100, 0, 0), Colour.rgb(85, 255, 0), Colour.rgb(0, 140, 255), 5, "PlayerFuel"), //Fuel
+        new VertMeter(new Vec2(80,0), 'left', 80, 700, Colour.rgb(20, 68, 20), Colour.rgb(255, 128, 0), Colour.rgb(0, 140, 255), 5, "PlayerHeat"),  //Heat
+        new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(100, 100, 100), 5, "PlayerVel", "PlayerVelDir") //Navball
 
     ];
 
     //The particles that exist in the world
     static PARTICLES = [];
+    static particlesToRemove = []; //Particles cached to remove
 
     //References to other variables for flexibility
     static REF_VARIABLES = [
@@ -113,6 +114,7 @@ export class Game {
         new RefVar(
             "PlayerVelDir",
             function() { //Get
+                //Get the velocity relative to the closest planet
                 var vel = Player.vel;
                 var closest_planet = 0;
                 var closest_planet_dist = 1000000000000;
@@ -178,6 +180,13 @@ export class Game {
         for (var i = 0; i < Game.PARTICLES.length; i++) {
             Game.PARTICLES[i].Update();
         }
+        //Delete particles
+        const TO_REMOVE = Game.particlesToRemove;
+        Game.PARTICLES = Game.PARTICLES.filter(
+            function(item){
+                return TO_REMOVE.includes(item.id);
+            }, TO_REMOVE);
+        Game.particlesToRemove = [];
 
         Player.Update();
 
@@ -265,6 +274,12 @@ export class Game {
     //----------------------------------------------------------------------//
 
     
+    //----------------------------------------------------------------------//
+    //cacheRemoveParticle(id)
+    //since we cannot remove a particle from an array while looping through that array, we cache it to be removed later
+    static cacheRemoveParticle(id) {
+        Game.particlesToRemove.push(id);
+    }
     
 }
 

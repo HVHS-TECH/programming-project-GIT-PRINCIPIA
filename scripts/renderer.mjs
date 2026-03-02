@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------//
 import {Planet} from './planet.mjs';
 import { Player } from './player.mjs';
-import { Vec2 } from './miscellaneous.mjs';
+import { Vec2, Colour } from './miscellaneous.mjs';
 import { Game } from './game.mjs';
 import { UIelement } from './ui_element.mjs';
 export class Renderer {
@@ -58,7 +58,7 @@ export class Renderer {
 
         //----------------------------------------//
         //Background
-        this.background('black');
+        this.background(Colour.rgb(0, 0, 0));
         //----------------------------------------//
 
         
@@ -146,8 +146,12 @@ export class Renderer {
             console.warn("Renderer.fill called on a page with no canvas. This might break things.");
             return;
         }
-
-        this.cnv.fillStyle = style;
+        if (style instanceof Colour) {
+            this.cnv.fillStyle = style.txt();
+        } else {
+            this.cnv.fillStyle = style;
+        }
+        
     }
     //----------------------------------------------------------------------//
 
@@ -171,7 +175,7 @@ export class Renderer {
         //----------------------------------------//
 
         this.cnv.lineWidth = width;
-        this.cnv.strokeStyle = style;
+        this.cnv.strokeStyle = style.txt();
     }
     //----------------------------------------------------------------------//
 

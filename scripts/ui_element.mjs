@@ -229,8 +229,8 @@ export class Navball extends UIelement {
             var p2 = new Vec2(widthHalf, l);
 
             //Rotate p1 and p2 by slope around center
-            p1 = p1.rotate(-this.velDir + Math.PI / 2);
-            p2 = p2.rotate(-this.velDir + Math.PI / 2);
+            p1 = p1.rotate(this.velDir);
+            p2 = p2.rotate(this.velDir);
 
             p1 = p1.add(center);
             p2 = p2.add(center);

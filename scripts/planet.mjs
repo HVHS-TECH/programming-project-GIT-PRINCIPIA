@@ -61,8 +61,8 @@ export class Planet {
         var atmoGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
 
         
-        atmoGrad.addColorStop(0, this.atmoColourLow);
-        atmoGrad.addColorStop(0.3, this.atmoColourMid);
+        atmoGrad.addColorStop(0, this.atmoColourLow.txt());
+        atmoGrad.addColorStop(0.3, this.atmoColourMid.txt());
         atmoGrad.addColorStop(0.9, 'transparent');
 
         Game.renderer.fill(atmoGrad);
@@ -73,14 +73,13 @@ export class Planet {
 
         var groundGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
 
-        groundGrad.addColorStop(0.2, this.innerCoreColour);
-        groundGrad.addColorStop(0.4, this.outerCoreColour);
-        //groundGrad.addColorStop(0.5, this.outerCoreColour);
-        groundGrad.addColorStop(0.7, this.mantleColour);
-        groundGrad.addColorStop(0.8, this.mantleColour);
-        groundGrad.addColorStop(0.98, this.innerColour);
-        groundGrad.addColorStop(0.99, this.colour);
-        groundGrad.addColorStop(1, this.colour);
+        groundGrad.addColorStop(0.2, this.innerCoreColour.txt());
+        groundGrad.addColorStop(0.4, this.outerCoreColour.txt());
+        groundGrad.addColorStop(0.7, this.mantleColour.txt());
+        groundGrad.addColorStop(0.8, this.mantleColour.txt());
+        groundGrad.addColorStop(0.98, this.innerColour.txt());
+        groundGrad.addColorStop(0.99, this.colour.txt());
+        groundGrad.addColorStop(1, this.colour.txt());
 
         Game.renderer.fill(groundGrad);
         Game.renderer.beginPath();

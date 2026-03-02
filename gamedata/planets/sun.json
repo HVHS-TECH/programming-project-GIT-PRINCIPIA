@@ -7,11 +7,11 @@
     "mass": 30000000,
     "radius": 2000, 
     "atmoRadius": 8000, 
-    "colour": "rgb(250, 200, 150)", 
-    "innerColour": "rgb(255, 230, 200)", 
-    "mantleColour": "rgb(255, 235, 210)",
-    "outerCoreColour": "rgb(255, 240, 220)",
-    "innerCoreColour": "rgb(255, 250, 230)",
-    "atmoColourLow": "rgb(253, 253, 253)", 
-    "atmoColourMid": "rgb(100, 100, 100)" 
+    "colour": {"r": 250, "g": 200, "b": 150}, 
+    "innerColour": {"r": 255, "g": 230, "b": 200}, 
+    "mantleColour": {"r": 255, "g": 235, "b": 210},
+    "outerCoreColour": {"r": 255, "g": 240, "b": 220},
+    "innerCoreColour": {"r": 255, "g": 250, "b": 230},
+    "atmoColourLow": {"r": 253, "g": 253, "b": 253}, 
+    "atmoColourMid": {"r": 100, "g": 100, "b": 100} 
 }

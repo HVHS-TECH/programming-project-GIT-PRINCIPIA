@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------//
 import { Planet } from "./planet.mjs"
 import { Player } from "./player.mjs";
-import { Vec2 } from "./miscellaneous.mjs";
+import { Vec2, Colour } from "./miscellaneous.mjs";
 //Loader class, 
 export class Loader {
 
@@ -53,13 +53,13 @@ export class Loader {
             jsonObject.mass,
             jsonObject.radius,
             jsonObject.atmoRadius,
-            jsonObject.colour,
-            jsonObject.innerColour,
-            jsonObject.mantleColour,
-            jsonObject.outerCoreColour,
-            jsonObject.innerCoreColour,
-            jsonObject.atmoColourLow,
-            jsonObject.atmoColourMid
+            Colour.rgb(jsonObject.colour.r, jsonObject.colour.g, jsonObject.colour.b),
+            Colour.rgb(jsonObject.innerColour.r, jsonObject.innerColour.g, jsonObject.innerColour.b),
+            Colour.rgb(jsonObject.mantleColour.r, jsonObject.mantleColour.g, jsonObject.mantleColour.b),
+            Colour.rgb(jsonObject.outerCoreColour.r, jsonObject.outerCoreColour.g, jsonObject.outerCoreColour.b),
+            Colour.rgb(jsonObject.innerCoreColour.r, jsonObject.innerCoreColour.g, jsonObject.innerCoreColour.b),
+            Colour.rgb(jsonObject.atmoColourLow.r, jsonObject.atmoColourLow.g, jsonObject.atmoColourLow.b),
+            Colour.rgb(jsonObject.atmoColourMid.r, jsonObject.atmoColourMid.g, jsonObject.atmoColourMid.b)
         );
     }
 
