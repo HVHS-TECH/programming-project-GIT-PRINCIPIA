@@ -5,7 +5,7 @@
 //Loader class                                                          //
 //Manages loading planets, images and assets, etc                       //
 //----------------------------------------------------------------------//
-import { Planet, Mountain } from "./planet.mjs"
+import { Planet, Mountain, Ocean } from "./planet.mjs"
 import { Player } from "./player.mjs";
 import { Vec2, Colour } from "./miscellaneous.mjs";
 //Loader class, 
@@ -53,7 +53,7 @@ export class Loader {
         }
         const OCEANS = [];
         for (var i = 0; i < jsonObject.features.oceans.length; i++) {
-            const OCEAN = new Mountain(jsonObject.features.oceans[i].rad, jsonObject.features.oceans[i].depth);
+            const OCEAN = new Ocean(jsonObject.features.oceans[i].rad, jsonObject.features.oceans[i].depth);
             OCEANS.push(OCEAN);
         }
         return new Planet(

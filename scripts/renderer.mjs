@@ -177,8 +177,12 @@ export class Renderer {
         width = this.worldToCanvasNum(width, playerRelative, scaleWithScreen);
         //----------------------------------------//
 
+        if (style instanceof Colour) {
+            this.cnv.strokeStyle = style.txt();
+        } else {
+            this.cnv.strokeStyle = style;
+        }
         this.cnv.lineWidth = width;
-        this.cnv.strokeStyle = style.txt();
     }
     //----------------------------------------------------------------------//
 
@@ -239,7 +243,7 @@ export class Renderer {
     //runs cnv.arc
     //playerRelative: is the point relative to the player
     //scaleWithScreen: should the function manage alignment and screen size scaling?
-    arc(pos, rad, ang, playerRelative, scaleWithScreen) {
+    arc(pos, rad, startAng = 0, ang, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
             console.warn("Renderer.arc called on a page with no canvas. This might break things.");
@@ -252,7 +256,7 @@ export class Renderer {
         rad = this.worldToCanvasNum(rad, playerRelative, scaleWithScreen);
         //----------------------------------------//
         
-        this.cnv.arc(pos.x, pos.y, rad, 0, ang);
+        this.cnv.arc(pos.x, pos.y, rad, startAng, ang);
     }
     //----------------------------------------------------------------------//
 

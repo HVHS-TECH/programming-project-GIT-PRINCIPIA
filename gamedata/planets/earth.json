@@ -38,7 +38,24 @@
             
         ],
         "oceans": [
-            {"rad": 3, "depth": 20}
+            {"rad": 0, "depth": 20},
+            {"rad": 0.2, "depth": 40},
+            {"rad": 0.4, "depth": 60},
+            {"rad": 0.6, "depth": 50},
+            {"rad": 0.8, "depth": 20},
+            {"rad": 2.5, "depth": 20},
+            {"rad": 2.7, "depth": 30},
+            {"rad": 2.9, "depth": 40},
+            {"rad": 3.1, "depth": 20},
+            {"rad": 5, "depth": 10},
+            {"rad": 5.2, "depth": 30},
+            {"rad": 5.4, "depth": 20},
+            {"rad": 6.2, "depth": 10},
+            {"rad": 6.4, "depth": 40},
+            {"rad": 6.6, "depth": 20},
+            {"rad": 4.2, "depth": 20},
+            {"rad": 4.4, "depth": 30},
+            {"rad": 4.6, "depth": 10}
         ]
     }
     

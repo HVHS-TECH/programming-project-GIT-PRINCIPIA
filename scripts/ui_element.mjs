@@ -184,7 +184,7 @@ export class Navball extends UIelement {
         //Draw the background
         Game.renderer.fill(this.backgroundColour);
         Game.renderer.beginPath();
-        Game.renderer.arc(center, this.radius, Math.PI * 2, false, true);
+        Game.renderer.arc(center, this.radius, 0, Math.PI * 2, false, true);
         Game.renderer.closePath();
         Game.renderer.fillShape();
         //----------------------------------------//
@@ -293,7 +293,7 @@ export class Navball extends UIelement {
         //Draw the background outline last
         Game.renderer.stroke(this.outlineColour, this.outlineWidth, false, true);
         Game.renderer.beginPath();
-        Game.renderer.arc(center, this.radius, Math.PI * 2, false, true);
+        Game.renderer.arc(center, this.radius, 0, Math.PI * 2, false, true);
         Game.renderer.closePath();
         Game.renderer.strokeShape();
         //----------------------------------------//
