@@ -114,9 +114,11 @@ export class Planet {
         groundGrad.addColorStop(1, this.colour.txt());
 
         Game.renderer.fill(groundGrad);
+        Game.renderer.stroke(Colour.rgb(0, 0, 0), 2, true, true);
         Game.renderer.beginPath();
         Game.renderer.arc(this.pos, this.radius, Math.PI * 2, true, true);
         Game.renderer.fillShape();
+        Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
 
@@ -211,7 +213,17 @@ export class Planet {
     //DrawOceans()
     //Draws the oceans of the planet
     DrawOceans() {
-
+        var oceanGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
+        oceanGrad.addColorStop(0, this.oceanColourDeep.txt());
+        oceanGrad.addColorStop(0.6, this.oceanColourDeep.txt());
+        oceanGrad.addColorStop(0.8, this.oceanColourShallow.txt());
+        oceanGrad.addColorStop(1, this.oceanColourShallow.txt());
+        Game.renderer.fill(oceanGrad);
+        const CIRCUMFERENCE = 2 * Math.PI * this.radius;
+        //Loop through all the mountains and draw them
+        for (var o = 0; o < this.oceans.length;o++) {
+            Game.renderer.beginPath();
+        }
     }
     //----------------------------------------------------------------------//
 }

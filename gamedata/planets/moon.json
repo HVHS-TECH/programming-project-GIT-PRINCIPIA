@@ -3,7 +3,7 @@
         "name": "moon",
         "x": 0,
         "y": 3000,
-        "xVel": -6.6,
+        "xVel": -6.7,
         "yVel": 0,
         "mass": 4000,
         "radius": 100, 
@@ -18,11 +18,16 @@
         "atmoColourLow": {"r": 0, "g": 0, "b": 0}, 
         "atmoColourMid": {"r": 0, "g": 0, "b": 0},
         "mountainColour": {"r": 85, "g": 66, "b": 55},
-        "snowColour": {"r": 220, "g": 200, "b": 200}
+        "snowColour": {"r": 220, "g": 200, "b": 200},
+        "oceanColourShallow": {"r": 0, "g": 0, "b": 0},
+        "oceanColourDeep": {"r": 0, "g": 0, "b": 0}
     },
     "features": {
         "mountains": [
             
+        ],
+        "oceans": [
+
         ]
     }
     

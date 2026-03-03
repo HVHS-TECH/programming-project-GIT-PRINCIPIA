@@ -51,6 +51,11 @@ export class Loader {
             const MOUNTAIN = new Mountain(jsonObject.features.mountains[i].rad, jsonObject.features.mountains[i].height);
             MOUNTAINS.push(MOUNTAIN);
         }
+        const OCEANS = [];
+        for (var i = 0; i < jsonObject.features.oceans.length; i++) {
+            const OCEAN = new Mountain(jsonObject.features.oceans[i].rad, jsonObject.features.oceans[i].depth);
+            OCEANS.push(OCEAN);
+        }
         return new Planet(
             jsonObject.data.name,  //Name
             new Vec2(jsonObject.data.x, jsonObject.data.y),  //Position
@@ -67,7 +72,10 @@ export class Loader {
             Colour.rgb(jsonObject.colour.atmoColourMid.r, jsonObject.colour.atmoColourMid.g, jsonObject.colour.atmoColourMid.b), //Atmosphere colour mid
             Colour.rgb(jsonObject.colour.mountainColour.r, jsonObject.colour.mountainColour.g, jsonObject.colour.mountainColour.b), //Mountain colour
             Colour.rgb(jsonObject.colour.snowColour.r, jsonObject.colour.snowColour.g, jsonObject.colour.snowColour.b), //Snow colour
-            MOUNTAINS
+            MOUNTAINS,
+            Colour.rgb(jsonObject.colour.oceanColourShallow.r, jsonObject.colour.oceanColourShallow.g, jsonObject.colour.oceanColourShallow.b),
+            Colour.rgb(jsonObject.colour.oceanColourDeep.r, jsonObject.colour.oceanColourDeep.g, jsonObject.colour.oceanColourDeep.b),
+            OCEANS
         );
     }
 
