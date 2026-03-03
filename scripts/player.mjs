@@ -33,8 +33,6 @@ export class Player {
         Player.UpdateThruster();
         Player.ApplyGravity();
         Player.ApplyAtmosphericEffects();
-        console.log("Player vel: ");
-        console.dir(Player.vel);
     }
     //----------------------------------------------------------------------//
 
@@ -57,13 +55,13 @@ export class Player {
                 Player.fuel -= Player.fuelUsedPerFrame * Time.scaleDeltaTime;
 
                 //Thruster particles
-                const FRAME_INTERVAL = 4; 
+                const FRAME_INTERVAL = 1; 
                 if (Time.frame % FRAME_INTERVAL == 0) {
                     const PARTICLE_WIDTH = 1;
                     const PARTICLE_POS = new Vec2(Math.sin(Player.dir + Math.PI) * (Player.height / 2 + PARTICLE_WIDTH / 2), Math.cos(Player.dir + Math.PI) * (Player.height / 2 + PARTICLE_WIDTH / 2))
 
                     const PARTICLE_DIR = Player.dir + Math.PI; //Opposite to player direction
-                    const SPEED = 3;
+                    const SPEED = 2;
                     var particleVel = Player.vel.add(
                         new Vec2(
                             Math.sin(PARTICLE_DIR) * SPEED, 
@@ -78,12 +76,12 @@ export class Player {
                     Colour.rgba(255, 178, 115, 1), 
                     Colour.rgba(255, 102, 0, 0.2), 
                     Colour.rgba(0, 0, 0, 0), 
-                    20,
+                    10,
 
                         //----------------------------------------//
                         //Update()
                         function(){ //Update
-                            this.width += 1 - (this.frame / this.lifetime * 5) * Time.scaleDeltaTime;
+                            this.width += 1 - (this.frame / this.lifetime * 2) * Time.scaleDeltaTime;
                             for (var p = 0; p < Game.PLANETS.length; p++) {
                                 var other = Game.PLANETS[p];
                                 var delta = this.pos.sub(other.pos);

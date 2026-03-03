@@ -1,17 +1,37 @@
 {
-    "name": "earth",
-    "x": 0,
-    "y": 2000,
-    "xVel": -5.7,
-    "yVel": 0,
-    "mass": 100000,
-    "radius": 500, 
-    "atmoRadius": 750, 
-    "colour": {"r": 150, "g": 200, "b": 50}, 
-    "innerColour": {"r": 150, "g": 75, "b": 10}, 
-    "mantleColour": {"r": 50, "g": 20, "b": 0},
-    "outerCoreColour": {"r": 150, "g": 50, "b": 0},
-    "innerCoreColour": {"r": 255, "g": 220, "b": 0},
-    "atmoColourLow": {"r": 200, "g": 253, "b": 255}, 
-    "atmoColourMid": {"r": 101, "g": 128, "b": 168} 
+    "data": {
+        "name": "earth",
+        "x": 0,
+        "y": 2000,
+        "xVel": -5.7,
+        "yVel": 0,
+        "mass": 100000,
+        "radius": 500, 
+        "atmoRadius": 750
+    },
+    "colour": {
+        "colour": {"r": 150, "g": 200, "b": 50}, 
+        "innerColour": {"r": 150, "g": 75, "b": 10}, 
+        "mantleColour": {"r": 50, "g": 20, "b": 0},
+        "outerCoreColour": {"r": 150, "g": 50, "b": 0},
+        "innerCoreColour": {"r": 255, "g": 220, "b": 0},
+        "atmoColourLow": {"r": 200, "g": 253, "b": 255}, 
+        "atmoColourMid": {"r": 101, "g": 128, "b": 168},
+        "mountainColour": {"r": 85, "g": 66, "b": 55},
+        "snowColour": {"r": 220, "g": 200, "b": 200}
+    },
+    "features": {
+        "mountains": [
+            {"rad": 0, "height": 100},
+            {"rad": 0.2, "height": 50},
+            {"rad": 0.8, "height": 200},
+            {"rad": 4, "height": 50},
+            {"rad": 4.6, "height": 100},
+            {"rad": 4.8, "height": 50},
+            {"rad": 5.4, "height": 50},
+            {"rad": 6.6, "height": 100}
+            
+        ]
+    }
+    
 }

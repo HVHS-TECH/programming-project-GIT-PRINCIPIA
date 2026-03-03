@@ -23,10 +23,9 @@ export class Time {
         const NOW = Date.now();
         Time.deltaTime = (NOW - Time.last) / 1000; //in seconds
         Time.scaleDeltaTime = (Time.deltaTime * 60); //deltaTime x target fps
-        console.log("Delta time: " + Time.deltaTime + ", Scale delta time: " + Time.scaleDeltaTime);
+        
         Time.last = NOW;
         Time.fps = 1 / Time.deltaTime;
-        console.log("Fps: " + Time.fps);
         //----------------------------------------//
 
         Time.frame++;

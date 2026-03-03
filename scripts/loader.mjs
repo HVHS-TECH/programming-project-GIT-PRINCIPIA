@@ -5,7 +5,7 @@
 //Loader class                                                          //
 //Manages loading planets, images and assets, etc                       //
 //----------------------------------------------------------------------//
-import { Planet } from "./planet.mjs"
+import { Planet, Mountain } from "./planet.mjs"
 import { Player } from "./player.mjs";
 import { Vec2, Colour } from "./miscellaneous.mjs";
 //Loader class, 
@@ -46,20 +46,28 @@ export class Loader {
     //JSONobjectToPlanet(jsonObject)
     //Returns a planet generated from jsonObject
     static JSONobjectToPlanet(jsonObject) {
+        const MOUNTAINS = [];
+        for (var i = 0; i < jsonObject.features.mountains.length; i++) {
+            const MOUNTAIN = new Mountain(jsonObject.features.mountains[i].rad, jsonObject.features.mountains[i].height);
+            MOUNTAINS.push(MOUNTAIN);
+        }
         return new Planet(
-            jsonObject.name, 
-            new Vec2(jsonObject.x, jsonObject.y), 
-            new Vec2(jsonObject.xVel, jsonObject.yVel),
-            jsonObject.mass,
-            jsonObject.radius,
-            jsonObject.atmoRadius,
-            Colour.rgb(jsonObject.colour.r, jsonObject.colour.g, jsonObject.colour.b),
-            Colour.rgb(jsonObject.innerColour.r, jsonObject.innerColour.g, jsonObject.innerColour.b),
-            Colour.rgb(jsonObject.mantleColour.r, jsonObject.mantleColour.g, jsonObject.mantleColour.b),
-            Colour.rgb(jsonObject.outerCoreColour.r, jsonObject.outerCoreColour.g, jsonObject.outerCoreColour.b),
-            Colour.rgb(jsonObject.innerCoreColour.r, jsonObject.innerCoreColour.g, jsonObject.innerCoreColour.b),
-            Colour.rgb(jsonObject.atmoColourLow.r, jsonObject.atmoColourLow.g, jsonObject.atmoColourLow.b),
-            Colour.rgb(jsonObject.atmoColourMid.r, jsonObject.atmoColourMid.g, jsonObject.atmoColourMid.b)
+            jsonObject.data.name,  //Name
+            new Vec2(jsonObject.data.x, jsonObject.data.y),  //Position
+            new Vec2(jsonObject.data.xVel, jsonObject.data.yVel), //Velocity
+            jsonObject.data.mass, //Mass
+            jsonObject.data.radius, //Radius
+            jsonObject.data.atmoRadius, //Atmosphere radius from planet center
+            Colour.rgb(jsonObject.colour.colour.r, jsonObject.colour.colour.g, jsonObject.colour.colour.b), //Ground colour
+            Colour.rgb(jsonObject.colour.innerColour.r, jsonObject.colour.innerColour.g, jsonObject.colour.innerColour.b), //Dirt colour
+            Colour.rgb(jsonObject.colour.mantleColour.r, jsonObject.colour.mantleColour.g, jsonObject.colour.mantleColour.b), //Mantle colour
+            Colour.rgb(jsonObject.colour.outerCoreColour.r, jsonObject.colour.outerCoreColour.g, jsonObject.colour.outerCoreColour.b), //Outer core colour
+            Colour.rgb(jsonObject.colour.innerCoreColour.r, jsonObject.colour.innerCoreColour.g, jsonObject.colour.innerCoreColour.b), //Inner core colour
+            Colour.rgb(jsonObject.colour.atmoColourLow.r, jsonObject.colour.atmoColourLow.g, jsonObject.colour.atmoColourLow.b), //Atmosphere colour low
+            Colour.rgb(jsonObject.colour.atmoColourMid.r, jsonObject.colour.atmoColourMid.g, jsonObject.colour.atmoColourMid.b), //Atmosphere colour mid
+            Colour.rgb(jsonObject.colour.mountainColour.r, jsonObject.colour.mountainColour.g, jsonObject.colour.mountainColour.b), //Mountain colour
+            Colour.rgb(jsonObject.colour.snowColour.r, jsonObject.colour.snowColour.g, jsonObject.colour.snowColour.b), //Snow colour
+            MOUNTAINS
         );
     }
 
