@@ -226,17 +226,10 @@ export class Game {
     //the title 'title'                                            
     static setPage(title) {
         var p = Game.getPage(title);
-        var loc = window.location.pathname; //e.g /html/game.html, /index.html
+        var origin = window.location.origin; 
         
-        //Thanks to https://stackoverflow.com/questions/881085/count-the-number-of-occurrences-of-a-character-in-a-string-in-javascript
-        //For the depth calculation
-        var depth = (loc.split("/").length - 1); //e.g 1 for /index.html, 2 for /html/game.html
-        depth = Math.min(depth, 2); //Maximum depth of 2
-        var prefix = ""; //e.g '..', '.'
-        for (var i = 0; i < depth; i++) {
-            prefix = prefix + ".";
-        }
-        var href = prefix + Game.PAGES[p].href;
+        
+        var href = origin + Game.PAGES[p].href;
         window.location.href = href;
     }
     //----------------------------------------------------------------------//
