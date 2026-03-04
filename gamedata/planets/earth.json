@@ -19,8 +19,8 @@
         "atmoColourMid": {"r": 101, "g": 128, "b": 168},
         "mountainColour": {"r": 85, "g": 66, "b": 55},
         "snowColour": {"r": 220, "g": 200, "b": 200},
-        "oceanColourShallow": {"r": 150, "g": 200, "b": 250},
-        "oceanColourDeep": {"r": 50, "g": 100, "b": 150}
+        "oceanColourShallow": {"r": 150, "g": 240, "b": 255},
+        "oceanColourDeep": {"r": 20, "g": 80, "b": 120}
     },
     "features": {
         "mountains": [

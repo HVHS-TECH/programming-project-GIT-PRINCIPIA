@@ -259,8 +259,10 @@ export class Player {
         var vertices = [offset.add(deltaFront), offset.add(deltaRight), offset.add(deltaLeft)];
 
         Game.renderer.fill('white');
+        Game.renderer.stroke('black', 0.5 * scale, playerRelative, doScreenScale);
         Game.renderer.drawPolygon(vertices, playerRelative, doScreenScale);
         Game.renderer.fillShape();
+        Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
 }

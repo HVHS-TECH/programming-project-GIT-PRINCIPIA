@@ -114,9 +114,10 @@ export class Planet {
         groundGrad.addColorStop(1, this.colour.txt());
 
         Game.renderer.fill(groundGrad);
-        Game.renderer.stroke(Colour.rgb(0, 0, 0), 2, true, true);
+        const STROKE_WIDTH = 2;
+        Game.renderer.stroke(Colour.rgb(0, 0, 0), STROKE_WIDTH, true, true);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(this.pos, this.radius - STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
         Game.renderer.fillShape();
         Game.renderer.strokeShape();
     }
@@ -147,13 +148,15 @@ export class Planet {
     //DrawMountains()
     //Draws the mountains on the planet
     DrawMountains() {
+        const FUDGE_FACTOR = 5; //Fudge factor to shift the mountain into the ground
         var mountainGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
         mountainGrad.addColorStop(0, this.mountainColour.txt());
         mountainGrad.addColorStop(0.28, this.mountainColour.txt());
         mountainGrad.addColorStop(0.3, this.snowColour.txt());
         mountainGrad.addColorStop(1, this.snowColour.txt());
         Game.renderer.fill(mountainGrad);
-        Game.renderer.stroke(Colour.rgb(0, 0,0), 3, true, true);
+        const STROKE_WIDTH = 3;
+        Game.renderer.stroke(Colour.rgb(0, 0,0), STROKE_WIDTH, true, true);
         const CIRCUMFERENCE = 2 * Math.PI * this.radius;
         //Loop through all the mountains and draw them
         for (var m = 0; m < this.mountains.length; m++) {
@@ -185,16 +188,16 @@ export class Planet {
             const SIDE_LENGTH_RAD = SIDE_LENGTH / (CIRCUMFERENCE / this.radius);
 
             const LEFT = new Vec2(
-                Math.sin(MOUNTAIN.rad - SIDE_LENGTH_RAD / 2) * this.radius,
-                Math.cos(MOUNTAIN.rad - SIDE_LENGTH_RAD / 2) * this.radius
+                Math.sin(MOUNTAIN.rad - SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR),
+                Math.cos(MOUNTAIN.rad - SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR)
             );
 
             const RIGHT = new Vec2(
-                Math.sin(MOUNTAIN.rad + SIDE_LENGTH_RAD / 2) * this.radius,
-                Math.cos(MOUNTAIN.rad + SIDE_LENGTH_RAD / 2) * this.radius
+                Math.sin(MOUNTAIN.rad + SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR),
+                Math.cos(MOUNTAIN.rad + SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR)
             );
 
-            const TOP_DIST = MOUNTAIN.height + this.radius;
+            const TOP_DIST = MOUNTAIN.height + this.radius - FUDGE_FACTOR;
 
             const TOP = new Vec2(
                 Math.sin(MOUNTAIN.rad) * TOP_DIST, 
@@ -213,13 +216,12 @@ export class Planet {
     //DrawOceans()
     //Draws the oceans of the planet
     DrawOceans() {
-        var oceanGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
+        var oceanGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
         oceanGrad.addColorStop(0, this.oceanColourDeep.txt());
-        oceanGrad.addColorStop(0.9, this.oceanColourDeep.txt());
-        oceanGrad.addColorStop(0.95, this.oceanColourShallow.txt());
+        oceanGrad.addColorStop(0.97, this.oceanColourDeep.txt());
+        oceanGrad.addColorStop(0.995, this.oceanColourShallow.txt());
         oceanGrad.addColorStop(1, this.oceanColourShallow.txt());
         
-        const CIRCUMFERENCE = 2 * Math.PI * this.radius;
         //Loop through all the mountains and draw them
         for (var o = 0; o < this.oceans.length;o++) {
             const OCEAN = this.oceans[o];
