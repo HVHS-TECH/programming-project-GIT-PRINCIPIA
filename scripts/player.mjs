@@ -256,7 +256,7 @@ export class Player {
     //Draw()
     //Calls DrawPlayer() with default values
     static Draw() {
-        if (this.exploded) return; //Don't render the player if they exploded!
+        
         this.DrawPlayer(new Vec2(0, 0), 1, true, true, false);
     }
     //----------------------------------------------------------------------//
@@ -267,6 +267,7 @@ export class Player {
     //Draws the player based on an offset, scale, and whether it is relative to the player position and or scales with screen size
     //useSmoothDirDiff: if true, replace Player.dir with Player.dir - Player.smoothDir
     static DrawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff) {
+        if (this.exploded) return; //Don't render the player if they exploded!
         if (playerRelative) offset = offset.add(Player.pos);
 
         const DIR = (useSmoothDirDiff) ? Player.dir - Player.smoothDir : Player.dir;

@@ -39,7 +39,7 @@ export class Game {
     //A list of the pages that make up the game. Each one has a title, a href, a 'hasCnv' boolean, and an onLoad() function
     //HREF is from root directory
     static PAGES = [
-        new Page(Game.INDEX_TITLE, "./index.html", false,
+        new Page(Game.INDEX_TITLE, "/index.html", false,
             function () {
                 //Immediately redirect to the home page
                 Game.setPage(Game.HOME_TITLE);
@@ -47,21 +47,21 @@ export class Game {
         ),
 
 
-        new Page(Game.HOME_TITLE, "./html/start.html", false,
+        new Page(Game.HOME_TITLE, "/html/start.html", false,
             function () {
 
             }
         ),
 
 
-        new Page(Game.GAME_TITLE, "./html/game.html", true,
+        new Page(Game.GAME_TITLE, "/html/game.html", true,
             function () {
 
             }
         ),
 
 
-        new Page(Game.END_TITLE, "./html//end.html", false,
+        new Page(Game.END_TITLE, "/html/end.html", false,
             function () {
 
             }
@@ -226,8 +226,18 @@ export class Game {
     //the title 'title'                                            
     static setPage(title) {
         var p = Game.getPage(title);
-        var loc = window.location.pathname;
-        window.location.pathname = Game.PAGES[p].href;
+        var loc = window.location.pathname; //e.g /html/game.html, /index.html
+        
+        //Thanks to https://stackoverflow.com/questions/881085/count-the-number-of-occurrences-of-a-character-in-a-string-in-javascript
+        //For the depth calculation
+        var depth = (loc.split("/").length - 1); //e.g 1 for /index.html, 2 for /html/game.html
+        
+        var prefix = ""; //e.g '..', '.'
+        for (var i = 0; i < depth; i++) {
+            prefix = prefix + ".";
+        }
+        var href = prefix + Game.PAGES[p].href;
+        window.location.href = href;
     }
     //----------------------------------------------------------------------//
 
