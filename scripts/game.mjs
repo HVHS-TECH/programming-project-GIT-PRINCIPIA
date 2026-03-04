@@ -27,6 +27,8 @@ export class Game {
     static HOME_TITLE = "Astro Explorer - Title Screen";
     static GAME_TITLE = "Astro Explorer";
     static END_TITLE = "Astro Explorer - End Screen";
+
+    
     //Planets
     static PLANETS = [];
 
@@ -35,8 +37,9 @@ export class Game {
 
     
     //A list of the pages that make up the game. Each one has a title, a href, a 'hasCnv' boolean, and an onLoad() function
+    //HREF is from root directory
     static PAGES = [
-        new Page(Game.INDEX_TITLE, "../index.html", false,
+        new Page(Game.INDEX_TITLE, "./index.html", false,
             function () {
                 //Immediately redirect to the home page
                 Game.setPage(Game.HOME_TITLE);
@@ -44,21 +47,21 @@ export class Game {
         ),
 
 
-        new Page(Game.HOME_TITLE, "./start.html", false,
+        new Page(Game.HOME_TITLE, "./html/start.html", false,
             function () {
 
             }
         ),
 
 
-        new Page(Game.GAME_TITLE, "./game.html", true,
+        new Page(Game.GAME_TITLE, "./html/game.html", true,
             function () {
 
             }
         ),
 
 
-        new Page(Game.END_TITLE, "./end.html", false,
+        new Page(Game.END_TITLE, "./html//end.html", false,
             function () {
 
             }
@@ -223,7 +226,8 @@ export class Game {
     //the title 'title'                                            
     static setPage(title) {
         var p = Game.getPage(title);
-        window.location.href = Game.PAGES[p].href;
+        var loc = window.location.pathname;
+        window.location.pathname = Game.PAGES[p].href;
     }
     //----------------------------------------------------------------------//
 
