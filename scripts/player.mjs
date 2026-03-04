@@ -49,7 +49,7 @@ export class Player {
         Player.ApplyGravity();
         Player.ApplyAtmosphericEffects();
         if (Input.KeyDown("KeyE")) {
-            Player.die();
+            Player.explode();
         }
     }
     //----------------------------------------------------------------------//
@@ -292,10 +292,18 @@ export class Player {
 
     //----------------------------------------------------------------------//
     //die()
-    //kill the player! make them explode!
+    //kill the player!
     static die() {
-        Player.exploded = true;
         Player.deathCounter = 1;
+        
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //explode()
+    //spawns a bunch of explosion particles, deletes the player image
+    static explode() {
+        Player.exploded = true;
         const NUM_PARTICLES = 80;
         const SPEED = 3;
         const RANDOMNESS = 0.5;
@@ -336,6 +344,6 @@ export class Player {
                 function(){}
             ));
         }
+        Player.die();
     }
-    //----------------------------------------------------------------------//
 }
