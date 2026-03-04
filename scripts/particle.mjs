@@ -60,7 +60,7 @@ export class Particle {
         //Integrate rotation based on angular velocity and delta time
         this.rot += this.angVel * Time.scaleDeltaTime;
         this.update();
-        this.frame ++;
+        this.frame += Time.scaleDeltaTime;
     }
     //----------------------------------------------------------------------//
 
