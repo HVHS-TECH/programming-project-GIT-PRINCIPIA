@@ -86,12 +86,12 @@ export class Player {
                     Colour.rgba(255, 178, 115, 1), 
                     Colour.rgba(255, 102, 0, 0.2), 
                     Colour.rgba(0, 0, 0, 0), 
-                    10,
+                    15,
 
                         //----------------------------------------//
                         //Update()
                         function(){ //Update
-                            this.width += 1 * Time.scaleDeltaTime - this.frame / this.lifetime;
+                            this.width += 0.5 * Time.scaleDeltaTime - this.frame / this.lifetime * 1;
                             for (var p = 0; p < Game.PLANETS.length; p++) {
                                 var other = Game.PLANETS[p];
                                 var delta = this.pos.sub(other.pos);
@@ -114,8 +114,8 @@ export class Player {
                                     var rotatableVel = deltaNorm.mul(DOT); //Velocity RELATIVE TO PLANET along deltaNorm
                                     var dif = this.vel.sub(rotatableVel);
                                     var rotatedVel = rotatableVel.rotate((Math.random() > 0.5) ? 0 : Math.PI); 
-                                    this.startColour = Colour.rgba(100, 100, 110, 0.5);
-                                    this.midColour = Colour.rgba(150,150,170, 0.1);
+                                    this.startColour = Colour.rgba(100, 100, 110, 1);
+                                    this.midColour = Colour.rgba(150,150,170, 0.3);
                                     this.endColour = Colour.rgba(210, 210, 255, 0);
                                     this.vel = dif.add(rotatedVel.mul(2));
                                     

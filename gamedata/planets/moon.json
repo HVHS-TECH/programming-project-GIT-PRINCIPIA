@@ -3,7 +3,7 @@
         "name": "moon",
         "x": 0,
         "y": 3000,
-        "xVel": -6.7,
+        "xVel": -6.75,
         "yVel": 0,
         "mass": 4000,
         "radius": 100, 

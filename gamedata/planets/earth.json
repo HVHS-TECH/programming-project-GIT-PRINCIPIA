@@ -26,7 +26,7 @@
         "mountains": [
             {"rad": 0, "height": 100},
             {"rad": 0.2, "height": 50},
-            {"rad": 0.8, "height": 200},
+            {"rad": 0.8, "height": 130},
             {"rad": 2, "height": 100},
             {"rad": 2.2, "height": 150},
             {"rad": 2.4, "height": 50},
