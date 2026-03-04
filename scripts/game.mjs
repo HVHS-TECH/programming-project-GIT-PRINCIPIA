@@ -231,7 +231,7 @@ export class Game {
         //Thanks to https://stackoverflow.com/questions/881085/count-the-number-of-occurrences-of-a-character-in-a-string-in-javascript
         //For the depth calculation
         var depth = (loc.split("/").length - 1); //e.g 1 for /index.html, 2 for /html/game.html
-        
+        depth = Math.min(depth, 2); //Maximum depth of 2
         var prefix = ""; //e.g '..', '.'
         for (var i = 0; i < depth; i++) {
             prefix = prefix + ".";
