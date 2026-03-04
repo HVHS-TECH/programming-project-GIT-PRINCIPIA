@@ -239,21 +239,25 @@ export class Renderer {
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
-    //arc(pos, rad, ang)
+    //arc(pos, rad, startAng, ang)
     //runs cnv.arc
     //playerRelative: is the point relative to the player
     //scaleWithScreen: should the function manage alignment and screen size scaling?
-    arc(pos, rad, startAng = 0, ang, playerRelative, scaleWithScreen) {
+    arc(pos, rad, startAng, ang, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
             console.warn("Renderer.arc called on a page with no canvas. This might break things.");
             return;
         }
-
+        
         //----------------------------------------//
         //Transform the variables into canvas space, if applicable
         pos = this.worldToCanvas(pos, playerRelative, scaleWithScreen);
         rad = this.worldToCanvasNum(rad, playerRelative, scaleWithScreen);
+        if (playerRelative) {
+            startAng -= Player.smoothDir;
+            ang -= Player.smoothDir;
+        }
         //----------------------------------------//
         
         this.cnv.arc(pos.x, pos.y, rad, startAng, ang);
@@ -396,6 +400,7 @@ export class Renderer {
         if (playerRelative) {
             pos = pos.sub(Player.pos);
             pos = pos.mul(new Vec2(Player.zoom, Player.zoom));
+            pos = pos.rotate(-Player.smoothDir + Math.PI / 2);
         }
         //----------------------------------------//
 

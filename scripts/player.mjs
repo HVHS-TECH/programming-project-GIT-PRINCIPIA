@@ -16,6 +16,7 @@ export class Player {
     static pos = new Vec2(0, 0);
     static vel = new Vec2(0, 0);
     static dir = 0;
+    static smoothDir = 0; //Smoothly rotating dir
     static ang_vel = 0;
     static zoom = 1;
     static maxFuel = 100;
@@ -39,6 +40,7 @@ export class Player {
             Player.deathCounter += Time.scaleDeltaTime;
             return;
         }
+        Player.smoothDir += (Player.dir - Player.smoothDir) / 10;
         Player.Integrate();
         Player.UpdateThruster();
         Player.ApplyGravity();
@@ -202,6 +204,7 @@ export class Player {
                     dist = delta.len() - Player.height / 2;
                     Player.pos = Player.pos.sub(deltaNorm.mul(new Vec2(0.01, 0.01)));
                 }
+                
                 Player.dir = delta.dir(); //Lock the player outward
                 Player.ang_vel = 0;
                 break;
@@ -235,7 +238,7 @@ export class Player {
         //Integrate zoom based on input and delta time
         Player.zoom *= ((Input.KeyDown("ArrowUp") * 0.01 * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * 0.01 * Time.scaleDeltaTime + 1));
 
-        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.01;
+        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
 
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
         Player.ang_vel *= 0.95;
@@ -247,20 +250,21 @@ export class Player {
     //Draw()
     //Calls DrawPlayer() with default values
     static Draw() {
-        this.DrawPlayer(new Vec2(0, 0), 1, true, true);
+        this.DrawPlayer(new Vec2(0, 0), 1, true, true, false);
     }
     //----------------------------------------------------------------------//
 
 
     //----------------------------------------------------------------------//
-    //DrawPlayer()
+    //DrawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff)
     //Draws the player based on an offset, scale, and whether it is relative to the player position and or scales with screen size
-    static DrawPlayer(offset, scale, playerRelative, doScreenScale) {
+    //useSmoothDirDiff: if true, replace Player.dir with Player.dir - Player.smoothDir
+    static DrawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff) {
         if (playerRelative) offset = offset.add(Player.pos);
 
-
-        const heightOffset = new Vec2(Math.sin(Player.dir) * Player.height * scale, Math.cos(Player.dir) * Player.height * scale);
-        const widthOffset = new Vec2(Math.sin(Player.dir + Math.PI / 2) * Player.width * scale, Math.cos(Player.dir + Math.PI / 2) * Player.width * scale);
+        const DIR = (useSmoothDirDiff) ? Player.dir - Player.smoothDir : Player.dir;
+        const heightOffset = new Vec2(Math.sin(DIR) * Player.height * scale, Math.cos(DIR) * Player.height * scale);
+        const widthOffset = new Vec2(Math.sin(DIR + Math.PI / 2) * Player.width * scale, Math.cos(DIR + Math.PI / 2) * Player.width * scale);
 
         //Draw the player, centered
         var deltaFront = heightOffset.mul(new Vec2(0.5, 0.5));

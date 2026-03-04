@@ -229,8 +229,8 @@ export class Navball extends UIelement {
             var p2 = new Vec2(widthHalf, l);
 
             //Rotate p1 and p2 by slope around center
-            p1 = p1.rotate(this.velDir);
-            p2 = p2.rotate(this.velDir);
+            p1 = p1.rotate(this.velDir - Player.smoothDir);
+            p2 = p2.rotate(this.velDir - Player.smoothDir);
 
             p1 = p1.add(center);
             p2 = p2.add(center);
@@ -284,7 +284,7 @@ export class Navball extends UIelement {
     DrawPlayer(center) {
         //----------------------------------------//
         //Draw the player at an enlarged size
-        Player.DrawPlayer(center, this.playerScale, false, true);
+        Player.DrawPlayer(center, this.playerScale, false, true, true);
         //----------------------------------------//
     }
 
