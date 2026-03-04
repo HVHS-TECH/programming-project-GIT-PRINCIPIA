@@ -192,7 +192,8 @@ export class Game {
     //called every frame
     //manages game logic, then renders scene using renderer
     static Update() {
-
+        var origin = window.location.origin; 
+        console.log(origin);
         for (var p = 0; p < Game.PLANETS.length; p++) {
             Game.PLANETS[p].Update();
         }
@@ -227,7 +228,6 @@ export class Game {
     static setPage(title) {
         var p = Game.getPage(title);
         var origin = window.location.origin; 
-        
         
         var href = origin + Game.PAGES[p].href;
         window.location.href = href;
