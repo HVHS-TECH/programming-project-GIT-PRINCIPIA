@@ -24,11 +24,21 @@ export class Player {
     static thrusterForce = 0.006;
     static height = 10;
     static width = 6;
+    static deathCounter = 0; //A counter that starts counting up when the player dies. When it reaches deathCounterThreshold, the user is redirected to 'end.html'
+    static deathCounterThreshold = 60; //60 'frames'
 
     //----------------------------------------------------------------------//
     //Update()
     //called every frame
     static Update() {
+        if (Player.deathCounter > 0) {
+            if (Player.deathCounter > Player.deathCounterThreshold) {
+                Game.setPage(Game.END_TITLE); //Go to 'end.html'
+                return;
+            }
+            Player.deathCounter += Time.scaleDeltaTime;
+            return;
+        }
         Player.Integrate();
         Player.UpdateThruster();
         Player.ApplyGravity();
@@ -263,6 +273,16 @@ export class Player {
         Game.renderer.drawPolygon(vertices, playerRelative, doScreenScale);
         Game.renderer.fillShape();
         Game.renderer.strokeShape();
+    }
+    //----------------------------------------------------------------------//
+
+
+
+    //----------------------------------------------------------------------//
+    //die()
+    //kill the player! make them explode!
+    static die() {
+
     }
     //----------------------------------------------------------------------//
 }
