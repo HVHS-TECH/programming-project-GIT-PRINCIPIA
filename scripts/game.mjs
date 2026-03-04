@@ -36,7 +36,7 @@ export class Game {
     
     //A list of the pages that make up the game. Each one has a title, a href, a 'hasCnv' boolean, and an onLoad() function
     static PAGES = [
-        new Page(Game.INDEX_TITLE, "./index.html", false,
+        new Page(Game.INDEX_TITLE, "../index.html", false,
             function () {
                 //Immediately redirect to the home page
                 Game.setPage(Game.HOME_TITLE);
@@ -44,21 +44,21 @@ export class Game {
         ),
 
 
-        new Page(Game.HOME_TITLE, "./html/start.html", false,
+        new Page(Game.HOME_TITLE, "./start.html", false,
             function () {
 
             }
         ),
 
 
-        new Page(Game.GAME_TITLE, "./html/game.html", true,
+        new Page(Game.GAME_TITLE, "./game.html", true,
             function () {
 
             }
         ),
 
 
-        new Page(Game.END_TITLE, "./html/end.html", false,
+        new Page(Game.END_TITLE, "./end.html", false,
             function () {
 
             }
@@ -177,6 +177,7 @@ export class Game {
         //----------------------------------------//
         
         console.log("Game.Start: initialized");
+        
         requestAnimationFrame(Game.Update);
         
     }

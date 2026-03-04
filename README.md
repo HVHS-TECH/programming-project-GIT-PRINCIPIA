@@ -7,7 +7,6 @@ cb : callback
 
 
 TODO:  
-* Make a planet loader to load planets from files (json) (WIP)
 * Implement UI (WIP)  
 * Implement refueling  
 * Implement score on planet land  

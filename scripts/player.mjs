@@ -26,8 +26,9 @@ export class Player {
     static height = 10;
     static width = 6;
     static deathCounter = 0; //A counter that starts counting up when the player dies. When it reaches deathCounterThreshold, the user is redirected to 'end.html'
-    static deathCounterThreshold = 60; //60 'frames'
-
+    static exploded = false;
+    static deathCounterThreshold = 120; //120 'frames' at 60 'fps'
+    
     //----------------------------------------------------------------------//
     //Update()
     //called every frame
@@ -38,6 +39,8 @@ export class Player {
                 return;
             }
             Player.deathCounter += Time.scaleDeltaTime;
+            Player.ApplyGravity();
+            Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
             return;
         }
         Player.smoothDir += (Player.dir - Player.smoothDir) / 10;
@@ -45,6 +48,9 @@ export class Player {
         Player.UpdateThruster();
         Player.ApplyGravity();
         Player.ApplyAtmosphericEffects();
+        if (Input.KeyDown("KeyE")) {
+            Player.die();
+        }
     }
     //----------------------------------------------------------------------//
 
@@ -250,6 +256,7 @@ export class Player {
     //Draw()
     //Calls DrawPlayer() with default values
     static Draw() {
+        if (this.exploded) return; //Don't render the player if they exploded!
         this.DrawPlayer(new Vec2(0, 0), 1, true, true, false);
     }
     //----------------------------------------------------------------------//
@@ -286,7 +293,48 @@ export class Player {
     //die()
     //kill the player! make them explode!
     static die() {
+        Player.exploded = true;
+        Player.deathCounter = 1;
+        const NUM_PARTICLES = 80;
+        const SPEED = 3;
+        const RANDOMNESS = 0.5;
+        for (var r = 0; r < Math.PI * 2; r += Math.PI * 2 / NUM_PARTICLES) {
+            Game.addParticle(new Particle(
+                Player.pos, Player.dir + r, Player.vel.add(
+                    new Vec2(
+                        Math.sin(r) * SPEED + (Math.random() * 2 - 1) * RANDOMNESS, 
+                        Math.cos(r) * SPEED + (Math.random() * 2 - 1) * RANDOMNESS
+                    )
+                ), 
+                1, 10, 
+                Colour.rgba(250,150,100,1), 
+                Colour.rgba(255, 72, 0, 0.5), 
+                Colour.rgba(151, 151, 151, 0), 
+                10 + (Math.random() * 2 - 1) * RANDOMNESS * 10,
+                function(){},
+                function(){}
+            ));
+        }
 
+
+
+        for (var r = 0; r < Math.PI * 2; r += Math.PI * 2 / NUM_PARTICLES) {
+            Game.addParticle(new Particle(
+                Player.pos, Player.dir + r, Player.vel.add(
+                    new Vec2(
+                        Math.sin(r) * SPEED / 3 + (Math.random() * 2 - 1) * RANDOMNESS, 
+                        Math.cos(r) * SPEED / 3 + (Math.random() * 2 - 1) * RANDOMNESS
+                    )
+                ), 
+                1, 10, 
+                Colour.rgba(250,150,100,1), 
+                Colour.rgba(255, 72, 0, 0.5), 
+                Colour.rgba(151, 151, 151, 0), 
+                20 + (Math.random() * 2 - 1) * RANDOMNESS * 10,
+                function(){},
+                function(){}
+            ));
+        }
     }
     //----------------------------------------------------------------------//
 }
