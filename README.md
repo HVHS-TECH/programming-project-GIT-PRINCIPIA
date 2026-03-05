@@ -7,6 +7,7 @@ cb : callback
 
 
 TODO:  
+* Implement full set of planets (WIP)
 * Implement UI (WIP)  
 * Implement refueling  
 * Implement score on planet land  
