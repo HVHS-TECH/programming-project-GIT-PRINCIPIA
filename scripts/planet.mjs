@@ -235,7 +235,6 @@ export class Planet {
             Game.renderer.stroke(oceanGrad, OCEAN.depth, true, true);
             Game.renderer.beginPath();
             Game.renderer.arc(this.pos, this.radius - OCEAN.depth / 2, LEFT, RIGHT, true, true);
-            Game.renderer.closePath();
             Game.renderer.strokeShape();
         }
     }

@@ -94,6 +94,9 @@ export class Renderer {
             Game.UI_ELEMENTS[e].Draw();
         }
         //----------------------------------------//
+
+        this.cnv.font = "48px serif";
+        this.cnv.fillText("SmoothDir: " + Player.smoothDir, this.cnvHalfDimen.x, this.cnvHalfDimen.y);
     }
     //----------------------------------------------------------------------//
 
