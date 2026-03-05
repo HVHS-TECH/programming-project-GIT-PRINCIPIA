@@ -43,7 +43,23 @@ export class Player {
             Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
             return;
         }
-        Player.smoothDir += (Player.dir - Player.smoothDir) / 10;
+        var closestPlanet = 0;
+        var closestPlanetDist = 1000000000000;
+        for (var p = 0; p < Game.PLANETS.length; p++) {
+            
+            var dist = Vec2.dist(Game.PLANETS[p].pos, Player.pos);
+            if (dist < closestPlanetDist) {
+                closestPlanet = p;
+                closestPlanetDist = dist;
+            }
+        }
+        var otherPos = Game.PLANETS[closestPlanet].pos;
+        var delta = otherPos.sub(Player.pos);
+        var deltaNorm = delta.norm();
+
+        
+        Player.smoothDir = lerp(Player.smoothDir, deltaNorm.dir(), 0.01);
+        
         Player.Integrate();
         Player.UpdateThruster();
         Player.ApplyGravity();
