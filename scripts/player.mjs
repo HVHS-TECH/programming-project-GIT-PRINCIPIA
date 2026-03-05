@@ -19,22 +19,23 @@ export class Player {
     static smoothDir = 0; //Smoothly rotating dir
     static ang_vel = 0;
     static zoom = 1;
-    static maxFuel = 100;
+    static MAX_FUEL = 100;
     static fuel = 100;
-    static fuelUsedPerFrame = 0.05;
-    static thrusterForce = 0.006;
-    static height = 10;
-    static width = 6;
+    static FUEL_USED_PER_FRAME = 0.05;
+    static THRUSTER_FORCE = 0.006;
+    static HEIGHT = 10;
+    static WIDTH = 6;
     static deathCounter = 0; //A counter that starts counting up when the player dies. When it reaches deathCounterThreshold, the user is redirected to 'end.html'
     static exploded = false;
-    static deathCounterThreshold = 120; //120 'frames' at 60 'fps'
+    static DEATH_COUNTER_THRESH = 120; //120 'frames' at 60 'fps'
+    static IMPACT_TOLERANCE = 2;
     
     //----------------------------------------------------------------------//
     //Update()
     //called every frame
     static Update() {
         if (Player.deathCounter > 0) {
-            if (Player.deathCounter > Player.deathCounterThreshold) {
+            if (Player.deathCounter > Player.DEATH_COUNTER_THRESH) {
                 Game.setPage(Game.END_TITLE); //Go to 'end.html'
                 return;
             }
@@ -46,18 +47,15 @@ export class Player {
         var closestPlanet = Game.getClosestPlanet(Player.pos, true);
         var otherPos = Game.PLANETS[closestPlanet].pos;
         var delta = otherPos.sub(Player.pos);
-        var deltaNorm = delta.norm();
+        const DELTA_NORM = delta.norm();
 
         
-        Player.smoothDir = lerp(Player.smoothDir, deltaNorm.dir(), 0.05);
+        Player.smoothDir = lerp(Player.smoothDir, DELTA_NORM.dir(), 0.05);
         
         Player.Integrate();
         Player.UpdateThruster();
         Player.ApplyGravity();
         Player.ApplyAtmosphericEffects();
-        if (Input.KeyDown("KeyE")) {
-            Player.explode();
-        }
     }
     //----------------------------------------------------------------------//
 
@@ -66,7 +64,7 @@ export class Player {
     //Manages thruster and fuel
     static UpdateThruster() {
         if (Player.fuel != 0) {
-            var inputForward = (Input.KeyDown("KeyW")) * Player.thrusterForce * Time.scaleDeltaTime;
+            var inputForward = (Input.KeyDown("KeyW")) * Player.THRUSTER_FORCE * Time.scaleDeltaTime;
 
 
 
@@ -76,7 +74,7 @@ export class Player {
                 Player.vel.y += Math.cos(Player.dir) * inputForward;
 
                 //Reduce fuel based on fuel consumption and delta time
-                Player.fuel -= Player.fuelUsedPerFrame * Time.scaleDeltaTime;
+                Player.fuel -= Player.FUEL_USED_PER_FRAME * Time.scaleDeltaTime;
 
                 //Thruster particles
                 const DIR_RANDOMNESS = 0.2;
@@ -89,7 +87,7 @@ export class Player {
                     //Flame particles
                     const NUM_PARTICLES = 6; //Spawn <NUM_PARTICLES> every <FRAME_INTERVAL> frames
                     const PARTICLE_WIDTH = 1 + (Math.random() * 2 - 1) * SIZE_RANDOMNESS;
-                    const PARTICLE_POS = new Vec2(Math.sin(Player.dir + Math.PI) * (Player.height / 2 + PARTICLE_WIDTH / 2), Math.cos(Player.dir + Math.PI) * (Player.height / 2 + PARTICLE_WIDTH / 2))
+                    const PARTICLE_POS = new Vec2(Math.sin(Player.dir + Math.PI) * (Player.HEIGHT / 2 + PARTICLE_WIDTH / 2), Math.cos(Player.dir + Math.PI) * (Player.HEIGHT / 2 + PARTICLE_WIDTH / 2))
 
                     const PARTICLE_DIR = Player.dir + Math.PI + (Math.random() * 2 - 1) * DIR_RANDOMNESS; //Opposite to player direction
                     const SPEED = 1 + (Math.random() * 2 - 1) * VEL_RANDOMNESS;
@@ -116,23 +114,23 @@ export class Player {
                                     var other = Game.PLANETS[p];
                                     var delta = this.pos.sub(other.pos);
                                     var dist = delta.len() - this.width / 2;
-                                    var deltaNorm = delta.norm();
+                                    const DELTA_NORM = delta.norm();
 
                                     //If the particle is colliding with the planet, change the particle's velocity and shift it to above the surface to resolve the collision.
                                     if (dist < other.radius) {
                                         //while (dist < other.radius) {
                                         //    delta = other.pos.sub(this.pos);
                                         //    dist = delta.len() - this.width / 2;
-                                        //    this.pos = this.pos.sub(deltaNorm.mul(new Vec2(0.05, 0.05)));
+                                        //    this.pos = this.pos.sub(DELTA_NORM.mul(new Vec2(0.05, 0.05)));
                                         //}
                                         const LEN = this.vel.len();
                                         
                                         //Change the particle's direction to imitate a 'spread outward' effect
                                         const ANGLE = Player.dir;
-                                        const DOT = Vec2.dot(this.vel.sub(other.vel), deltaNorm);
+                                        const DOT = Vec2.dot(this.vel.sub(other.vel), DELTA_NORM);
 
-                                        var rotatableVel = deltaNorm.mul(DOT); //Velocity RELATIVE TO PLANET along deltaNorm
-                                        var dif = this.vel.sub(rotatableVel);//Difference between particle vel and relative particle vel along deltaNorm
+                                        var rotatableVel = DELTA_NORM.mul(DOT); //Velocity RELATIVE TO PLANET along DELTA_NORM
+                                        var dif = this.vel.sub(rotatableVel);//Difference between particle vel and relative particle vel along DELTA_NORM
                                         var rotatedVel = rotatableVel.rotate((Math.random() > 0.5) ? 0 : Math.PI); 
                                         this.startColour = Colour.rgba(100, 100, 110, 1);
                                         this.midColour = Colour.rgba(150,150,170, 0.3);
@@ -150,19 +148,19 @@ export class Player {
                                             var relVel = this.vel.sub(other.vel);//Relative velocity
                                             var delta = this.pos.sub(other.pos);//Difference in position between player and plaent
                                             
-                                            var deltaNorm = delta.norm();//Normalized delta
+                                            const DELTA_NORM = delta.norm();//Normalized delta
 
                                             //The increase in width of the particle this frame
                                             const WIDTH_INCREASE = 0.2 * Time.scaleDeltaTime * relVel.len() * (Math.pow(this.frame / this.lifetime, 2) * 5); 
                                             this.width += WIDTH_INCREASE; //Increase width
 
                                             //Prevent the particle clipping into the planet by shifting it up by half the width increase this frame
-                                            this.pos = this.pos.add(deltaNorm.mul(WIDTH_INCREASE / 2));
+                                            this.pos = this.pos.add(DELTA_NORM.mul(WIDTH_INCREASE / 2));
                                         };
                                         break;
                                     }
                                     //var force = Game.G * other.mass / (dist * dist);
-                                    //this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
+                                    //this.vel = this.vel.add(DELTA_NORM.mul(new Vec2(force, force)));
                                 }
                             
                             }, 
@@ -204,16 +202,29 @@ export class Player {
         for (var p = 0; p < Game.PLANETS.length; p++) {
             var other = Game.PLANETS[p];
             var delta = other.pos.sub(Player.pos);
-            var dist = delta.len() - Player.height / 2;
-            var deltaNorm = delta.norm();
+            var dist = delta.len() - Player.HEIGHT / 2;
+            const DELTA_NORM = delta.norm();
 
             //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
             if (dist < other.radius) {
+                //Should the player explode (were they moving too fast?)
+                const REL_VEL = Player.vel.sub(other.vel);
+                const VEL_NORM = REL_VEL.norm();
+                const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, DELTA_NORM);
+                const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), DELTA_NORM);
+                const IMPACT_SEVERITY = 
+                Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * 0.7 //Punish the player for landing while moving sideways
+                 + Math.max(DIR_DOT_DELTA_NORM, 0) * 1.5; //Punish the player for not landing upright
+                if (REL_VEL.len() > Player.IMPACT_TOLERANCE - IMPACT_SEVERITY) {
+                    //Explode and die!!!
+                    Player.explode();
+
+                }
                 Player.vel = other.vel;
                 while (dist < other.radius) {
                     delta = other.pos.sub(Player.pos);
-                    dist = delta.len() - Player.height / 2;
-                    Player.pos = Player.pos.sub(deltaNorm.mul(new Vec2(0.01, 0.01)));
+                    dist = delta.len() - Player.HEIGHT / 2;
+                    Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
                 }
                 
                 Player.dir = delta.dir(); //Lock the player outward
@@ -221,7 +232,7 @@ export class Player {
                 break;
             }
             var force = Game.G * other.mass / (dist * dist) * Time.scaleDeltaTime;
-            Player.vel = Player.vel.add(deltaNorm.mul(new Vec2(force, force)));
+            Player.vel = Player.vel.add(DELTA_NORM.mul(new Vec2(force, force)));
         }
     }
     //----------------------------------------------------------------------//
@@ -276,8 +287,8 @@ export class Player {
         if (playerRelative) offset = offset.add(Player.pos);
 
         const DIR = (useSmoothDirDiff) ? Player.dir - Player.smoothDir : Player.dir;
-        const heightOffset = new Vec2(Math.sin(DIR) * Player.height * scale, Math.cos(DIR) * Player.height * scale);
-        const widthOffset = new Vec2(Math.sin(DIR + Math.PI / 2) * Player.width * scale, Math.cos(DIR + Math.PI / 2) * Player.width * scale);
+        const heightOffset = new Vec2(Math.sin(DIR) * Player.HEIGHT * scale, Math.cos(DIR) * Player.HEIGHT * scale);
+        const widthOffset = new Vec2(Math.sin(DIR + Math.PI / 2) * Player.WIDTH * scale, Math.cos(DIR + Math.PI / 2) * Player.WIDTH * scale);
 
         //Draw the player, centered
         var deltaFront = heightOffset.mul(new Vec2(0.5, 0.5));

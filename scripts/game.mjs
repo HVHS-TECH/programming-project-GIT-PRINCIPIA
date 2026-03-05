@@ -89,7 +89,7 @@ export class Game {
         new RefVar(
             "PlayerFuel",
             function() { //Get
-                return Player.fuel / Player.maxFuel;
+                return Player.fuel / Player.MAX_FUEL;
             }
         ),
         new RefVar(
