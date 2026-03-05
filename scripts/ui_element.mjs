@@ -196,12 +196,6 @@ export class Navball extends UIelement {
     //DrawWindStreaks()
     //Draws the 'wind streaks' indicating the player velocity direction
     DrawWindStreaks(center) {
-        
-        
-        
-        
-
-
         //----------------------------------------//
         //Settings, could be moved to constructor
         const SPACING = 250; //Spacing between wind streaks
@@ -222,8 +216,6 @@ export class Navball extends UIelement {
         //----------------------------------------//
         //Draw the lines
         for (var l = -this.radius; l <= this.radius; l += this.radius * 2 / (NUM_LINES * 0.4)) {
-
-
             const widthHalf = Math.sqrt(this.radius * this.radius - l * l);
             var p1 = new Vec2(-widthHalf, l);
             var p2 = new Vec2(widthHalf, l);
@@ -235,8 +227,6 @@ export class Navball extends UIelement {
             p1 = p1.add(center);
             p2 = p2.add(center);
 
-
-
             //----------------------------------------//
             //Spread out the equation into smaller chunks
             const A = (SPACING + SIZE) / SPACING
@@ -247,9 +237,8 @@ export class Navball extends UIelement {
             //----------------------------------------//
             //Populate start of array with segments that grow in length to imitate movement
             var lineDashArrayStart = [ 
-                clamp((MODULUS) * SIZE - SPACING, 0, SIZE), //SIZE 1
-                clamp((MODULUS) / (SPACING / SIZE) * SPACING, 0, SPACING) //SPACING 1
-
+                clamp((MODULUS) * SIZE - SPACING, 0, SIZE), //SIZE
+                clamp((MODULUS) / (SPACING / SIZE) * SPACING, 0, SPACING) //SPACING
                     ];
             //----------------------------------------//
 

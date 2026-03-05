@@ -29,11 +29,14 @@ export class Loader {
             const PLANET = Loader.JSONobjectToPlanet(JSON_OBJECT);
             ret.push(PLANET);
         }
+
+        //Loop through all the planets, and set the player's starting position
         for (var i = 0; i < ret.length; i++) {
             if (ret[i].name == STARTING_PLANET_NAME) {
                 Player.pos = ret[i].pos.add(new Vec2(0, ret[i].radius));
                 Player.vel = ret[i].vel;
                 console.log("Player starting position set to be on '" + STARTING_PLANET_NAME + "'");
+                break;
             }
         }
         console.log("Loader.LoadPlanets: loaded planet array: ");
@@ -64,11 +67,11 @@ export class Loader {
             OCEANS.push(OCEAN);
         }
         return new Planet(
-            jsonObject.data.name,  //Name
+            jsonObject.data.name,  
             new Vec2(jsonObject.data.x, jsonObject.data.y),  //Position
             new Vec2(jsonObject.data.xVel, jsonObject.data.yVel), //Velocity
-            jsonObject.data.mass, //Mass
-            jsonObject.data.radius, //Radius
+            jsonObject.data.mass, 
+            jsonObject.data.radius, 
             jsonObject.data.atmoRadius, //Atmosphere radius from planet center
             Colour.rgb(jsonObject.colour.colour.r, jsonObject.colour.colour.g, jsonObject.colour.colour.b), //Ground colour
             Colour.rgb(jsonObject.colour.innerColour.r, jsonObject.colour.innerColour.g, jsonObject.colour.innerColour.b), //Dirt colour
@@ -79,10 +82,10 @@ export class Loader {
             Colour.rgb(jsonObject.colour.atmoColourMid.r, jsonObject.colour.atmoColourMid.g, jsonObject.colour.atmoColourMid.b), //Atmosphere colour mid
             Colour.rgb(jsonObject.colour.mountainColour.r, jsonObject.colour.mountainColour.g, jsonObject.colour.mountainColour.b), //Mountain colour
             Colour.rgb(jsonObject.colour.snowColour.r, jsonObject.colour.snowColour.g, jsonObject.colour.snowColour.b), //Snow colour
-            MOUNTAINS,
-            Colour.rgb(jsonObject.colour.oceanColourShallow.r, jsonObject.colour.oceanColourShallow.g, jsonObject.colour.oceanColourShallow.b),
-            Colour.rgb(jsonObject.colour.oceanColourDeep.r, jsonObject.colour.oceanColourDeep.g, jsonObject.colour.oceanColourDeep.b),
-            OCEANS
+            MOUNTAINS, //Mountains list (list of Mountain classes)
+            Colour.rgb(jsonObject.colour.oceanColourShallow.r, jsonObject.colour.oceanColourShallow.g, jsonObject.colour.oceanColourShallow.b), //Top ocean colour
+            Colour.rgb(jsonObject.colour.oceanColourDeep.r, jsonObject.colour.oceanColourDeep.g, jsonObject.colour.oceanColourDeep.b), //Deep ocean colour
+            OCEANS //Oceans list (list of Ocean classes)
         );
     }
 

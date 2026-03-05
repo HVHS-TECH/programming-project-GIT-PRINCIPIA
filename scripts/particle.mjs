@@ -37,8 +37,10 @@ export class Particle {
     //Updates the particle position and other variables
     Update() {
         //is the particle 'dead'?
-        if (this.frame > this.lifetime) {
+        //>= because Game.mjs will not update it (to call OnDeath()) if frame > this.lifetime
+        if (this.frame >= this.lifetime) {
             this.OnDeath();
+            this.frame++; //Stop Game.mjs from updating this particle
             return;
         }
 
