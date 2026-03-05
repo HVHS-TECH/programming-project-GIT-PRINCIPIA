@@ -77,10 +77,12 @@ export class Game {
         new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(100, 100, 100), 5, "PlayerVel", "PlayerVelDir") //Navball
 
     ];
-
-    //The particles that exist in the world
-    //Initialize an array of null with length 100
-    static PARTICLES = Array.apply(null, Array(1000).map(function(){}));
+    
+    //                                   num particle slots
+    //                                          ||
+    //The particles that exist in the world     ||
+    //Initialize an array of null with length   \/
+    static PARTICLES = Array.apply(null, Array(3000).map(function(){}));
 
     //References to other variables for flexibility
     static REF_VARIABLES = [
@@ -101,17 +103,7 @@ export class Game {
             function() { //Get
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
-                var closest_planet = 0;
-                var closest_planet_dist = 1000000000000;
-                for (var p = 0; p < Game.PLANETS.length; p++) {
-                    
-                    var dist = Vec2.dist(Game.PLANETS[p].pos, Player.pos) - Game.PLANETS[p].radius;
-                    if (dist < closest_planet_dist) {
-                        closest_planet = p;
-                        closest_planet_dist = dist;
-                    }
-
-                }
+                var closest_planet = Game.getClosestPlanet(Player.pos);
                 vel = vel.sub(Game.PLANETS[closest_planet].vel);
                 return vel.len(); 
             }
@@ -121,17 +113,7 @@ export class Game {
             function() { //Get
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
-                var closest_planet = 0;
-                var closest_planet_dist = 1000000000000;
-                for (var p = 0; p < Game.PLANETS.length; p++) {
-                    
-                    var dist = Vec2.dist(Game.PLANETS[p].pos, Player.pos);
-                    if (dist < closest_planet_dist) {
-                        closest_planet = p;
-                        closest_planet_dist = dist;
-                    }
-
-                }
+                var closest_planet = Game.getClosestPlanet(Player.pos);
                 vel = vel.sub(Game.PLANETS[closest_planet].vel);
                 return vel.dir();
             }
