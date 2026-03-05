@@ -224,3 +224,11 @@ export class Colour {
     //----------------------------------------------------------------------//
 
 }
+
+
+
+//degrees to radians
+export const DEG2RAD = Math.PI / 180;
+
+//radians to degrees
+export const RAD2DEG = 180 / Math.PI;

@@ -43,7 +43,7 @@ export class Player {
             Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
             return;
         }
-        var closestPlanet = Game.getClosestPlanet(Player.pos);
+        var closestPlanet = Game.getClosestPlanet(Player.pos, true);
         var otherPos = Game.PLANETS[closestPlanet].pos;
         var delta = otherPos.sub(Player.pos);
         var deltaNorm = delta.norm();
@@ -145,7 +145,7 @@ export class Player {
                                         this.lifetime *= 2;
                                         this.update = function(){
 
-                                            var closestPlanet = Game.getClosestPlanet(this.pos);
+                                            var closestPlanet = Game.getClosestPlanet(this.pos, true);
                                             var other = Game.PLANETS[closestPlanet];
                                             var relVel = this.vel.sub(other.vel);//Relative velocity
                                             var delta = this.pos.sub(other.pos);//Difference in position between player and plaent

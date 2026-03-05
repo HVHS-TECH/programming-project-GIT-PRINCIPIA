@@ -46,14 +46,21 @@ export class Loader {
     //JSONobjectToPlanet(jsonObject)
     //Returns a planet generated from jsonObject
     static JSONobjectToPlanet(jsonObject) {
+        //Mountains array
         const MOUNTAINS = [];
+
+        //Loop through all JSON mountains, convert to mountain class, add to MOUNTAINS array
         for (var i = 0; i < jsonObject.features.mountains.length; i++) {
-            const MOUNTAIN = new Mountain(jsonObject.features.mountains[i].rad, jsonObject.features.mountains[i].height);
+            const MOUNTAIN = new Mountain(jsonObject.features.mountains[i].rad, jsonObject.features.mountains[i].width, jsonObject.features.mountains[i].height);
             MOUNTAINS.push(MOUNTAIN);
         }
+
+        //Oceans array
         const OCEANS = [];
+
+        //Loop through all JSON oceans, convert to ocean class, add to OCEANS array
         for (var i = 0; i < jsonObject.features.oceans.length; i++) {
-            const OCEAN = new Ocean(jsonObject.features.oceans[i].rad, jsonObject.features.oceans[i].depth);
+            const OCEAN = new Ocean(jsonObject.features.oceans[i].chunk, jsonObject.features.oceans[i].depth);
             OCEANS.push(OCEAN);
         }
         return new Planet(

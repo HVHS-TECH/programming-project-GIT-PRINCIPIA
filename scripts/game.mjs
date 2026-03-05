@@ -103,7 +103,7 @@ export class Game {
             function() { //Get
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
-                var closest_planet = Game.getClosestPlanet(Player.pos);
+                var closest_planet = Game.getClosestPlanet(Player.pos, true);
                 vel = vel.sub(Game.PLANETS[closest_planet].vel);
                 return vel.len(); 
             }
@@ -113,7 +113,7 @@ export class Game {
             function() { //Get
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
-                var closest_planet = Game.getClosestPlanet(Player.pos);
+                var closest_planet = Game.getClosestPlanet(Player.pos, true);
                 vel = vel.sub(Game.PLANETS[closest_planet].vel);
                 return vel.dir();
             }
@@ -164,7 +164,7 @@ export class Game {
         console.log("Game.Start: initialized");
         
         requestAnimationFrame(Game.Update);
-        
+        console.log("FPS: " + 0);
     }
     //----------------------------------------------------------------------//
 
@@ -310,7 +310,7 @@ export class Game {
         var closestPlanetDist = 1000000000000;
         for (var p = 0; p < Game.PLANETS.length; p++) {
             
-            var dist = Vec2.dist(Game.PLANETS[p].pos, Player.pos) - (subRadius) ? Game.PLANETS[p].radius : 0;
+            var dist = Vec2.dist(Game.PLANETS[p].pos, pos) - ((subRadius) ? Game.PLANETS[p].radius : 0);
             if (dist < closestPlanetDist) {
                 closestPlanet = p;
                 closestPlanetDist = dist;

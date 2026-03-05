@@ -5,7 +5,7 @@
 //Planet class                                                          //
 //An object to represent a planet, handling rendering and update logic  //
 //----------------------------------------------------------------------//
-import {Colour, Vec2} from './miscellaneous.mjs';
+import {Colour, Vec2, DEG2RAD} from './miscellaneous.mjs';
 import { Renderer } from './renderer.mjs';
 import { Game } from './game.mjs';
 import { Player } from './player.mjs';
@@ -14,8 +14,9 @@ import { Time } from './time.mjs';
 //Mountain class
 //Simple data structure to store mountain data
 export class Mountain {
-    constructor(rad, height) {
+    constructor(rad, width, height) {
         this.rad = rad;
+        this.width = width;
         this.height = height;
     }
 }
@@ -25,8 +26,8 @@ export class Mountain {
 //Ocean class
 //Simple data structure to store ocean data
 export class Ocean {
-    constructor(rad, depth) {
-        this.rad = rad;
+    constructor(chunk, depth) {
+        this.chunk = chunk;
         this.depth = depth;
     }
 }
@@ -184,17 +185,20 @@ export class Planet {
             //
             //
             //                {} <- planet center
-            const SIDE_LENGTH = 2;
-            const SIDE_LENGTH_RAD = SIDE_LENGTH / (CIRCUMFERENCE / this.radius);
+            //
+            //
+            //
+            const SIDE_ANGLE = MOUNTAIN.width / 5 * DEG2RAD; // MOUNTAIN.width / 5 to get units => degrees, then convert to radians
+            const SIDE_ANGLE_HALF = SIDE_ANGLE / 2;
 
             const LEFT = new Vec2(
-                Math.sin(MOUNTAIN.rad - SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR),
-                Math.cos(MOUNTAIN.rad - SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR)
+                Math.sin(MOUNTAIN.rad - SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR),
+                Math.cos(MOUNTAIN.rad - SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR)
             );
 
             const RIGHT = new Vec2(
-                Math.sin(MOUNTAIN.rad + SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR),
-                Math.cos(MOUNTAIN.rad + SIDE_LENGTH_RAD / 2) * (this.radius - FUDGE_FACTOR)
+                Math.sin(MOUNTAIN.rad + SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR),
+                Math.cos(MOUNTAIN.rad + SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR)
             );
 
             const TOP_DIST = MOUNTAIN.height + this.radius - FUDGE_FACTOR;
@@ -225,9 +229,12 @@ export class Planet {
         //Loop through all the mountains and draw them
         for (var o = 0; o < this.oceans.length;o++) {
             const OCEAN = this.oceans[o];
+            const CHUNK_WIDTH = 15;
+            const LEFT = (OCEAN.chunk * CHUNK_WIDTH - CHUNK_WIDTH / 2) * DEG2RAD;
+            const RIGHT = (OCEAN.chunk * CHUNK_WIDTH + CHUNK_WIDTH / 2) * DEG2RAD;
             Game.renderer.stroke(oceanGrad, OCEAN.depth, true, true);
             Game.renderer.beginPath();
-            Game.renderer.arc(this.pos, this.radius - OCEAN.depth / 2, OCEAN.rad - 0.1, OCEAN.rad + 0.1, true, true);
+            Game.renderer.arc(this.pos, this.radius - OCEAN.depth / 2, LEFT, RIGHT, true, true);
             Game.renderer.closePath();
             Game.renderer.strokeShape();
         }
