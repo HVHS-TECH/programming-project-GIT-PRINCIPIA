@@ -50,10 +50,14 @@ export class Player {
         var delta = otherPos.sub(Player.pos);
         const DELTA_NORM = delta.norm();
 
+
+        const INTERPOLATION_VALUE = 0.1; //What fraction of the rotation to do each frame? (higher = smoother)
+
+        const SMOOTH_DIR_VEC = new Vec2(Math.sin(Player.smoothDir - Math.PI), Math.cos(Player.smoothDir - Math.PI));
         
-        Player.smoothDir = (Player.smoothDir) % (Math.PI * 2); //Prevent player.smoothDir from exceeding [-180 --- +180]
         
-        Player.smoothDir = lerp(Player.smoothDir, DELTA_NORM.dir(), 0.05);
+        Player.smoothDir = Vec2.slerp(SMOOTH_DIR_VEC, DELTA_NORM, INTERPOLATION_VALUE).dir() + Math.PI; 
+        
 
 
         Player.Integrate();
@@ -196,6 +200,7 @@ export class Player {
             Player.fuel = 0;
             Player.die();
         }
+        //----------------------------------------//
         
     }
     //----------------------------------------------------------------------//

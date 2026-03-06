@@ -142,11 +142,32 @@ export class Vec2 {
     //----------------------------------------------------------------------//
 
 
+    //----------------------------------------------------------------------//
+    //slerp(a, b, k)
+    //spherical linear interpolation from a to b, by k
+    static slerp(a, b, k) {
+        const DIR_1 = normalizeAngle(a.dir());
+        const DIR_2 = normalizeAngle(b.dir());
+
+        const DIF = normalizeAngle(DIR_2 - DIR_1);
+        
+        const ANG = DIR_1 + DIF * k;
+        return new Vec2(Math.sin(ANG), Math.cos(ANG));
+    }
+    //----------------------------------------------------------------------//
+
+
 }
-
-
 //----------------------------------------------------------------------//
 
+//----------------------------------------------------------------------//
+//normalizeAngle(ang)
+//normalizes the angle 'ang' between -Math.PI and Math.PI
+export function normalizeAngle(ang) {
+    while (ang > Math.PI) ang -= Math.PI * 2;
+    while (ang < -Math.PI) ang += Math.PI * 2;
+    return ang;
+}
 
 
 
