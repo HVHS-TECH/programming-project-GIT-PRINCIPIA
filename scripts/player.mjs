@@ -48,10 +48,10 @@ export class Player {
         var closestPlanet = Game.getClosestPlanet(Player.pos, true);
         var otherPos = Game.PLANETS[closestPlanet].pos;
         var delta = otherPos.sub(Player.pos);
-        const DELTA_NORM = delta.norm();
+        const DELTA_NORM = delta.norm(); //Normalized vector from player to planet
 
 
-        const INTERPOLATION_VALUE = 0.1; //What fraction of the rotation to do each frame? (higher = smoother)
+        const INTERPOLATION_VALUE = 0.05; //What fraction of the rotation to do each frame? (smaller = smoother)
 
         const SMOOTH_DIR_VEC = new Vec2(Math.sin(Player.smoothDir - Math.PI), Math.cos(Player.smoothDir - Math.PI));
         
