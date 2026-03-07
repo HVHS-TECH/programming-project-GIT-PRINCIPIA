@@ -18,7 +18,10 @@ export class Player {
     static dir = 0;
     static smoothDir = 0; //Smoothly rotating dir
     static ang_vel = 0;
-    static zoom = 1;
+
+    static smoothZoom = 0.0001; //Smooth zoom is initialized to be more zoomed out than zoom so that the camera 'zooms in' at the start of the game
+    static zoom = 2;
+
     static MAX_FUEL = 100;
     static fuel = 100;
     static FUEL_USED_PER_FRAME = 0.05;
@@ -48,22 +51,45 @@ export class Player {
             return;
         }
 
+
+        //----------------------------------------//
+        //Smoothly rotate so that the nearest planet tends toward the bottom of the screen
         var closestPlanet = Game.getClosestPlanet(Player.pos, true);
         var otherPos = Game.PLANETS[closestPlanet].pos;
         var delta = otherPos.sub(Player.pos);
         const DELTA_NORM = delta.norm(); //Normalized vector from player to planet
 
-
-        const INTERPOLATION_VALUE = 0.05; //What fraction of the rotation to do each frame? (smaller = smoother)
-
+        //How fast to reach the target value (higher = faster, lower = smoother)
+        const DIRECTION_SMOOTHING = 0.01; 
         const SMOOTH_DIR_VEC = new Vec2(Math.sin(Player.smoothDir - Math.PI), Math.cos(Player.smoothDir - Math.PI));
         
-        
-        Player.smoothDir = Vec2.slerp(SMOOTH_DIR_VEC, DELTA_NORM, INTERPOLATION_VALUE).dir() + Math.PI; 
+        Player.smoothDir = Vec2.slerp(SMOOTH_DIR_VEC, DELTA_NORM, DIRECTION_SMOOTHING).dir() + Math.PI; 
+        //----------------------------------------//
         
 
+        //----------------------------------------//
+        //Smoothly increase the displayed score to match the real score
+
+        //How fast to reach the target value (higher = faster, lower = smoother)
         const SCORE_SMOOTHING = 0.1;
         Player.smoothScore = lerp(Player.smoothScore, Player.score, SCORE_SMOOTHING);
+        //----------------------------------------//
+
+
+        //----------------------------------------//
+        //Smoothly interpolate the player zoom to match the input value
+
+        //How fast to reach the target value (higher = faster, lower = smoother)
+        const ZOOM_SMOOTHING = 0.1;
+
+        //-------------//
+        //Im not entirely sure how this works, but it's kind of like a damper. 
+        //If you change it, have a look at how it affects LONG RANGE zooming - though values above one seem to dampen only one direction
+        const ZOOOM_POWER = 0.00005; 
+        //-------------//
+
+        Player.smoothZoom = Math.pow(lerp(Math.pow(Player.smoothZoom, ZOOOM_POWER), Math.pow(Player.zoom, ZOOOM_POWER), ZOOM_SMOOTHING), 1/ZOOOM_POWER);
+        //----------------------------------------//
 
 
         Player.Integrate();
@@ -90,7 +116,8 @@ export class Player {
                 //Reduce fuel based on fuel consumption and delta time
                 Player.fuel -= Player.FUEL_USED_PER_FRAME * Time.scaleDeltaTime;
 
-                //Thruster particles
+                //----------------------------------------//
+                //Thruster particle settings
                 const DIR_RANDOMNESS = 0.2;
                 const VEL_RANDOMNESS = 0.1;
                 const SIZE_RANDOMNESS = 0.5;
@@ -99,6 +126,7 @@ export class Player {
                 const BASE_WIDTH = 1;
                 const BASE_SPEED = 1;
                 const FRAME_INTERVAL = 2; //Spawn particles every <FRAME_INTERVAL> frames
+                //----------------------------------------//
                 if (Time.frame % FRAME_INTERVAL == 0) {
                     
                     

@@ -402,7 +402,7 @@ export class Renderer {
         //Transform based on player position and zoom
         if (playerRelative) {
             pos = pos.sub(Player.pos);
-            pos = pos.mul(new Vec2(Player.zoom, Player.zoom));
+            pos = pos.mul(new Vec2(Player.smoothZoom, Player.smoothZoom));
             pos = pos.rotate(-Player.smoothDir + Math.PI / 2);
         }
         //----------------------------------------//
@@ -435,7 +435,7 @@ export class Renderer {
         //----------------------------------------//
         //Transform based on zoom
         if (playerRelative) {
-            num *= Player.zoom;
+            num *= Player.smoothZoom;
         }
         //----------------------------------------//
 
