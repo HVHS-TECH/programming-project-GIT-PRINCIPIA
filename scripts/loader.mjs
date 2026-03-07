@@ -8,6 +8,7 @@
 import { Planet, Mountain, Ocean } from "./planet.mjs"
 import { Player } from "./player.mjs";
 import { Vec2, Colour } from "./miscellaneous.mjs";
+import { Game } from "./game.mjs";
 //Loader class, 
 export class Loader {
 
@@ -35,6 +36,7 @@ export class Loader {
             if (ret[i].name == STARTING_PLANET_NAME) {
                 Player.pos = ret[i].pos.add(new Vec2(0, ret[i].radius));
                 Player.vel = ret[i].vel;
+                ret[i].discovered = true;
                 console.log("Player starting position set to be on '" + STARTING_PLANET_NAME + "'");
                 break;
             }
@@ -74,6 +76,7 @@ export class Loader {
             jsonObject.data.radius, 
             jsonObject.data.atmoRadius, //Atmosphere radius from planet center
             Colour.rgb(jsonObject.colour.colour.r, jsonObject.colour.colour.g, jsonObject.colour.colour.b), //Ground colour
+            Colour.rgb(jsonObject.colour.outlineColour.r, jsonObject.colour.outlineColour.g, jsonObject.colour.outlineColour.b), //Outline colour
             Colour.rgb(jsonObject.colour.innerColour.r, jsonObject.colour.innerColour.g, jsonObject.colour.innerColour.b), //Dirt colour
             Colour.rgb(jsonObject.colour.mantleColour.r, jsonObject.colour.mantleColour.g, jsonObject.colour.mantleColour.b), //Mantle colour
             Colour.rgb(jsonObject.colour.outerCoreColour.r, jsonObject.colour.outerCoreColour.g, jsonObject.colour.outerCoreColour.b), //Outer core colour
@@ -82,6 +85,7 @@ export class Loader {
             Colour.rgb(jsonObject.colour.atmoColourMid.r, jsonObject.colour.atmoColourMid.g, jsonObject.colour.atmoColourMid.b), //Atmosphere colour mid
             Colour.rgb(jsonObject.colour.mountainColour.r, jsonObject.colour.mountainColour.g, jsonObject.colour.mountainColour.b), //Mountain colour
             Colour.rgb(jsonObject.colour.snowColour.r, jsonObject.colour.snowColour.g, jsonObject.colour.snowColour.b), //Snow colour
+            Colour.rgb(jsonObject.colour.mountainOutlineColour.r, jsonObject.colour.mountainOutlineColour.g, jsonObject.colour.mountainOutlineColour.b), //Outline colour of the mountains
             MOUNTAINS, //Mountains list (list of Mountain classes)
             Colour.rgb(jsonObject.colour.oceanColourShallow.r, jsonObject.colour.oceanColourShallow.g, jsonObject.colour.oceanColourShallow.b), //Top ocean colour
             Colour.rgb(jsonObject.colour.oceanColourDeep.r, jsonObject.colour.oceanColourDeep.g, jsonObject.colour.oceanColourDeep.b), //Deep ocean colour

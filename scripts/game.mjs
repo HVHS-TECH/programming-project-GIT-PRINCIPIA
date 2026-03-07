@@ -124,6 +124,9 @@ export class Game {
 
     static G = 0.01; //Universal gravitational constant
 
+
+    
+
     //----------------------------------------------------------------------//
     //Start()
     //called on page load

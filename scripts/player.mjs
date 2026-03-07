@@ -29,6 +29,8 @@ export class Player {
     static exploded = false;
     static DEATH_COUNTER_THRESH = 120; //120 'frames' at 60 'fps'
     static IMPACT_TOLERANCE = 2;
+
+    static score = 0;
     
     //----------------------------------------------------------------------//
     //Update()
@@ -230,8 +232,10 @@ export class Player {
                  + Math.max(DIR_DOT_DELTA_NORM, 0) * 1.5; //Punish the player for not landing upright
                 if (REL_VEL.len() > Player.IMPACT_TOLERANCE - IMPACT_SEVERITY) {
                     Player.explode();
+                    return;
                 }
                 //----------------------------------------//
+                Player.discoverPlanet(p);//Must be called after checking for crash, because otherwise you could crash into a planet and still discover it.
 
                 Player.vel = other.vel;
                 while (dist < other.radius) {
@@ -314,6 +318,18 @@ export class Player {
         Game.renderer.drawPolygon(vertices, playerRelative, doScreenScale);
         Game.renderer.fillShape();
         Game.renderer.strokeShape();
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //discoverPlanet(planetIdx)
+    //Mark the planet at 'Game.PLANETS[planetIdx]' as discovered
+    //Increment player score
+    static discoverPlanet(planetIdx) {
+        if (Game.PLANETS[planetIdx].discovered) return; //Can't discover a planet twice
+        Game.PLANETS[planetIdx].discovered = true; //mark as discovered
+        Player.score += (1000 / Game.PLANETS[planetIdx].radius) * 1000;
     }
     //----------------------------------------------------------------------//
 

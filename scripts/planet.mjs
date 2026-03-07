@@ -32,8 +32,9 @@ export class Ocean {
     }
 }
 export class Planet {
-    
-    constructor(name, pos, vel, mass, radius, atmoRadius, colour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid, mountainColour, snowColour, mountains, oceanColourShallow, oceanColourDeep, oceans) {
+    static GROUND_STROKE_WIDTH = 2; //Width of ground outline
+    static MOUNTAIN_STROKE_WIDTH = 3; //Width of mountain outline
+    constructor(name, pos, vel, mass, radius, atmoRadius, colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid, mountainColour, snowColour, mountainOutlineColour, mountains, oceanColourShallow, oceanColourDeep, oceans) {
         //Base data
         this.name = name;
         this.pos = pos;
@@ -41,9 +42,11 @@ export class Planet {
         this.mass = mass;
         this.radius = radius;
         this.atmoRadius = atmoRadius;
+        
 
         //Planet colours
         this.colour = colour;
+        this.outlineColour = outlineColour;
         this.innerColour = innerColour;
         this.mantleColour = mantleColour;
         this.outerCoreColour = outerCoreColour;
@@ -56,12 +59,17 @@ export class Planet {
         //Mountains
         this.mountainColour = mountainColour;
         this.snowColour = snowColour;
+        this.mountainOutlineColour = mountainOutlineColour;
         this.mountains = mountains;
 
         //Oceans
         this.oceanColourShallow = oceanColourShallow;
         this.oceanColourDeep = oceanColourDeep;
         this.oceans = oceans;
+
+
+        //Discovered
+        this.discovered = false;
     }
 
     //----------------------------------------------------------------------//
@@ -93,11 +101,25 @@ export class Planet {
     Draw() {
         //Layered from back to front
         this.DrawAtmosphere();
+        
         this.DrawMountains();
         this.DrawGround();
+        this.DrawGroundOutline();
         this.DrawOceans();
     }
     //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //DrawGroundOutline()
+    //Draws an outline around the planet
+    DrawGroundOutline() {
+        Game.renderer.stroke(this.outlineColour, Planet.GROUND_STROKE_WIDTH, true, true);
+        Game.renderer.beginPath();
+        Game.renderer.arc(this.pos, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
+        Game.renderer.strokeShape();
+    }
+    //----------------------------------------------------------------------//
+
 
     //----------------------------------------------------------------------//
     //DrawGround()
@@ -115,12 +137,10 @@ export class Planet {
         groundGrad.addColorStop(1, this.colour.txt());
 
         Game.renderer.fill(groundGrad);
-        const STROKE_WIDTH = 2;
-        Game.renderer.stroke(Colour.rgb(0, 0, 0), STROKE_WIDTH, true, true);
+        
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius - STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(this.pos, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
         Game.renderer.fillShape();
-        Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
 
@@ -156,8 +176,7 @@ export class Planet {
         mountainGrad.addColorStop(0.3, this.snowColour.txt());
         mountainGrad.addColorStop(1, this.snowColour.txt());
         Game.renderer.fill(mountainGrad);
-        const STROKE_WIDTH = 3;
-        Game.renderer.stroke(Colour.rgb(0, 0,0), STROKE_WIDTH, true, true);
+        Game.renderer.stroke(this.mountainOutlineColour, Planet.MOUNTAIN_STROKE_WIDTH, true, true);
         const CIRCUMFERENCE = 2 * Math.PI * this.radius;
         //Loop through all the mountains and draw them
         for (var m = 0; m < this.mountains.length; m++) {
@@ -188,7 +207,7 @@ export class Planet {
             //
             //
             //
-            const SIDE_ANGLE = MOUNTAIN.width / 5 * DEG2RAD; // MOUNTAIN.width / 5 to get units => degrees, then convert to radians
+            const SIDE_ANGLE = MOUNTAIN.width / CIRCUMFERENCE * 500 * DEG2RAD; // MOUNTAIN.width / 5 to get units => degrees, then convert to radians
             const SIDE_ANGLE_HALF = SIDE_ANGLE / 2;
 
             const LEFT = new Vec2(
@@ -201,7 +220,7 @@ export class Planet {
                 Math.cos(MOUNTAIN.rad + SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR)
             );
 
-            const TOP_DIST = MOUNTAIN.height + this.radius - FUDGE_FACTOR;
+            const TOP_DIST = MOUNTAIN.height + this.radius;
 
             const TOP = new Vec2(
                 Math.sin(MOUNTAIN.rad) * TOP_DIST, 
