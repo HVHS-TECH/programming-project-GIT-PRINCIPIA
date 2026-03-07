@@ -1,5 +1,6 @@
 {
     "planets": [
+        "mars.json",
         "earth.json",
         "moon.json",
         "sun.json"

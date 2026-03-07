@@ -3,7 +3,7 @@
         "name": "earth",
         "x": 0,
         "y": 2000,
-        "xVel": -5.7,
+        "xVel": -1.6,
         "yVel": 0,
         "mass": 100000,
         "radius": 500, 

@@ -22,7 +22,8 @@ export class Time {
         //Delta time
         const NOW = Date.now();
         Time.deltaTime = (NOW - Time.last) / 1000; //in seconds
-        Time.scaleDeltaTime = (Time.deltaTime * 60); //deltaTime x target fps
+        const TIMEWARP = 9;
+        Time.scaleDeltaTime = (Time.deltaTime * 60) * TIMEWARP; //deltaTime x target fps
         
         Time.last = NOW;
         Time.fps = 1 / Time.deltaTime;
