@@ -30,6 +30,7 @@ export class Player {
     static DEATH_COUNTER_THRESH = 120; //120 'frames' at 60 'fps'
     static IMPACT_TOLERANCE = 2;
 
+    static smoothScore = 0;
     static score = 0;
     
     //----------------------------------------------------------------------//
@@ -60,6 +61,9 @@ export class Player {
         
         Player.smoothDir = Vec2.slerp(SMOOTH_DIR_VEC, DELTA_NORM, INTERPOLATION_VALUE).dir() + Math.PI; 
         
+
+        const SCORE_SMOOTHING = 0.1;
+        Player.smoothScore = lerp(Player.smoothScore, Player.score, SCORE_SMOOTHING);
 
 
         Player.Integrate();

@@ -96,7 +96,7 @@ export class Renderer {
         //----------------------------------------//
 
         this.cnv.font = "48px serif";
-        this.cnv.fillText("Score: " + Player.score, this.cnvHalfDimen.x, this.cnvHalfDimen.y);
+        this.cnv.fillText("Score: " + Math.round(Player.smoothScore), this.cnvHalfDimen.x, this.cnvHalfDimen.y);
     }
     //----------------------------------------------------------------------//
 

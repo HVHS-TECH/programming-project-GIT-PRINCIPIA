@@ -11,7 +11,7 @@
     },
     "colour": {
         "colour": {"r": 150, "g": 200, "b": 50}, 
-        "outlineColour": {"r": 100, "g": 75, "b": 50},
+        "outlineColour": {"r": 50, "g": 75, "b": 25},
         "innerColour": {"r": 150, "g": 75, "b": 10}, 
         "mantleColour": {"r": 50, "g": 20, "b": 0},
         "outerCoreColour": {"r": 150, "g": 50, "b": 0},
