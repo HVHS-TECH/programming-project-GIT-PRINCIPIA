@@ -9,9 +9,9 @@ cb : callback
 
 TODO:  
 * Implement full set of planets (WIP)
+* Implement trajectory prediction (WIP)
 * Implement UI (WIP)  
-* Implement refueling  
-* Implement score on planet land  
+* Implement refueling (WIP)
 * Implement lagrange point visualization  
 * Implement thruster, explosion and reentry particles, and a particle class (WIP)
 * Implement reentry physics (WIP)
