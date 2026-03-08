@@ -10,7 +10,7 @@ import { Input } from "./input.mjs";
 import { Vec2, Colour } from "./miscellaneous.mjs";
 import { Renderer } from "./renderer.mjs";
 import { Time } from "./time.mjs";
-import { Particle, SpawnExplosion } from "./particle.mjs";
+import { Particle, spawnExplosion } from "./particle.mjs";
 import { lerp, clamp } from "./miscellaneous.mjs";
 export class Player {
     static pos = new Vec2(0, 0);
