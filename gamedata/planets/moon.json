@@ -1,13 +1,14 @@
 {
     "data": {
         "name": "moon",
-        "x": 0,
-        "y": 6000,
-        "xVel": -3.05,
-        "yVel": 0,
         "mass": 10000,
         "radius": 150, 
         "atmoRadius": 0
+    },
+    "orbit": {
+        "referenceBody": "earth",
+        "eccentricity": 0,
+        "semiMajorAxis": 1000
     },
     "colour": {
         "colour": {"r": 200, "g": 200, "b": 200}, 

@@ -12,6 +12,7 @@ export class Time {
     static last = 0; //Date.now() of last frame
     static fps = 0;
     static frame = 0;
+    static seconds = 0;
 
     //----------------------------------------------------------------------//
     //Update()
@@ -30,6 +31,7 @@ export class Time {
         console.log(Time.fps);
         //----------------------------------------//
 
+        Time.seconds += Time.deltaTime;
         Time.frame++;
     }
     //----------------------------------------------------------------------//

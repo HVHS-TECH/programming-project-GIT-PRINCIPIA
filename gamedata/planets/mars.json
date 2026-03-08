@@ -1,13 +1,14 @@
 {
     "data": {
         "name": "mars",
-        "x": 0,
-        "y": -5000,
-        "xVel": 1.5,
-        "yVel": 0,
         "mass": 70000,
         "radius": 300, 
         "atmoRadius": 475
+    },
+    "orbit": {
+        "referenceBody": "sun",
+        "eccentricity": 0,
+        "semiMajorAxis": 6000
     },
     "colour": {
         "colour": {"r": 200, "g": 100, "b": 100}, 

@@ -31,6 +31,7 @@ export class Game {
     
     //Planets
     static PLANETS = [];
+    static STARTING_PLANET_NAME = "";
 
     //The game renderer
     static renderer = new Renderer(); 
@@ -104,7 +105,7 @@ export class Game {
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
                 var closest_planet = Game.getClosestPlanet(Player.pos, true);
-                vel = vel.sub(Game.PLANETS[closest_planet].vel);
+                vel = vel.sub(Game.PLANETS[closest_planet].getVelocity(Time.time));
                 return vel.len(); 
             }
         ),
@@ -114,7 +115,7 @@ export class Game {
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
                 var closest_planet = Game.getClosestPlanet(Player.pos, true);
-                vel = vel.sub(Game.PLANETS[closest_planet].vel);
+                vel = vel.sub(Game.PLANETS[closest_planet].getVelocity(Time.time));
                 return vel.dir();
             }
         )
@@ -144,6 +145,24 @@ export class Game {
         //hasCnv is initialized in Game.initializeState()
         if (Game.renderer.hasCnv) {
             Game.PLANETS = Loader.LoadPlanets(); //Also initializes player position and velocity to starting planet
+            
+            //Loop through all the planets and initialize their orbital parameters
+            for (var i = 0; i < Game.PLANETS.length; i++) {
+                Game.PLANETS[i].calculateOrbitalParameters();
+            }
+            
+            //Loop through all the planets, and set the player's starting position
+            for (var i = 0; i < Game.PLANETS.length; i++) {
+                if (Game.PLANETS[i].name == Game.STARTING_PLANET_NAME) {
+                    Player.pos = Game.PLANETS[i].getPosition(0).add(new Vec2(0, Game.PLANETS[i].radius));
+                    Player.vel = Game.PLANETS[i].getVelocity(0);
+                    Game.PLANETS[i].discovered = true;
+                    console.log("Player starting position set to be on '" + Game.STARTING_PLANET_NAME + "'");
+                    break;
+                }
+            }
+            
+            //Populate the particles array
             for (var i = 0; i < Game.PARTICLES.length; i++) {
                 Game.PARTICLES[i] = new Particle(new Vec2(0,0), 0, new Vec2(0,0), 0, 0, Colour.rgb(0,0,0), Colour.rgb(0,0,0), Colour.rgb(0,0,0), -1, function(){}, function(){});
             }
@@ -320,13 +339,27 @@ export class Game {
         var closestPlanetDist = 1000000000000;
         for (var p = 0; p < Game.PLANETS.length; p++) {
             
-            var dist = Vec2.dist(Game.PLANETS[p].pos, pos) - ((subRadius) ? Game.PLANETS[p].radius : 0);
+            var dist = Vec2.dist(Game.PLANETS[p].getPosition(Time.seconds), pos) - ((subRadius) ? Game.PLANETS[p].radius : 0);
             if (dist < closestPlanetDist) {
                 closestPlanet = p;
                 closestPlanetDist = dist;
             }
         }
         return closestPlanet;
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //getPlanet(name)
+    //returns the planet with name 'name'
+    static getPlanet(name) {
+        for (var i = 0; i < Game.PLANETS.length; i++) {
+            if (Game.PLANETS[i].name == name) {
+                return Game.PLANETS[i];
+            }
+        }
+        return null;
     }
     
 }

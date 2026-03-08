@@ -34,15 +34,19 @@ export class Ocean {
 export class Planet {
     static GROUND_STROKE_WIDTH = 2; //Width of ground outline
     static MOUNTAIN_STROKE_WIDTH = 3; //Width of mountain outline
-    constructor(name, pos, vel, mass, radius, atmoRadius, colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid, mountainColour, snowColour, mountainOutlineColour, mountains, oceanColourShallow, oceanColourDeep, oceans) {
+    constructor(name, mass, radius, atmoRadius, referenceBody, eccentricity, semiMajorAxis, colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid, mountainColour, snowColour, mountainOutlineColour, mountains, oceanColourShallow, oceanColourDeep, oceans) {
         //Base data
         this.name = name;
-        this.pos = pos;
-        this.vel = vel;
         this.mass = mass;
         this.radius = radius;
         this.atmoRadius = atmoRadius;
-        
+
+        //Orbit
+        this.referenceBody = referenceBody;
+        this.eccentricity = eccentricity;
+        this.semiMajorAxis = semiMajorAxis;
+
+        this.orbitalPeriod = 0; //To be calculated later
 
         //Planet colours
         this.colour = colour;
@@ -67,28 +71,26 @@ export class Planet {
         this.oceanColourDeep = oceanColourDeep;
         this.oceans = oceans;
 
-
         //Discovered
         this.discovered = false;
     }
 
     //----------------------------------------------------------------------//
+    //calculateOrbitalParameters()
+    //initializes the orbit parameters of the planet (this can't be accessed while the planets array is still being created)
+    calculateOrbitalParameters() {
+        if (this.referenceBody == "") return;
+        this.orbitalPeriod = (2.0 * Math.PI) * Math.sqrt(
+            Math.pow(this.semiMajorAxis, 3) / 
+            (Game.G * Game.getPlanet(this.referenceBody)).mass);
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
     //Update()
     //Called every frame
     Update() {
-        //Do orbital physics
-        //Loop through all the planets
-        for (var p = 0; p < Game.PLANETS.length; p++) {
-            //If the planet is this, don't apply a force
-            if (Game.PLANETS[p] == this) continue;
-            var other = Game.PLANETS[p];
-            var delta = other.pos.sub(this.pos);
-            var dist = delta.len();
-            var deltaNorm = delta.norm();
-            var force = Game.G * other.mass / (dist * dist) * Time.scaleDeltaTime * 0.5;
-            this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
-
-        }
         
     }
     //----------------------------------------------------------------------//
@@ -99,44 +101,79 @@ export class Planet {
     //integrate the planet's postiion
     Integrate() {
         //Integrate postiion based on velocity and delta time
-        this.pos = this.pos.add(this.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
+        //this.pos = this.pos.add(this.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //getPosition(time)
+    //gets the position of the planet at time 'time' in seconds
+    getPosition(time) {
+        if (this.referenceBody == "") return new Vec2(0,0);
+        const MEAN_ANOMALY = (2.0 * Math.PI * (time % this.orbitalPeriod)) / this.orbitalPeriod;
+        
+        //Iteratively solve keplers equation M = E - e*sin(E) for E
+        var E = MEAN_ANOMALY; // Initial guess
+        for (var i = 0; i < 10; i++) { // Iterative solution
+            E = E - (E - this.eccentricity * Math.sin(E) - MEAN_ANOMALY) / (1 - this.eccentricity * Math.cos(E));
+        }
+
+        //Get the distance from the reference body (focus)
+        var cosE = Math.cos(E);
+        var sinE = Math.sin(E);
+
+        //(relative to focus)
+        var x = this.semiMajorAxis * (cosE - this.eccentricity);
+        var y = this.semiMajorAxis * Math.sqrt(1 - this.eccentricity * this.eccentricity) * sinE;
+        
+        //convert to world space
+        var ret = new Vec2(x,y).add(Game.getPlanet(this.referenceBody).getPosition(time));
+
+        return ret;
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //getVelocity(time)
+    //get the current velocity at time 'time' in seconds
+    getVelocity(time) {
+        return this.getPosition(time);
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //Draw()
     //Draws the planet and its features (atmosphere etc)
     Draw() {
-        
+        var position = this.getPosition(Time.seconds);
         //Layered from back to front
-        this.DrawAtmosphere();
+        this.DrawAtmosphere(position);
         
-        this.DrawMountains();
-        this.DrawGround();
-        this.DrawGroundOutline();
-        this.DrawOceans();
+        this.DrawMountains(position);
+        this.DrawGround(position);
+        this.DrawGroundOutline(position);
+        this.DrawOceans(position);
     }
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
-    //DrawGroundOutline()
+    //DrawGroundOutline(position)
     //Draws an outline around the planet
-    DrawGroundOutline() {
+    DrawGroundOutline(position) {
         Game.renderer.stroke(this.outlineColour, Planet.GROUND_STROKE_WIDTH, true, true);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(position, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
         Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
 
 
     //----------------------------------------------------------------------//
-    //DrawGround()
+    //DrawGround(position)
     //Draws the planet surface and interior 
-    DrawGround() {
+    DrawGround(position) {
         //Draw planet ground
-        var groundGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
+        var groundGrad = Game.renderer.radGradient(position, this.pos, 0, this.radius, true, true);
 
         groundGrad.addColorStop(0.2, this.innerCoreColour.txt());
         groundGrad.addColorStop(0.4, this.outerCoreColour.txt());
@@ -149,18 +186,18 @@ export class Planet {
         Game.renderer.fill(groundGrad);
         
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(position, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
         Game.renderer.fillShape();
     }
     //----------------------------------------------------------------------//
 
 
     //----------------------------------------------------------------------//
-    //DrawAtmosphere()
+    //DrawAtmosphere(position)
     //Draws the atmosphere of the planet
-    DrawAtmosphere() {
+    DrawAtmosphere(position) {
         //Draw planet atmosphere
-        var atmoGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
+        var atmoGrad = Game.renderer.radGradient(position, position, this.radius, this.atmoRadius, true, true);
 
         
         atmoGrad.addColorStop(0, this.atmoColourLow.txt());
@@ -169,18 +206,18 @@ export class Planet {
 
         Game.renderer.fill(atmoGrad);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.atmoRadius, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(position, this.atmoRadius, 0, Math.PI * 2, true, true);
         Game.renderer.fillShape();
     }
     //----------------------------------------------------------------------//
 
 
     //----------------------------------------------------------------------//
-    //DrawMountains()
+    //DrawMountains(position)
     //Draws the mountains on the planet
-    DrawMountains() {
+    DrawMountains(position) {
         const FUDGE_FACTOR = 5; //Fudge factor to shift the mountain into the ground
-        var mountainGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
+        var mountainGrad = Game.renderer.radGradient(position, position, this.radius, this.atmoRadius, true, true);
         mountainGrad.addColorStop(0, this.mountainColour.txt());
         mountainGrad.addColorStop(0.28, this.mountainColour.txt());
         mountainGrad.addColorStop(0.3, this.snowColour.txt());
@@ -236,7 +273,7 @@ export class Planet {
                 Math.sin(MOUNTAIN.rad) * TOP_DIST, 
                 Math.cos(MOUNTAIN.rad) * TOP_DIST
             );
-            const VERTICES = [TOP.add(this.pos), RIGHT.add(this.pos), LEFT.add(this.pos)];
+            const VERTICES = [TOP.add(position), RIGHT.add(position), LEFT.add(position)];
             Game.renderer.drawPolygon(VERTICES, true, true);
             Game.renderer.fillShape();
             Game.renderer.strokeShape();
@@ -249,7 +286,7 @@ export class Planet {
     //DrawOceans()
     //Draws the oceans of the planet
     DrawOceans() {
-        var oceanGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
+        var oceanGrad = Game.renderer.radGradient(position, position, 0, this.radius, true, true);
         oceanGrad.addColorStop(0, this.oceanColourDeep.txt());
         oceanGrad.addColorStop(0.97, this.oceanColourDeep.txt());
         oceanGrad.addColorStop(0.995, this.oceanColourShallow.txt());
@@ -263,7 +300,7 @@ export class Planet {
             const RIGHT = (OCEAN.chunk * CHUNK_WIDTH + CHUNK_WIDTH / 2) * DEG2RAD;
             Game.renderer.stroke(oceanGrad, OCEAN.depth, true, true);
             Game.renderer.beginPath();
-            Game.renderer.arc(this.pos, this.radius - OCEAN.depth / 2, LEFT, RIGHT, true, true);
+            Game.renderer.arc(position, this.radius - OCEAN.depth / 2, LEFT, RIGHT, true, true);
             Game.renderer.strokeShape();
         }
     }

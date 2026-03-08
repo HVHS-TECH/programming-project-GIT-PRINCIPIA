@@ -55,7 +55,7 @@ export class Player {
         //----------------------------------------//
         //Smoothly rotate so that the nearest planet tends toward the bottom of the screen
         var closestPlanet = Game.getClosestPlanet(Player.pos, true);
-        var otherPos = Game.PLANETS[closestPlanet].pos;
+        var otherPos = Game.PLANETS[closestPlanet].getPosition(Time.seconds);
         var delta = otherPos.sub(Player.pos);
         const DELTA_NORM = delta.norm(); //Normalized vector from player to planet
 
@@ -174,7 +174,7 @@ export class Player {
                                 
                                 for (var p = 0; p < Game.PLANETS.length; p++) {
                                     const OTHER = Game.PLANETS[p];
-                                    const DELTA = this.pos.sub(OTHER.pos);
+                                    const DELTA = this.pos.sub(OTHER.getPosition(Time.seconds));
                                     const DIST = DELTA.len() - this.width / 2;
                                     const DELTA_NORM = DELTA.norm();
 
@@ -183,7 +183,7 @@ export class Player {
                                         const LEN = this.vel.len();
                                         
                                         //Change the particle's direction to imitate a 'spread outward' effect
-                                        const DOT = Vec2.dot(this.vel.sub(OTHER.vel), DELTA_NORM);
+                                        const DOT = Vec2.dot(this.vel.sub(OTHER.getVelocity(Time.seconds)), DELTA_NORM);
 
                                         const ROTATABLE_VEL = DELTA_NORM.mul(DOT); //Velocity RELATIVE TO PLANET along DELTA_NORM
                                         const DIF = this.vel.sub(ROTATABLE_VEL);//Difference between particle vel and relative particle vel along DELTA_NORM
@@ -256,7 +256,7 @@ export class Player {
         //Apply gravity
         for (var p = 0; p < Game.PLANETS.length; p++) {
             var other = Game.PLANETS[p];
-            var delta = other.pos.sub(Player.pos);
+            var delta = other.getPosition(Time.seconds).sub(Player.pos);
             var dist = delta.len() - Player.HEIGHT / 2;
             const DELTA_NORM = delta.norm();
 

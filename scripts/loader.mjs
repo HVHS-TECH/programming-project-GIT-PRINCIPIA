@@ -19,7 +19,7 @@ export class Loader {
         //Since js cannot list the files in a directory, we must store the paths in one file
         const PLANET_REFERENCES_JSON = Loader.GetJSONobject('../gamedata/planets/references.json'); 
         const PLANET_REFERENCES_JSON_LIST = PLANET_REFERENCES_JSON.planets;
-        const STARTING_PLANET_NAME = PLANET_REFERENCES_JSON.starting_body;
+        Game.STARTING_PLANET_NAME = PLANET_REFERENCES_JSON.starting_body;
 
         
         
@@ -30,17 +30,8 @@ export class Loader {
             const PLANET = Loader.JSONobjectToPlanet(JSON_OBJECT);
             ret.push(PLANET);
         }
-
-        //Loop through all the planets, and set the player's starting position
-        for (var i = 0; i < ret.length; i++) {
-            if (ret[i].name == STARTING_PLANET_NAME) {
-                Player.pos = ret[i].pos.add(new Vec2(0, ret[i].radius));
-                Player.vel = ret[i].vel;
-                ret[i].discovered = true;
-                console.log("Player starting position set to be on '" + STARTING_PLANET_NAME + "'");
-                break;
-            }
-        }
+        
+        
         console.log("Loader.LoadPlanets: loaded planet array: ");
         console.dir(ret); //Debug
         return ret;
@@ -68,13 +59,26 @@ export class Loader {
             const OCEAN = new Ocean(jsonObject.features.oceans[i].chunk, jsonObject.features.oceans[i].depth);
             OCEANS.push(OCEAN);
         }
+
+        var referenceBody = "";
+        var eccentricity = 0;
+        var semiMajorAxis = 0;
+        if (jsonObject.orbit == null) {
+            //It is not orbiting anything
+        } else {
+            referenceBody = jsonObject.orbit.referenceBody;
+            eccentricity = jsonObject.orbit.eccentricity;
+            semiMajorAxis = jsonObject.orbit.semiMajorAxis;
+        }
+
         return new Planet(
             jsonObject.data.name,  
-            new Vec2(jsonObject.data.x, jsonObject.data.y),  //Position
-            new Vec2(jsonObject.data.xVel, jsonObject.data.yVel), //Velocity
             jsonObject.data.mass, 
             jsonObject.data.radius, 
             jsonObject.data.atmoRadius, //Atmosphere radius from planet center
+            referenceBody, //The planet it orbits
+            eccentricity, //The eccentricity of the orbit (how eliptical it is)
+            semiMajorAxis, //The semi major axis of the orbit (furthest distance in the orbit)
             Colour.rgb(jsonObject.colour.colour.r, jsonObject.colour.colour.g, jsonObject.colour.colour.b), //Ground colour
             Colour.rgb(jsonObject.colour.outlineColour.r, jsonObject.colour.outlineColour.g, jsonObject.colour.outlineColour.b), //Outline colour
             Colour.rgb(jsonObject.colour.innerColour.r, jsonObject.colour.innerColour.g, jsonObject.colour.innerColour.b), //Dirt colour
