@@ -8,6 +8,7 @@ cb : callback
 
 
 TODO:  
+* Implement arrows pointing to planets, with green, orange and red indicators for burning / distance
 * Implement full set of planets (WIP)
 * Implement trajectory prediction (WIP)
 * Implement UI (WIP)  

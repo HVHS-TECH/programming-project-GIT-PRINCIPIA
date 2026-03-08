@@ -394,6 +394,15 @@ export class Player {
 
 
     //----------------------------------------------------------------------//
+    //drawTrajectory()
+    //draws the trajectory of the player
+    drawTrajectory() {
+
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
     //discoverPlanet(planetIdx)
     //Mark the planet at 'Game.PLANETS[planetIdx]' as discovered
     //Increment player score
