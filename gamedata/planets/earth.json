@@ -1,14 +1,13 @@
 {
     "data": {
         "name": "earth",
+        "x": 0,
+        "y": 5000,
+        "xVel": -1.5,
+        "yVel": 0,
         "mass": 200000,
         "radius": 500, 
         "atmoRadius": 750
-    },
-    "orbit": {
-        "referenceBody": "sun",
-        "eccentricity": 0,
-        "semiMajorAxis": 3000
     },
     "colour": {
         "colour": {"r": 150, "g": 200, "b": 50}, 
