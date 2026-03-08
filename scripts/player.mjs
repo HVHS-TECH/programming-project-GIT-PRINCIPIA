@@ -22,7 +22,7 @@ export class Player {
     static smoothZoom = 0.00001; //Smooth zoom is initialized to be more zoomed out than zoom so that the camera 'zooms in' at the start of the game
     static zoom = 8;
 
-    static MAX_FUEL = 500;
+    static MAX_FUEL = 200;
     static fuel = 100;
     static FUEL_USED_PER_FRAME = 0.05;
     static THRUSTER_FORCE = 0.01;
@@ -92,12 +92,13 @@ export class Player {
         //----------------------------------------//
 
         //----------------------------------------//
-        //timewarp
+        //speed up time to cross large distances
         if (Input.KeyDown("Space")) {
             Game.timewarp = 5;
         } else {
             Game.timewarp = 1;
         }
+        //----------------------------------------//
 
         Player.Integrate();
         Player.UpdateThruster();
@@ -308,7 +309,27 @@ export class Player {
     //ApplyAtmosphericEffects()
     //Applys aerodynamic forces and reentry heating to the player
     static ApplyAtmosphericEffects() {
+        //----------------------------------------//
+        //is the player in an atmosphere?
+        var other = Game.PLANETS[Game.getClosestPlanet(Player.pos)];
+        var delta = other.pos.sub(Player.pos);
+        var dist = delta.len();
+        var atmoRad = other.atmoRad;
+        if (dist > atmoRad) {
+            //We are not in an atmosphere - exiting function!
+            return;
+        }
+        //----------------------------------------//
 
+        //----------------------------------------//
+        //We ARE in an atmosphere
+        var relVel = Player.vel.sub(other.vel);
+        const ORBITAL_COMPONENT = other.vel;
+        var drag = 0.9;
+        relVel = relVel.mul(1);
+        Player.vel = ORBITAL_COMPONENT.add(relVel);
+
+        //----------------------------------------//
     }
     //----------------------------------------------------------------------//
 
@@ -407,4 +428,5 @@ export class Player {
         spawnExplosion(Player.pos, Player.vel, SPEED, SPEED * 2, NUM_PARTICLES, RANDOMNESS, Colour.rgba(250,150,100,1), Colour.rgba(255, 72, 0, 0.5), Colour.rgba(151, 151, 151, 0))
         Player.die();//Die!!!
     }
+    //----------------------------------------------------------------------//
 }
