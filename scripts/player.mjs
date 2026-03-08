@@ -45,7 +45,7 @@ export class Player {
                 Game.setPage(Game.END_TITLE); //Go to 'end.html'
                 
             }
-            Player.deathCounter += Time.scaleDeltaTime;
+            Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
             Player.ApplyGravity();
             Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
             return;
@@ -91,6 +91,13 @@ export class Player {
         Player.smoothZoom = Math.pow(lerp(Math.pow(Player.smoothZoom, ZOOOM_POWER), Math.pow(Player.zoom, ZOOOM_POWER), ZOOM_SMOOTHING), 1/ZOOOM_POWER);
         //----------------------------------------//
 
+        //----------------------------------------//
+        //timewarp
+        if (Input.KeyDown("Space")) {
+            Game.timewarp = 5;
+        } else {
+            Game.timewarp = 1;
+        }
 
         Player.Integrate();
         Player.UpdateThruster();
@@ -256,6 +263,15 @@ export class Player {
             //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
             if (dist < other.radius) {
                 //----------------------------------------//
+                //resolve collision
+                while (dist < other.radius) {
+                    delta = other.pos.sub(Player.pos);
+                    dist = delta.len() - Player.HEIGHT / 2;
+                    Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
+                }
+                //----------------------------------------//
+
+                //----------------------------------------//
                 //Should the player explode (were they moving too fast?)
                 const REL_VEL = Player.vel.sub(other.vel);
                 const VEL_NORM = REL_VEL.norm();
@@ -275,14 +291,7 @@ export class Player {
                 Player.discoverPlanet(p);//Must be called after checking for crash, because otherwise you could crash into a planet and still discover it.
 
                 
-                //----------------------------------------//
-                //resolve collision
-                while (dist < other.radius) {
-                    delta = other.pos.sub(Player.pos);
-                    dist = delta.len() - Player.HEIGHT / 2;
-                    Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
-                }
-                //----------------------------------------//
+                
                 
                 Player.dir = delta.dir(); //Lock the player outward
                 Player.ang_vel = 0;
@@ -312,10 +321,10 @@ export class Player {
         Player.pos = Player.pos.add(Player.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
 
         //Integrate rotation based on angular velocity and delta time
-        Player.dir += Player.ang_vel * Time.scaleDeltaTime;
+        Player.dir += Player.ang_vel * Time.scaleDeltaTime / Game.smoothTimeWarp;
 
         //Integrate zoom based on input and delta time
-        const ZOOM_SPEED = 0.05;
+        const ZOOM_SPEED = 0.05 / Game.smoothTimeWarp;
         Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * Time.scaleDeltaTime + 1));
 
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;

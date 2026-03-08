@@ -5,7 +5,7 @@
         "y": -5000,
         "xVel": 1.5,
         "yVel": 0,
-        "mass": 100000,
+        "mass": 70000,
         "radius": 300, 
         "atmoRadius": 475
     },

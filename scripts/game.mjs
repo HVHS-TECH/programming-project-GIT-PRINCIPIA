@@ -11,7 +11,7 @@
 
 import { Renderer } from "./renderer.mjs";
 import { Planet } from "./planet.mjs";
-import { Page, Vec2, RefVar, Colour } from "./miscellaneous.mjs";
+import { Page, Vec2, RefVar, Colour, lerp } from "./miscellaneous.mjs";
 
 import { Player } from "./player.mjs";
 import { Input } from "./input.mjs";
@@ -124,7 +124,8 @@ export class Game {
 
     static G = 0.01; //Universal gravitational constant
 
-
+    static timewarp = 1;
+    static smoothTimeWarp = 1;
     
 
     //----------------------------------------------------------------------//
@@ -170,8 +171,9 @@ export class Game {
     //called every frame
     //manages game logic, then renders scene using renderer
     static Update() {
-        const TIMEWARP = 1;
-        for (var k = 0; k < TIMEWARP; k++) {
+        const TIMEWARP_SMOOTHING = 1;
+        Game.smoothTimeWarp = lerp(Game.smoothTimeWarp, Game.timewarp, TIMEWARP_SMOOTHING);
+        for (var k = 0; k < Game.smoothTimeWarp; k++) {
             //----------------------------------------//
             //Use verlet velocity integration
             for (var p = 0; p < Game.PLANETS.length; p++) {
