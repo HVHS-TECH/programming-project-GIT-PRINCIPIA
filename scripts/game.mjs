@@ -133,12 +133,6 @@ export class Game {
     static Start() {
         console.log("Game.Start");
 
-        //----------------------------------------//
-        //Initialize player
-        Player.zoom = 3;
-        Player.dir = 0;
-        Player.ang_vel = 0;
-        //----------------------------------------//
 
         console.log("Game.Start: initializing");
 
@@ -167,7 +161,6 @@ export class Game {
         console.log("Game.Start: initialized");
         
         requestAnimationFrame(Game.Update);
-        console.log("FPS: " + 0);
     }
     //----------------------------------------------------------------------//
 
@@ -177,24 +170,36 @@ export class Game {
     //called every frame
     //manages game logic, then renders scene using renderer
     static Update() {
-        for (var p = 0; p < Game.PLANETS.length; p++) {
-            Game.PLANETS[p].Update();
-        }
-
-        for (var e = 0; e < Game.UI_ELEMENTS.length; e++) {
-            Game.UI_ELEMENTS[e].Update();
-        }
-
-        for (var i = 0; i < Game.PARTICLES.length; i++) {
-            if (Game.PARTICLES[i].frame < Game.PARTICLES[i].lifetime) {
-                //Particle is alive, update
-                Game.PARTICLES[i].Update();
+        const TIMEWARP = 1;
+        for (var k = 0; k < TIMEWARP; k++) {
+            //----------------------------------------//
+            //Use verlet velocity integration
+            for (var p = 0; p < Game.PLANETS.length; p++) {
+                Game.PLANETS[p].Update();
             }
-            
+            for (var p = 0; p < Game.PLANETS.length; p++) {
+                Game.PLANETS[p].Integrate();
+            }
+            for (var p = 0; p < Game.PLANETS.length; p++) {
+                Game.PLANETS[p].Update();
+            }
+            //----------------------------------------//
+
+            for (var e = 0; e < Game.UI_ELEMENTS.length; e++) {
+                Game.UI_ELEMENTS[e].Update();
+            }
+
+            for (var i = 0; i < Game.PARTICLES.length; i++) {
+                if (Game.PARTICLES[i].frame < Game.PARTICLES[i].lifetime) {
+                    //Particle is alive, update
+                    Game.PARTICLES[i].Update();
+                }
+                
+            }
+
+            Player.Update();
+
         }
-
-        Player.Update();
-
         Time.Update();
 
         Game.renderer.Render();

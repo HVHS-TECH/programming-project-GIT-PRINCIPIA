@@ -1,13 +1,13 @@
 {
     "data": {
         "name": "mars",
-        "x": -8000,
-        "y": 0,
-        "xVel": 0,
-        "yVel": -3,
-        "mass": 10000,
+        "x": 0,
+        "y": -5000,
+        "xVel": 1.5,
+        "yVel": 0,
+        "mass": 100000,
         "radius": 300, 
-        "atmoRadius": 350
+        "atmoRadius": 475
     },
     "colour": {
         "colour": {"r": 200, "g": 100, "b": 100}, 

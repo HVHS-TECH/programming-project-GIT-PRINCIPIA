@@ -95,8 +95,10 @@ export class Renderer {
         }
         //----------------------------------------//
 
+        //TODO: move to a ui element
         this.cnv.font = "48px serif";
         this.cnv.fillText("Score: " + Math.round(Player.smoothScore), this.cnvHalfDimen.x, this.cnvHalfDimen.y);
+        
     }
     //----------------------------------------------------------------------//
 

@@ -2,10 +2,10 @@
     "data": {
         "name": "earth",
         "x": 0,
-        "y": 2000,
-        "xVel": -1.6,
+        "y": 5000,
+        "xVel": -1.5,
         "yVel": 0,
-        "mass": 100000,
+        "mass": 200000,
         "radius": 500, 
         "atmoRadius": 750
     },

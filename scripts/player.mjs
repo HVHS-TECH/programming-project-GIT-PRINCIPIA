@@ -10,8 +10,8 @@ import { Input } from "./input.mjs";
 import { Vec2, Colour } from "./miscellaneous.mjs";
 import { Renderer } from "./renderer.mjs";
 import { Time } from "./time.mjs";
-import { Particle } from "./particle.mjs";
-import { lerp } from "./miscellaneous.mjs";
+import { Particle, SpawnExplosion } from "./particle.mjs";
+import { lerp, clamp } from "./miscellaneous.mjs";
 export class Player {
     static pos = new Vec2(0, 0);
     static vel = new Vec2(0, 0);
@@ -19,15 +19,15 @@ export class Player {
     static smoothDir = 0; //Smoothly rotating dir
     static ang_vel = 0;
 
-    static smoothZoom = 0.0001; //Smooth zoom is initialized to be more zoomed out than zoom so that the camera 'zooms in' at the start of the game
-    static zoom = 2;
+    static smoothZoom = 0.00001; //Smooth zoom is initialized to be more zoomed out than zoom so that the camera 'zooms in' at the start of the game
+    static zoom = 8;
 
-    static MAX_FUEL = 100;
+    static MAX_FUEL = 500;
     static fuel = 100;
     static FUEL_USED_PER_FRAME = 0.05;
-    static THRUSTER_FORCE = 0.006;
-    static HEIGHT = 10;
-    static WIDTH = 6;
+    static THRUSTER_FORCE = 0.01;
+    static HEIGHT = 5;
+    static WIDTH = 3;
     static deathCounter = 0; //A counter that starts counting up when the player dies. When it reaches deathCounterThreshold, the user is redirected to 'end.html'
     static exploded = false;
     static DEATH_COUNTER_THRESH = 120; //120 'frames' at 60 'fps'
@@ -43,7 +43,7 @@ export class Player {
         if (Player.deathCounter > 0) {
             if (Player.deathCounter > Player.DEATH_COUNTER_THRESH) {
                 Game.setPage(Game.END_TITLE); //Go to 'end.html'
-                return;
+                
             }
             Player.deathCounter += Time.scaleDeltaTime;
             Player.ApplyGravity();
@@ -84,7 +84,7 @@ export class Player {
 
         //-------------//
         //Im not entirely sure how this works, but it's kind of like a damper. 
-        //If you change it, have a look at how it affects LONG RANGE zooming - though values above one seem to dampen only one direction
+        //If you change it, have a look at how it affects LONG RANGE zooming - though values above 1 seem to dampen only one direction
         const ZOOOM_POWER = 0.00005; 
         //-------------//
 
@@ -118,13 +118,13 @@ export class Player {
 
                 //----------------------------------------//
                 //Thruster particle settings
-                const DIR_RANDOMNESS = 0.2;
+                const DIR_RANDOMNESS = 0.1;
                 const VEL_RANDOMNESS = 0.1;
                 const SIZE_RANDOMNESS = 0.5;
 
                 const BASE_DIR = Player.dir + Math.PI;
-                const BASE_WIDTH = 1;
-                const BASE_SPEED = 1;
+                const BASE_WIDTH = 0.5;
+                const BASE_SPEED = 0.7;
                 const FRAME_INTERVAL = 2; //Spawn particles every <FRAME_INTERVAL> frames
                 //----------------------------------------//
                 if (Time.frame % FRAME_INTERVAL == 0) {
@@ -161,7 +161,9 @@ export class Player {
                             //Update()
                             function(){ //Update
                                 //Increase the width of the particle, but slowly decrease it as it ages
-                                this.width += 0.5 * Time.scaleDeltaTime - this.frame / this.lifetime * 1 * Time.scaleDeltaTime;
+                                const CONSTANT_INCREASE = 0.2;
+                                const GRADUAL_DECREASE = 0.6;
+                                this.width += CONSTANT_INCREASE * Time.scaleDeltaTime - this.frame / this.lifetime * GRADUAL_DECREASE * Time.scaleDeltaTime;
                                 
                                 for (var p = 0; p < Game.PLANETS.length; p++) {
                                     const OTHER = Game.PLANETS[p];
@@ -262,19 +264,25 @@ export class Player {
                 const IMPACT_SEVERITY = 
                 Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * 0.7 //Punish the player for landing while moving sideways
                  + Math.max(DIR_DOT_DELTA_NORM, 0) * 1.5; //Punish the player for not landing upright
-                if (REL_VEL.len() > Player.IMPACT_TOLERANCE - IMPACT_SEVERITY) {
+                Player.vel = other.vel;
+
+                //only explode if the player hasn't already exploded
+                if (REL_VEL.len() > Player.IMPACT_TOLERANCE - IMPACT_SEVERITY && !Player.exploded) {
                     Player.explode();
                     return;
                 }
                 //----------------------------------------//
                 Player.discoverPlanet(p);//Must be called after checking for crash, because otherwise you could crash into a planet and still discover it.
 
-                Player.vel = other.vel;
+                
+                //----------------------------------------//
+                //resolve collision
                 while (dist < other.radius) {
                     delta = other.pos.sub(Player.pos);
                     dist = delta.len() - Player.HEIGHT / 2;
                     Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
                 }
+                //----------------------------------------//
                 
                 Player.dir = delta.dir(); //Lock the player outward
                 Player.ang_vel = 0;
@@ -307,7 +315,8 @@ export class Player {
         Player.dir += Player.ang_vel * Time.scaleDeltaTime;
 
         //Integrate zoom based on input and delta time
-        Player.zoom *= ((Input.KeyDown("ArrowUp") * 0.01 * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * 0.01 * Time.scaleDeltaTime + 1));
+        const ZOOM_SPEED = 0.05;
+        Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * Time.scaleDeltaTime + 1));
 
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
 
@@ -361,7 +370,9 @@ export class Player {
     static discoverPlanet(planetIdx) {
         if (Game.PLANETS[planetIdx].discovered) return; //Can't discover a planet twice
         Game.PLANETS[planetIdx].discovered = true; //mark as discovered
-        Player.score += (1000 / Game.PLANETS[planetIdx].radius) * 1000;
+        const VALUE = (1000 / Game.PLANETS[planetIdx].radius);
+        Player.score += VALUE * 1000;
+        Player.fuel = clamp(Player.fuel + VALUE * 20, 0, Player.MAX_FUEL);
     }
     //----------------------------------------------------------------------//
 
@@ -384,47 +395,7 @@ export class Player {
         const NUM_PARTICLES = 80;
         const SPEED = 3;
         const RANDOMNESS = 0.5;
-        //----------------------------------------//
-        //Outer, fast moving ring (shockwave?)
-        for (var r = 0; r < Math.PI * 2; r += Math.PI * 2 / NUM_PARTICLES) {
-            Game.addParticle(new Particle(
-                Player.pos, Player.dir + r, Player.vel.add(
-                    new Vec2(
-                        Math.sin(r) * SPEED + (Math.random() * 2 - 1) * RANDOMNESS, 
-                        Math.cos(r) * SPEED + (Math.random() * 2 - 1) * RANDOMNESS
-                    )
-                ), 
-                1, 10, 
-                Colour.rgba(250,150,100,1), 
-                Colour.rgba(255, 72, 0, 0.5), 
-                Colour.rgba(151, 151, 151, 0), 
-                10 + (Math.random() * 2 - 1) * RANDOMNESS * 10,
-                function(){},
-                function(){}
-            ));
-        }
-        //----------------------------------------//
-
-        //----------------------------------------//
-        //Inner cloud
-        for (var r = 0; r < Math.PI * 2; r += Math.PI * 2 / NUM_PARTICLES) {
-            Game.addParticle(new Particle(
-                Player.pos, Player.dir + r, Player.vel.add(
-                    new Vec2(
-                        Math.sin(r) * SPEED / 3 + (Math.random() * 2 - 1) * RANDOMNESS, 
-                        Math.cos(r) * SPEED / 3 + (Math.random() * 2 - 1) * RANDOMNESS
-                    )
-                ), 
-                1, 10, 
-                Colour.rgba(250,150,100,1), 
-                Colour.rgba(255, 72, 0, 0.5), 
-                Colour.rgba(151, 151, 151, 0), 
-                20 + (Math.random() * 2 - 1) * RANDOMNESS * 10,
-                function(){},
-                function(){}
-            ));
-        }
-        //----------------------------------------//
+        spawnExplosion(Player.pos, Player.vel, SPEED, SPEED * 2, NUM_PARTICLES, RANDOMNESS, Colour.rgba(250,150,100,1), Colour.rgba(255, 72, 0, 0.5), Colour.rgba(151, 151, 151, 0))
         Player.die();//Die!!!
     }
 }

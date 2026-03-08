@@ -119,3 +119,51 @@ export class Particle {
     }
     //----------------------------------------------------------------------//
 }
+
+
+//----------------------------------------------------------------------//
+//spawnExplosion()
+//Spawns an explosion at position 'pos'
+export function spawnExplosion(pos, vel, innerVel, outerVel, numParticles, randomness, startColour, midColour, endColour) {
+    //----------------------------------------//
+    //Outer, fast moving ring (shockwave?)
+    for (var r = 0; r < Math.PI * 2; r += Math.PI * 2 / numParticles) {
+        Game.addParticle(new Particle(
+            pos, r + (Math.random() * 2 - 1) * randomness * Math.PI * 2, vel.add(
+                new Vec2(
+                    Math.sin(r) * outerVel + (Math.random() * 2 - 1) * randomness, 
+                    Math.cos(r) * outerVel + (Math.random() * 2 - 1) * randomness
+                )
+            ), 
+            1, 10, 
+            startColour, 
+            midColour, 
+            endColour, 
+            10 + (Math.random() * 2 - 1) * randomness * 10,
+            function(){},
+            function(){}
+        ));
+    }
+    //----------------------------------------//
+
+    //----------------------------------------//
+    //Inner cloud
+    for (var r = 0; r < Math.PI * 2; r += Math.PI * 2 / numParticles) {
+        Game.addParticle(new Particle(
+            pos, r + (Math.random() * 2 - 1) * randomness * Math.PI * 2, vel.add(
+                new Vec2(
+                    Math.sin(r) * innerVel / 3 + (Math.random() * 2 - 1) * randomness, 
+                    Math.cos(r) * innerVel / 3 + (Math.random() * 2 - 1) * randomness
+                )
+            ), 
+            1, 10, 
+            startColour, 
+            midColour, 
+            endColour, 
+            20 + (Math.random() * 2 - 1) * randomness * 10,
+            function(){},
+            function(){}
+        ));
+    }
+    //----------------------------------------//
+}

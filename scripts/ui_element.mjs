@@ -139,7 +139,7 @@ export class Navball extends UIelement {
         this.outlineWidth = outlineWidth;
         this.vel = 0;
         this.velDir = 0;
-        this.playerScale = 10;
+        this.playerScale = 20;
         this.playerVelScale = this.radius;
         this.velDirRefName = velDirRefName;
         this.velRefName = velRefName;
