@@ -10,6 +10,7 @@ import { Renderer } from "./renderer.mjs";
 import { Game } from "./game.mjs";
 import { Vec2, clamp} from "./miscellaneous.mjs";
 import { Player } from "./player.mjs";
+import { Time } from "./time.mjs";
 
 export class UIelement {
     constructor(pos, align, width, height) {
@@ -22,6 +23,7 @@ export class UIelement {
         this.alignRight = align.includes('right');
         this.alignTop = align.includes('top');
         this.alignBottom = align.includes('bottom');
+        this.alignCenter = align.includes('center');
 
         //this.alignment is multiplied by Game.renderer.scaleCnvSize / 2 before being added to this.pos
         //Game.renderer.scaleCnvSize is the size of the virtual canvas. Positions are divided by it, then multiplied by the canvas height.
@@ -30,6 +32,7 @@ export class UIelement {
         if (this.alignRight) this.alignment.x = 1;
         if (this.alignTop) this.alignment.y = 1;
         if (this.alignBottom) this.alignment.y = -1;
+        if (this.alignCenter) this.alignment = new Vec2(0,0);
     }
     Update() {
 
@@ -68,9 +71,7 @@ export class VertMeter extends UIelement {
     //Draw()
     //Draw the meter
     Draw() {
-        var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
-        var alignment_mul_scaleCnvSize_half_vec2 = this.alignment.mul(scaleCnvSize_half_vec2);
-        var center = alignment_mul_scaleCnvSize_half_vec2.add(this.pos); 
+        var center = GetCenter(this.pos, this.alignment);
 
         this.DrawBackground(center);
 
@@ -161,9 +162,7 @@ export class Navball extends UIelement {
     //Draw()
     //Draws the Navball
     Draw() {
-        var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
-        var alignment_mul_scaleCnvSize_half_vec2 = this.alignment.mul(scaleCnvSize_half_vec2);
-        var center = alignment_mul_scaleCnvSize_half_vec2.add(this.pos); 
+        var center = GetCenter(this.pos, this.alignment);
 
         this.DrawBackground(center);
 
@@ -293,7 +292,7 @@ export class Navball extends UIelement {
 //----------------------------------------------------------------------//
 //Arrows pointing to planets
 export class PlanetArrows extends UIelement {
-    
+
 }
 //----------------------------------------------------------------------//
 
@@ -301,7 +300,114 @@ export class PlanetArrows extends UIelement {
 //----------------------------------------------------------------------//
 //dropdown class, used for things like notifications, such
 export class Dropdown extends UIelement {
+    static dropdownTimeout = 300; //300 ms between dropdowns
+    //Trigger element: the ui element that displays where the dropdown is e.g an arrow icon, etc
+    //container: the container class that this dropdown 'drops down'.
+    constructor(pos, align, width, height, dropdownDist, dropdownTime, triggerElement, container) {
+        super(pos, align, width, height);
+        this.raisedPos = pos;
+        this.loweredPos = pos.sub(new Vec2(0, dropdownDist));
 
+        this.dropdownDist = dropdownDist;
+
+        this.triggerElement = triggerElement;
+        this.container = container;
+        this.timeSinceLastDroppedDown = 0;
+        
+        this.targetDropdown = 0;
+        this.t = 0; //For interpolation
+    }
+    ToggleDroppedDown() {
+        if (this.timeSinceLastDroppedDown < Dropdown.dropdownTimeout / 1000) {
+            return;
+        }
+        //Toggle dropdown status
+        this.targetDropdown = 1 - this.targetDropdown;
+
+        //Progress to the previous target (so that the dropdown speed is constant independent of progress) 
+        //From 0 - 1
+        const PROGRESS = this.dropdownDist / Vec2.dist(this.pos, ((this.targetDropdown == 1) ? this.loweredPos : this.raisedPos));
+        
+        this.t = PROGRESS;
+    }
+    Update() {
+        this.timeSinceLastDroppedDown += Time.deltaTime;
+        this.pos = Vec2.lerp(this.raisedPos, this.loweredPos, this.t);
+        if (this.t > this.targetDropdown) this.t -= 1 / this.dropdownTime * Time.scaleDeltaTime;
+        if (this.t < this.targetDropdown) this.t += 1 / this.dropdownTime * Time.scaleDeltaTime;
+        this.t = clamp(this.t, 0, 1);
+    }
+    Draw() {
+        var center = GetCenter(this.pos, this.alignment);
+        //----------------------------------------//
+        //Draw the background
+        var tl = center.add(new Vec2(-this.width / 2, this.height / 2));
+        var br = center.add(new Vec2(this.width / 2, -this.height / 2));
+
+        Game.renderer.stroke(this.outlineColour, this.outlineWidth, false, true);
+        Game.renderer.fill(this.background);
+        Game.renderer.rect(tl, br, false, true);
+        Game.renderer.fillShape();
+        Game.renderer.strokeShape();
+        //----------------------------------------//
+    }
+}
+//----------------------------------------------------------------------//
+
+//----------------------------------------------------------------------//
+//Container / box class, can have contents
+export class Container extends UIelement {
+    constructor(pos, align, width, height, background, outline, outlineWidth, item) {
+        super(pos, align, width, height);
+
+        this.background = background;
+        this.outline = outline;
+        this.outlineWidth = outlineWidth;
+
+        this.item = item;
+    }
+
+    Update() {
+        if (this.item != null) {
+            this.item.aligment = this.alignment;
+            this.item.pos = this.pos;
+        }
+        
+    }
+    Draw() {
+        var center = GetCenter(this.pos, this.alignment);
+        //----------------------------------------//
+        //Draw the background
+        var tl = center.add(new Vec2(-this.width / 2, this.height / 2));
+        var br = center.add(new Vec2(this.width / 2, -this.height / 2));
+
+        Game.renderer.stroke(this.outlineColour, this.outlineWidth, false, true);
+        Game.renderer.fill(this.background);
+        Game.renderer.rect(tl, br, false, true);
+        Game.renderer.fillShape();
+        Game.renderer.strokeShape();
+        //----------------------------------------//
+
+    }
+}
+//----------------------------------------------------------------------//
+
+//----------------------------------------------------------------------//
+//text object
+export class Text extends UIelement {
+    constructor(pos, align, width, height, fontColour, font, contents) {
+        super(pos, align, width, height);
+        this.fontColour = fontColour;
+        this.font = font;
+        this.contents = contents;
+    }
+    Update() {
+
+    }
+    Draw() {
+        var center = GetCenter(this.pos, this.alignment);
+        
+    }
 }
 //----------------------------------------------------------------------//
 
@@ -325,5 +431,17 @@ function GetScaleCnvSizeHalf() {
 
         //Divide by two to get the half size
         .div(new Vec2(2,2));
+}
+//----------------------------------------------------------------------//
+
+
+//----------------------------------------------------------------------//
+//GetCenter(pos, alignment)
+//gets the center of the ui element based on the screen alignment and the position relative to that alignment
+function GetCenter(pos, alignment) {
+    var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
+    var alignment_mul_scaleCnvSize_half_vec2 = alignment.mul(scaleCnvSize_half_vec2);
+    var center = alignment_mul_scaleCnvSize_half_vec2.add(pos); 
+    return center;
 }
 //----------------------------------------------------------------------//

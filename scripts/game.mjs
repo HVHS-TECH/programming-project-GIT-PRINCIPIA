@@ -15,7 +15,7 @@ import { Page, Vec2, RefVar, Colour, lerp } from "./miscellaneous.mjs";
 
 import { Player } from "./player.mjs";
 import { Input } from "./input.mjs";
-import { Navball, VertMeter } from "./ui_element.mjs";
+import { Navball, VertMeter, Text, Container, Dropdown } from "./ui_element.mjs";
 import { Loader } from "./loader.mjs";
 
 import { Particle } from "./particle.mjs";
@@ -74,8 +74,8 @@ export class Game {
     static UI_ELEMENTS = [
         new VertMeter(new Vec2(-80,0), 'right', 80, 700, Colour.rgb(100, 0, 0), Colour.rgb(85, 255, 0), Colour.rgb(0, 140, 255), 5, "PlayerFuel"), //Fuel
         new VertMeter(new Vec2(80,0), 'left', 80, 700, Colour.rgb(20, 68, 20), Colour.rgb(255, 128, 0), Colour.rgb(0, 140, 255), 5, "PlayerHeat"),  //Heat
-        new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(100, 100, 100), 5, "PlayerVel", "PlayerVelDir") //Navball
-
+        new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(100, 100, 100), 5, "PlayerVel", "PlayerVelDir"), //Navball
+        new Dropdown(new Vec2(0, 0), 'center', 200, 100, 100, 10, null, null)
     ];
     
     //                                   num particle slots
@@ -204,7 +204,9 @@ export class Game {
 
         }
         Time.Update();
-
+        if (Input.KeyDown("KeyG")) {
+            Game.UI_ELEMENTS[3].ToggleDroppedDown();
+        }
         Game.renderer.Render();
 
         requestAnimationFrame(Game.Update);
