@@ -402,7 +402,7 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 100;
+        const DEPTH = 1000;
         var closestPlanetIdx = Game.getClosestPlanet(Player.pos, true);
         //----------------------------------------//
         //Simulation state variables
@@ -420,30 +420,7 @@ export class Player {
         //----------------------------------------//
         for (var i = 0; i < DEPTH; i++) {
 
-            for (var p = 0; p < fake_planets.length; p++) {
-                fake_planets[p].Update(1); 
-                
-            }
-            for (var p = 0; p < fake_planets.length; p++) {
-                fake_planets[p].Integrate(1); 
-                
-            }
-            for (var p = 0; p < fake_planets.length; p++) {
-                fake_planets[p].Update(1); 
-                
-            }
-            pos = pos.add(vel);
-
-            var relPos = pos.sub(Game.PLANETS[closestPlanetIdx].pos);
-            var relLastPos = lastPos.sub(Game.PLANETS[closestPlanetIdx].pos);
             
-            var cameraSpacePos = relPos.add(Game.PLANETS[closestPlanetIdx].pos).add(Player.pos);
-            var cameraSpaceLastPos = relLastPos.add(Game.PLANETS[closestPlanetIdx].pos).add(Player.pos);
-
-            Game.renderer.stroke(Colour.rgb(200, 200, 200), 10, false, false);
-            Game.renderer.line(cameraSpacePos, cameraSpaceLastPos, true, true);
-            Game.renderer.strokeShape();
-            Game.renderer.stroke('transparent', 0, true, true);
             
         }
     }

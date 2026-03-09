@@ -293,7 +293,7 @@ export class Navball extends UIelement {
 //----------------------------------------------------------------------//
 //Arrows pointing to planets
 export class PlanetArrows extends UIelement {
-
+    
 }
 //----------------------------------------------------------------------//
 
