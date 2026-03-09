@@ -391,7 +391,7 @@ export class Player {
     //----------------------------------------------------------------------//
     //drawTrajectory()
     //draws the trajectory of the player
-    drawTrajectory() {
+    static drawTrajectory() {
 
     }
     //----------------------------------------------------------------------//
