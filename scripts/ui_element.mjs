@@ -292,11 +292,18 @@ export class Navball extends UIelement {
 
 //----------------------------------------------------------------------//
 //Arrows pointing to planets
-export class PlanetArrows {
+export class PlanetArrows extends UIelement {
 
 }
 //----------------------------------------------------------------------//
 
+
+//----------------------------------------------------------------------//
+//dropdown class, used for things like notifications, such
+export class Dropdown extends UIelement {
+
+}
+//----------------------------------------------------------------------//
 
 
 //----------------------------------------------------------------------//
