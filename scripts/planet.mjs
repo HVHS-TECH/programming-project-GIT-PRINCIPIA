@@ -73,21 +73,24 @@ export class Planet {
     }
 
     //----------------------------------------------------------------------//
-    //Update()
-    //Called every frame
-    Update() {
+    //Update(dt)
+    //Called every frame with (scaled) delta time dt
+    Update(dt) {
         //Do orbital physics
         //Loop through all the planets
         for (var p = 0; p < Game.PLANETS.length; p++) {
             //If the planet is this, don't apply a force
             if (Game.PLANETS[p] == this) continue;
+
             var other = Game.PLANETS[p];
             var delta = other.pos.sub(this.pos);
-            var dist = delta.len();
+            var dist = delta.len(); //Distance to the other planet
             var deltaNorm = delta.norm();
-            var force = Game.G * other.mass / (dist * dist) * Time.scaleDeltaTime * 0.5;
-            this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
 
+            //Calculate and apply the force
+            //Halve acceleration for vertlet integration in Game.Update()
+            var force = Game.G * other.mass / (dist * dist) * dt * 0.5;
+            this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
         }
         
     }
@@ -95,11 +98,11 @@ export class Planet {
 
 
     //----------------------------------------------------------------------//
-    //Integrate()
-    //integrate the planet's postiion
-    Integrate() {
+    //Integrate(dt)
+    //integrate the planet's postiion with (scaled) delta time dt
+    Integrate(dt) {
         //Integrate postiion based on velocity and delta time
-        this.pos = this.pos.add(this.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
+        this.pos = this.pos.add(this.vel.mul(dt));
     }
     //----------------------------------------------------------------------//
 

@@ -157,6 +157,7 @@ export class Game {
         //Prevent scaleDeltaTime from being VERY large on the first frame due to planet loading etc
         Time.Update();
         Time.Update();
+        Time.Update();
         //----------------------------------------//
         
         console.log("Game.Start: initialized");
@@ -175,15 +176,15 @@ export class Game {
         Game.smoothTimeWarp = lerp(Game.smoothTimeWarp, Game.timewarp, TIMEWARP_SMOOTHING);
         for (var k = 0; k < Game.smoothTimeWarp; k++) {
             //----------------------------------------//
-            //Use verlet velocity integration
+            //Use verlet velocity integration to reduce integration error
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update();
+                Game.PLANETS[p].Update(Time.scaleDeltaTime);
             }
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Integrate();
+                Game.PLANETS[p].Integrate(Time.scaleDeltaTime);
             }
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update();
+                Game.PLANETS[p].Update(Time.scaleDeltaTime);
             }
             //----------------------------------------//
 

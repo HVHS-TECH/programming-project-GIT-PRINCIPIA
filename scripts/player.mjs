@@ -5,6 +5,7 @@
 //Player class                                                          //
 //Manages player movement and logic, as well as player rendering        //
 //----------------------------------------------------------------------//
+import { Planet } from "./planet.mjs";
 import { Game } from "./game.mjs";
 import { Input } from "./input.mjs";
 import { Vec2, Colour } from "./miscellaneous.mjs";
@@ -281,7 +282,11 @@ export class Player {
                 const IMPACT_SEVERITY = 
                 Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * 0.7 //Punish the player for landing while moving sideways
                  + Math.max(DIR_DOT_DELTA_NORM, 0) * 1.5; //Punish the player for not landing upright
-                Player.vel = other.vel;
+                
+                //Adjust velocity (skid / slide)
+                const FRICTION = 0.9; //Closer to one = slicker
+                const SKID_VEL = REL_VEL.mul(FRICTION);
+                Player.vel = other.vel.add(SKID_VEL);
 
                 //only explode if the player hasn't already exploded
                 if (REL_VEL.len() > Player.IMPACT_TOLERANCE - IMPACT_SEVERITY && !Player.exploded) {
@@ -323,6 +328,11 @@ export class Player {
 
         //----------------------------------------//
         //We ARE in an atmosphere
+        const REL_VEL = Player.vel.sub(other.vel);
+        const DRAG = new Vec2(1, 1);
+        const SLOWED_VEL = DRAG.mul(REL_VEL);
+        Player.vel = other.vel.add(SLOWED_VEL);
+
 
         //----------------------------------------//
     }
@@ -342,7 +352,7 @@ export class Player {
         //Integrate zoom based on input and delta time
         const ZOOM_SPEED = 0.05 / Game.smoothTimeWarp;
         Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * Time.scaleDeltaTime + 1));
-
+        Player.zoom = clamp(Player.zoom, 0.00001, 10000000);
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
 
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
@@ -355,7 +365,7 @@ export class Player {
     //Draw()
     //Calls DrawPlayer() with default values
     static Draw() {
-        this.drawTrajectory();
+        //this.drawTrajectory();
         this.DrawPlayer(new Vec2(0, 0), 1, true, true, false);
     }
     //----------------------------------------------------------------------//
@@ -392,7 +402,50 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
+        const DEPTH = 100;
+        var closestPlanetIdx = Game.getClosestPlanet(Player.pos, true);
+        //----------------------------------------//
+        //Simulation state variables
+        var pos = Player.pos;
+        var vel = Player.vel;
 
+        var lastPos = Player.pos;
+
+        //Make sure to not just assign a reference to Game.PLANETS - make an actual copy
+        var fake_planets = [];
+        for (var i = 0; i < Game.PLANETS.length; i++) {
+            const REAL_PLANET = Game.PLANETS[i];
+            fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRad, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
+        }
+        //----------------------------------------//
+        for (var i = 0; i < DEPTH; i++) {
+
+            for (var p = 0; p < fake_planets.length; p++) {
+                fake_planets[p].Update(1); 
+                
+            }
+            for (var p = 0; p < fake_planets.length; p++) {
+                fake_planets[p].Integrate(1); 
+                
+            }
+            for (var p = 0; p < fake_planets.length; p++) {
+                fake_planets[p].Update(1); 
+                
+            }
+            pos = pos.add(vel);
+
+            var relPos = pos.sub(Game.PLANETS[closestPlanetIdx].pos);
+            var relLastPos = lastPos.sub(Game.PLANETS[closestPlanetIdx].pos);
+            
+            var cameraSpacePos = relPos.add(Game.PLANETS[closestPlanetIdx].pos).add(Player.pos);
+            var cameraSpaceLastPos = relLastPos.add(Game.PLANETS[closestPlanetIdx].pos).add(Player.pos);
+
+            Game.renderer.stroke(Colour.rgb(200, 200, 200), 10, false, false);
+            Game.renderer.line(cameraSpacePos, cameraSpaceLastPos, true, true);
+            Game.renderer.strokeShape();
+            Game.renderer.stroke('transparent', 0, true, true);
+            
+        }
     }
     //----------------------------------------------------------------------//
 
