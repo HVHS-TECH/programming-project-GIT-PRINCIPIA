@@ -323,11 +323,6 @@ export class Player {
 
         //----------------------------------------//
         //We ARE in an atmosphere
-        var relVel = Player.vel.sub(other.vel);
-        const ORBITAL_COMPONENT = other.vel;
-        var drag = 0.9;
-        relVel = relVel.mul(1);
-        Player.vel = ORBITAL_COMPONENT.add(relVel);
 
         //----------------------------------------//
     }
@@ -360,7 +355,7 @@ export class Player {
     //Draw()
     //Calls DrawPlayer() with default values
     static Draw() {
-        
+        this.drawTrajectory();
         this.DrawPlayer(new Vec2(0, 0), 1, true, true, false);
     }
     //----------------------------------------------------------------------//
