@@ -11,13 +11,14 @@ import { Game } from "./game.mjs";
 import { Vec2, clamp, lerp} from "./miscellaneous.mjs";
 import { Player } from "./player.mjs";
 import { Time } from "./time.mjs";
+import { Input } from "./input.mjs";
 
 export class UIelement {
     constructor(pos, align, width, height) {
         this.pos = pos;
         this.width = width;
         this.height = height;
-
+        this.parent = null;
 
         this.alignLeft = align.includes('left');
         this.alignRight = align.includes('right');
@@ -49,17 +50,29 @@ export class UIelement {
     //----------------------------------------------------------------------//
     //GetCenter(pos, alignment)
     //gets the center of the ui element based on the screen alignment and the position relative to that alignment
+    //static version
     static GetCenter(pos, alignment) {
-        var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
+        var width = Game.renderer.cnvWidth;
+        var height = Game.renderer.cnvHeight;
+        
+        var scaleCnvSize_half_vec2 = GetScaleSizeHalf(width, height);
         var alignment_mul_scaleCnvSize_half_vec2 = alignment.mul(scaleCnvSize_half_vec2);
         var center = alignment_mul_scaleCnvSize_half_vec2.add(pos); 
         return center;
     }
-    //static version
+    //local version, relative to parent
     GetCenter() {
-        var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
+        var width = Game.renderer.cnvWidth;
+        var height = Game.renderer.cnvHeight;
+        var offset = new Vec2(0,0);
+        if (this.parent != null) {
+            width = this.parent.width;
+            height = this.parent.height;
+            offset = this.parent.GetCenter();
+        }
+        var scaleCnvSize_half_vec2 = GetScaleSizeHalf(width, height);
         var alignment_mul_scaleCnvSize_half_vec2 = this.alignment.mul(scaleCnvSize_half_vec2);
-        var center = alignment_mul_scaleCnvSize_half_vec2.add(this.pos); 
+        var center = alignment_mul_scaleCnvSize_half_vec2.add(this.pos).add(offset); 
         return center;
     }
     //----------------------------------------------------------------------//
@@ -336,6 +349,11 @@ export class Dropdown extends UIelement {
         this.targetDropdownValue = 0;
         this.t = 0; //For interpolation
     }
+    
+
+    //----------------------------------------------------------------------//
+    //ToggleDroppedDown()
+    //check if the cooldown permits toggling, and if so, toggle the target value for interpolation in Update()
     ToggleDroppedDown() {
         if (this.timeSinceLastDroppedDown < Dropdown.dropdownTimeout / 1000) {
             return;
@@ -346,46 +364,81 @@ export class Dropdown extends UIelement {
         this.targetDropdownValue = 1 - this.targetDropdownValue;
 
     }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //CheckToToggle()
+    //User defined
     CheckToToggle() {
 
     }
+    //----------------------------------------------------------------------//
+
+
+
+    //----------------------------------------------------------------------//
+    //Update()
+    //Check whether the dropdown should toggle, and lerp to the target position
+    //Also update associated container object
     Update() {
         this.CheckToToggle();
         this.timeSinceLastDroppedDown += Time.deltaTime;
         this.pos = Vec2.lerp(this.raisedPos, this.loweredPos, this.t);
         if (this.container != null) {
-            this.container.pos = this.pos;
-            this.container.aligment = this.alignment;
+            this.container.parent = this;
+            this.container.Update();
         }
         this.t = lerp(this.t, this.targetDropdownValue, 1 / this.dropdownTime * Time.scaleDeltaTime / (Math.abs(this.targetDropdownValue - this.t) + 1/*+1 to avoid divide by zero*/) * 2)
         this.t = clamp(this.t, 0, 1);
         console.log(this.t);
     }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //MousedOver(pos)
+    //checks whether the mouse is within the bounds of the dropdown IF it was at position 'pos'
+    MousedOver(pos) {
+        const MOUSE_POS = new Vec2(Input.mouseX, Input.mouseY);
+        const CENTER = Game.renderer.worldToCanvas(UIelement.GetCenter(pos, this.alignment), false, true);
+        const DELTA = CENTER.sub(MOUSE_POS);
+        const X_IN_RANGE = (Math.abs(DELTA.x) < this.width / 2); //Is the mouse X in range?
+        const Y_IN_RANGE = (Math.abs(DELTA.y) < this.height / 2);//Is the mouse Y in range?
+        return (X_IN_RANGE && Y_IN_RANGE);
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //Draw()
+    //Draw the container associated with the dropdown
     Draw() {
         if (this.container != null) {
             this.container.Draw();
         }
     }
+    //----------------------------------------------------------------------//
 }
 //----------------------------------------------------------------------//
 
 //----------------------------------------------------------------------//
 //Container / box class, can have contents
 export class Container extends UIelement {
-    constructor(pos, align, width, height, background, outline, outlineWidth, item) {
+    constructor(pos, align, width, height, background, outline, outlineWidth, items) {
         super(pos, align, width, height);
 
         this.background = background;
         this.outline = outline;
         this.outlineWidth = outlineWidth;
 
-        this.item = item;
+        this.items = items;
+        
     }
 
     Update() {
-        if (this.item != null) {
-            this.item.aligment = this.alignment;
-            this.item.pos = this.pos;
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i] != null) {
+                this.items[i].parent = this;
+                this.items[i].Update();
+            }
         }
         
     }
@@ -402,8 +455,10 @@ export class Container extends UIelement {
         Game.renderer.fillShape();
         Game.renderer.strokeShape();
         //----------------------------------------//
-        if (this.item != null) {
-            this.item.Draw();
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i] != null) {
+                this.items[i].Draw();
+            }
         }
 
     }
@@ -413,22 +468,35 @@ export class Container extends UIelement {
 //----------------------------------------------------------------------//
 //text object
 export class Text extends UIelement {
-    constructor(pos, align, width, height, fontColour, font, contentsRef) {
+    constructor(pos, align, width, height, fontColour, fontSize, font, textAlignX, textAlignY, contentsRef) {
         super(pos, align, width, height);
         this.fontColour = fontColour;
+        this.fontSize = fontSize;
         this.font = font;
+        this.textAlignX = textAlignX;
+        this.textAlignY = textAlignY;
         this.contentsRef = contentsRef;
         this.contents = "";
+        this.textArray = [];
     }
     Update() {
         this.contents = Game.getRefVar(this.contentsRef);
+        this.textArray = this.contents.split('\n'); //Split the text into individual lines
+
     }
     Draw() {
-        var center = Game.renderer.worldToCanvas(center, false, true);
-        Game.renderer.cnv.font = '30px serif';
-        Game.renderer.fill('black');
+        var center = Game.renderer.worldToCanvas(this.GetCenter(), false, true);
+        const NUM_LINES = this.textArray.length;
+        const LINE_PADDING = 5;
+        const LINE_OFFSET = this.fontSize + LINE_PADDING; 
+        Game.renderer.cnv.font = this.fontSize + "px " + this.font;
+        Game.renderer.fill(this.fontColour);
+        Game.renderer.cnv.textAlign = this.textAlignX;
+        Game.renderer.cnv.textBaseline = this.textAlignY;
+        for (var y = -NUM_LINES * LINE_OFFSET / 2; y < NUM_LINES * LINE_OFFSET / 2; y += LINE_OFFSET) {
+            Game.renderer.cnv.fillText(this.textArray[Math.round((y + NUM_LINES * LINE_OFFSET / 2) / LINE_OFFSET)], center.x, center.y + y + LINE_OFFSET / 2);
+        }   
         
-        Game.renderer.cnv.fillText("hi", center.x, center.y);
     }
 }
 //----------------------------------------------------------------------//
@@ -440,16 +508,16 @@ export class Text extends UIelement {
 
 
 //----------------------------------------------------------------------//
-//GetScaleCnvSizeHalf()
+//GetScaleSizeHalf()
 //When multiplied by an alignment vector (e.g [-1, 0] for left center), this produces coordinates that 
 //will - after being transformed by Renderer.worldToCanvas()) - correspond to that side of the screen.
-function GetScaleCnvSizeHalf() {
+function GetScaleSizeHalf(width, height) {
     return new Vec2(
-        //Multiply scaleCnvSize by the aspect ration
-        Game.renderer.cnvWidth / Game.renderer.cnvHeight * Game.renderer.scaleCnvSize, 
+        //Multiply scaleCnvSize by the aspect ratio
+        width / height * Game.renderer.scaleCnvSize / Game.renderer.cnvWidth * width, 
 
         //Y is just scaleCnvSize
-        Game.renderer.scaleCnvSize)
+        Game.renderer.scaleCnvSize / Game.renderer.cnvHeight * height)
 
         //Divide by two to get the half size
         .div(new Vec2(2,2));

@@ -82,21 +82,26 @@ export class Game {
         new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(100, 100, 100), 5, "PlayerVel", "PlayerVelDir"), //Navball
         
         //top dropdown
-        new Dropdown(new Vec2(0, 160), 'top', 400, 150, 240, 10, 
+        new Dropdown(new Vec2(0, 80), 'top', 400, 150, 150, 10, 
             function(){ //Function that determines if it should toggle (must do the toggling)
-                const MOUSE_POS = new Vec2(Input.mouseX, Input.mouseY);
-                const CENTER = Game.renderer.worldToCanvas(UIelement.GetCenter(this.loweredPos, this.alignment), false, true);
-                const DELTA = CENTER.sub(MOUSE_POS);
-                const X_IN_RANGE = (Math.abs(DELTA.x) < this.width / 2); //Is the mouse X in range?
-                const Y_IN_RANGE = (Math.abs(DELTA.y) < this.height / 2);//Is the mouse Y in range?
-                if (X_IN_RANGE && Y_IN_RANGE) {
+                const DROPDOWN = this.MousedOver(this.loweredPos);
+                if (DROPDOWN) {
                     this.targetDropdownValue = 1; //Drop down
                 } else {
                     this.targetDropdownValue = 0; //Raise up
                 }
             }, 
-            new Container(new Vec2(0, 0), 'top', 400, 150, Colour.rgb(200,200,200), Colour.rgb(0,0,0), 10, 
-                new Text(new Vec2(0,0), 'top', 300, 125, Colour.rgb(0, 0, 0), '30px serif', "PlayerScore")
+            new Container(new Vec2(0, 0), 'center', 900, 150, Colour.rgb(200,200,200), Colour.rgb(0,0,0), 10, 
+                [
+                    //Help information
+                    new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(0,0,0), 20, 'serif', 'center', 'middle', "HelpText"),
+                    //Container for score text
+                    new Container(new Vec2(0, 0), 'bottom', 380, 70, Colour.rgb(200,200,200), Colour.rgb(0,0,0), 5,
+                        [   //Score text is rendered in a container located below the dropdown
+                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 40, 'serif', "center", "middle", "PlayerScore")]
+                        )
+                    
+                ]
             )
         )
     ];
@@ -145,6 +150,12 @@ export class Game {
             "PlayerScore",
             function() { //Get
                 return "Score: " + Math.round(Player.smoothScore);
+            }
+        ),
+        new RefVar(
+            "HelpText",
+            function() { //Get
+                return "Controls: \n" + "Movement: W => move forward, A => rotate left, D => rotate right \n" +"Other: Space => speed up time (be careful!)";
             }
         )
     ];
