@@ -91,12 +91,12 @@ export class Game {
                     this.targetDropdownValue = 0; //Raise up
                 }
             }, 
-            new Container(new Vec2(0, 0), 'center', 900, 150, Colour.rgb(200,200,200), Colour.rgb(0,0,0), 10, 
+            new Container(new Vec2(0, 0), 'center', 900, 150, Colour.rgb(123, 211, 190), Colour.rgb(41, 2, 32), 10, 
                 [
                     //Help information
                     new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(0,0,0), 20, 'serif', 'center', 'middle', "HelpText"),
                     //Container for score text
-                    new Container(new Vec2(0, 0), 'bottom', 380, 70, Colour.rgb(200,200,200), Colour.rgb(0,0,0), 5,
+                    new Container(new Vec2(0, 0), 'bottom', 380, 70, Colour.rgb(151, 202, 193), Colour.rgb(39, 36, 39), 5,
                         [   //Score text is rendered in a container located below the dropdown
                             new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 40, 'serif', "center", "middle", "PlayerScore")]
                         )
@@ -155,7 +155,7 @@ export class Game {
         new RefVar(
             "HelpText",
             function() { //Get
-                return "Controls: \n" + "Movement: W => move forward, A => rotate left, D => rotate right \n" +"Other: Space => speed up time (be careful!)";
+                return "Controls: \n" + "Movement: W => move forward, A => rotate left, D => rotate right \n" +"Other: Space => speed up time, Arrow up / down => zoom";
             }
         )
     ];
