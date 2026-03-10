@@ -22,6 +22,7 @@ export class Input {
         document.addEventListener('keyup', function(event) {
             Input.keysDown[event.code] = false;
         });
+        document.onmousemove = function(evt){Input.mouseX = evt.pageX; Input.mouseY = evt.pageY;};
     }
     //----------------------------------------------------------------------//
 

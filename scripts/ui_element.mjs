@@ -8,7 +8,7 @@
 
 import { Renderer } from "./renderer.mjs";
 import { Game } from "./game.mjs";
-import { Vec2, clamp} from "./miscellaneous.mjs";
+import { Vec2, clamp, lerp} from "./miscellaneous.mjs";
 import { Player } from "./player.mjs";
 import { Time } from "./time.mjs";
 
@@ -45,6 +45,24 @@ export class UIelement {
     GetInput() {
         return 0;
     }
+
+    //----------------------------------------------------------------------//
+    //GetCenter(pos, alignment)
+    //gets the center of the ui element based on the screen alignment and the position relative to that alignment
+    static GetCenter(pos, alignment) {
+        var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
+        var alignment_mul_scaleCnvSize_half_vec2 = alignment.mul(scaleCnvSize_half_vec2);
+        var center = alignment_mul_scaleCnvSize_half_vec2.add(pos); 
+        return center;
+    }
+    //static version
+    GetCenter() {
+        var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
+        var alignment_mul_scaleCnvSize_half_vec2 = this.alignment.mul(scaleCnvSize_half_vec2);
+        var center = alignment_mul_scaleCnvSize_half_vec2.add(this.pos); 
+        return center;
+    }
+    //----------------------------------------------------------------------//
 }
 
 //Vertical meter / guage
@@ -71,7 +89,7 @@ export class VertMeter extends UIelement {
     //Draw()
     //Draw the meter
     Draw() {
-        var center = GetCenter(this.pos, this.alignment);
+        var center = this.GetCenter();
 
         this.DrawBackground(center);
 
@@ -162,7 +180,7 @@ export class Navball extends UIelement {
     //Draw()
     //Draws the Navball
     Draw() {
-        var center = GetCenter(this.pos, this.alignment);
+        var center = this.GetCenter();
 
         this.DrawBackground(center);
 
@@ -303,18 +321,19 @@ export class Dropdown extends UIelement {
     static dropdownTimeout = 300; //<dropdownTimeout> ms between dropdowns
     //Trigger element: the ui element that displays where the dropdown is e.g an arrow icon, etc
     //container: the container class that this dropdown 'drops down'.
-    constructor(pos, align, width, height, dropdownDist, dropdownTime, triggerElement, container) {
+    constructor(pos, align, width, height, dropdownDist, dropdownTime, triggerFunc, container) {
         super(pos, align, width, height);
         this.raisedPos = pos;
         this.loweredPos = pos.sub(new Vec2(0, dropdownDist));
 
         this.dropdownDist = dropdownDist;
+        this.dropdownTime = dropdownTime;
 
-        this.triggerElement = triggerElement;
+        this.CheckToToggle = triggerFunc;
         this.container = container;
         this.timeSinceLastDroppedDown = 0;
         
-        this.targetDropdown = 0;
+        this.targetDropdownValue = 0;
         this.t = 0; //For interpolation
     }
     ToggleDroppedDown() {
@@ -322,41 +341,27 @@ export class Dropdown extends UIelement {
             return;
         }
         this.timeSinceLastDroppedDown = 0;
-        //Toggle dropdown status
-        this.targetDropdown = 1 - this.targetDropdown;
 
-        //Progress to the previous target (so that the dropdown speed is constant independent of progress) 
-        //From 0 - 1
-        const PROGRESS = Vec2.dist(this.pos, ((this.targetDropdown == 1) ? this.loweredPos : this.raisedPos) / this.dropdownDist);
-        
-        this.t = PROGRESS;
+        //Toggle dropdown status
+        this.targetDropdownValue = 1 - this.targetDropdownValue;
+
+    }
+    CheckToToggle() {
+
     }
     Update() {
+        this.CheckToToggle();
         this.timeSinceLastDroppedDown += Time.deltaTime;
-        this.pos = Vec2.lerp(this.pos, ((this.targetDropdown == 1) ? this.loweredPos : this.raisedPos), 1 / 10);
+        this.pos = Vec2.lerp(this.raisedPos, this.loweredPos, this.t);
         if (this.container != null) {
             this.container.pos = this.pos;
             this.container.aligment = this.alignment;
         }
-        if (this.t > this.targetDropdown) this.t -= 1 / this.dropdownTime * Time.scaleDeltaTime;
-        if (this.t < this.targetDropdown) this.t += 1 / this.dropdownTime * Time.scaleDeltaTime;
+        this.t = lerp(this.t, this.targetDropdownValue, 1 / this.dropdownTime * Time.scaleDeltaTime / (Math.abs(this.targetDropdownValue - this.t) + 1/*+1 to avoid divide by zero*/) * 2)
         this.t = clamp(this.t, 0, 1);
+        console.log(this.t);
     }
     Draw() {
-        var center = GetCenter(this.pos, this.alignment);
-        /*
-        //----------------------------------------//
-        //Draw the background
-        var tl = center.add(new Vec2(-this.width / 2, this.height / 2));
-        var br = center.add(new Vec2(this.width / 2, -this.height / 2));
-
-        Game.renderer.stroke(this.outlineColour, this.outlineWidth, false, true);
-        Game.renderer.fill(this.background);
-        Game.renderer.rect(tl, br, false, true);
-        Game.renderer.fillShape();
-        Game.renderer.strokeShape();
-        //----------------------------------------//
-        */
         if (this.container != null) {
             this.container.Draw();
         }
@@ -385,7 +390,7 @@ export class Container extends UIelement {
         
     }
     Draw() {
-        var center = GetCenter(this.pos, this.alignment);
+        var center = this.GetCenter();
         //----------------------------------------//
         //Draw the background
         var tl = center.add(new Vec2(-this.width / 2, this.height / 2));
@@ -397,6 +402,9 @@ export class Container extends UIelement {
         Game.renderer.fillShape();
         Game.renderer.strokeShape();
         //----------------------------------------//
+        if (this.item != null) {
+            this.item.Draw();
+        }
 
     }
 }
@@ -405,18 +413,22 @@ export class Container extends UIelement {
 //----------------------------------------------------------------------//
 //text object
 export class Text extends UIelement {
-    constructor(pos, align, width, height, fontColour, font, contents) {
+    constructor(pos, align, width, height, fontColour, font, contentsRef) {
         super(pos, align, width, height);
         this.fontColour = fontColour;
         this.font = font;
-        this.contents = contents;
+        this.contentsRef = contentsRef;
+        this.contents = "";
     }
     Update() {
-
+        this.contents = Game.getRefVar(this.contentsRef);
     }
     Draw() {
-        var center = GetCenter(this.pos, this.alignment);
+        var center = Game.renderer.worldToCanvas(center, false, true);
+        Game.renderer.cnv.font = '30px serif';
+        Game.renderer.fill('black');
         
+        Game.renderer.cnv.fillText("hi", center.x, center.y);
     }
 }
 //----------------------------------------------------------------------//
@@ -445,13 +457,3 @@ function GetScaleCnvSizeHalf() {
 //----------------------------------------------------------------------//
 
 
-//----------------------------------------------------------------------//
-//GetCenter(pos, alignment)
-//gets the center of the ui element based on the screen alignment and the position relative to that alignment
-function GetCenter(pos, alignment) {
-    var scaleCnvSize_half_vec2 = GetScaleCnvSizeHalf();
-    var alignment_mul_scaleCnvSize_half_vec2 = alignment.mul(scaleCnvSize_half_vec2);
-    var center = alignment_mul_scaleCnvSize_half_vec2.add(pos); 
-    return center;
-}
-//----------------------------------------------------------------------//

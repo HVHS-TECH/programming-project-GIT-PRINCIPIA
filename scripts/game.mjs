@@ -15,7 +15,7 @@ import { Page, Vec2, RefVar, Colour, lerp } from "./miscellaneous.mjs";
 
 import { Player } from "./player.mjs";
 import { Input } from "./input.mjs";
-import { Navball, VertMeter, Text, Container, Dropdown } from "./ui_element.mjs";
+import { Navball, VertMeter, Text, Container, Dropdown, UIelement } from "./ui_element.mjs";
 import { Loader } from "./loader.mjs";
 
 import { Particle } from "./particle.mjs";
@@ -82,9 +82,23 @@ export class Game {
         new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(100, 100, 100), 5, "PlayerVel", "PlayerVelDir"), //Navball
         
         //top dropdown
-        new Dropdown(new Vec2(0, 160), 'top', 400, 150, 240, 100, 
-        null, 
-        new Container(new Vec2(0, 0), 'top', 400, 150, Colour.rgb(200,200,200), Colour.rgb(0,0,0), 10, null))
+        new Dropdown(new Vec2(0, 160), 'top', 400, 150, 240, 10, 
+            function(){ //Function that determines if it should toggle (must do the toggling)
+                const MOUSE_POS = new Vec2(Input.mouseX, Input.mouseY);
+                const CENTER = Game.renderer.worldToCanvas(UIelement.GetCenter(this.loweredPos, this.alignment), false, true);
+                const DELTA = CENTER.sub(MOUSE_POS);
+                const X_IN_RANGE = (Math.abs(DELTA.x) < this.width / 2); //Is the mouse X in range?
+                const Y_IN_RANGE = (Math.abs(DELTA.y) < this.height / 2);//Is the mouse Y in range?
+                if (X_IN_RANGE && Y_IN_RANGE) {
+                    this.targetDropdownValue = 1; //Drop down
+                } else {
+                    this.targetDropdownValue = 0; //Raise up
+                }
+            }, 
+            new Container(new Vec2(0, 0), 'top', 400, 150, Colour.rgb(200,200,200), Colour.rgb(0,0,0), 10, 
+                new Text(new Vec2(0,0), 'top', 300, 125, Colour.rgb(0, 0, 0), '30px serif', "PlayerScore")
+            )
+        )
     ];
     
     //                                   num particle slots
@@ -125,6 +139,12 @@ export class Game {
                 var closest_planet = Game.getClosestPlanet(Player.pos, true);
                 vel = vel.sub(Game.PLANETS[closest_planet].vel);
                 return vel.dir();
+            }
+        ),
+        new RefVar(
+            "PlayerScore",
+            function() { //Get
+                return "Score: " + Math.round(Player.smoothScore);
             }
         )
     ];
