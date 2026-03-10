@@ -300,7 +300,7 @@ export class PlanetArrows extends UIelement {
 //----------------------------------------------------------------------//
 //dropdown class, used for things like notifications, such
 export class Dropdown extends UIelement {
-    static dropdownTimeout = 300; //300 ms between dropdowns
+    static dropdownTimeout = 300; //<dropdownTimeout> ms between dropdowns
     //Trigger element: the ui element that displays where the dropdown is e.g an arrow icon, etc
     //container: the container class that this dropdown 'drops down'.
     constructor(pos, align, width, height, dropdownDist, dropdownTime, triggerElement, container) {
@@ -321,24 +321,30 @@ export class Dropdown extends UIelement {
         if (this.timeSinceLastDroppedDown < Dropdown.dropdownTimeout / 1000) {
             return;
         }
+        this.timeSinceLastDroppedDown = 0;
         //Toggle dropdown status
         this.targetDropdown = 1 - this.targetDropdown;
 
         //Progress to the previous target (so that the dropdown speed is constant independent of progress) 
         //From 0 - 1
-        const PROGRESS = this.dropdownDist / Vec2.dist(this.pos, ((this.targetDropdown == 1) ? this.loweredPos : this.raisedPos));
+        const PROGRESS = Vec2.dist(this.pos, ((this.targetDropdown == 1) ? this.loweredPos : this.raisedPos) / this.dropdownDist);
         
         this.t = PROGRESS;
     }
     Update() {
         this.timeSinceLastDroppedDown += Time.deltaTime;
-        this.pos = Vec2.lerp(this.raisedPos, this.loweredPos, this.t);
+        this.pos = Vec2.lerp(this.pos, ((this.targetDropdown == 1) ? this.loweredPos : this.raisedPos), 1 / 10);
+        if (this.container != null) {
+            this.container.pos = this.pos;
+            this.container.aligment = this.alignment;
+        }
         if (this.t > this.targetDropdown) this.t -= 1 / this.dropdownTime * Time.scaleDeltaTime;
         if (this.t < this.targetDropdown) this.t += 1 / this.dropdownTime * Time.scaleDeltaTime;
         this.t = clamp(this.t, 0, 1);
     }
     Draw() {
         var center = GetCenter(this.pos, this.alignment);
+        /*
         //----------------------------------------//
         //Draw the background
         var tl = center.add(new Vec2(-this.width / 2, this.height / 2));
@@ -350,6 +356,10 @@ export class Dropdown extends UIelement {
         Game.renderer.fillShape();
         Game.renderer.strokeShape();
         //----------------------------------------//
+        */
+        if (this.container != null) {
+            this.container.Draw();
+        }
     }
 }
 //----------------------------------------------------------------------//
