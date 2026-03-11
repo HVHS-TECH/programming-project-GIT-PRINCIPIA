@@ -36,17 +36,10 @@ export class Text extends UIelement {
 
     }
     Draw() {
-        var center = Game.renderer.worldToCanvas(this.GetCenter(), false, true);
-        const NUM_LINES = this.textArray.length;
-        const LINE_PADDING = 5;
-        const LINE_OFFSET = this.fontSize + LINE_PADDING; 
-        Game.renderer.cnv.font = this.fontSize + "px " + this.font;
+        var center = this.GetCenter();
+        //Game.renderer.cnv.font = this.fontSize + "px " + this.font;
         Game.renderer.fill(this.fontColour);
-        Game.renderer.cnv.textAlign = this.textAlignX;
-        Game.renderer.cnv.textBaseline = this.textAlignY;
-        for (var y = -NUM_LINES * LINE_OFFSET / 2; y < NUM_LINES * LINE_OFFSET / 2; y += LINE_OFFSET) {
-            Game.renderer.cnv.fillText(this.textArray[Math.round((y + NUM_LINES * LINE_OFFSET / 2) / LINE_OFFSET)], center.x, center.y + y + LINE_OFFSET / 2);
-        }   
+        Game.renderer.text(this.contents, this.textAlignX, this.textAlignY, this.fontSize, this.font, center, false, true);
         
     }
 }

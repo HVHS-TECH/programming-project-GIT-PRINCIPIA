@@ -83,7 +83,7 @@ export class Game {
         new VertMeter(new Vec2(80,0), 'left', 80, 700, Colour.rgb(20, 68, 20), Colour.rgb(255, 128, 0), Colour.rgb(0, 140, 255), 5, "PlayerHeat"),  //Heat
         
         //navball
-        new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(100, 100, 100), 5, "PlayerVel", "PlayerVelDir"), //Navball
+        new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(34, 52, 70), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(21, 51, 33), 15, "PlayerVel", "PlayerVelDir"), //Navball
         
         //top dropdown
         new Dropdown(new Vec2(0, 80), 'top', 400, 150, 150, 10, 
@@ -95,14 +95,21 @@ export class Game {
                     this.targetDropdownValue = 0; //Raise up
                 }
             }, 
-            new Container(new Vec2(0, 0), 'center', 900, 150, Colour.rgb(123, 211, 190), Colour.rgb(41, 2, 32), 10, 
+            new Container(new Vec2(0, 0), 'center', 900, 150, Colour.rgb(255, 241, 179), Colour.rgb(41, 2, 32), 10, 
                 [
                     //Help information
-                    new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(0,0,0), 20, 'serif', 'center', 'middle', "HelpText"),
+                    new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(21, 51, 33), 20, "monospace", 'center', 'middle', "HelpText"),
                     //Container for score text
-                    new Container(new Vec2(0, -35), 'bottom', 380, 70, Colour.rgb(151, 202, 193), Colour.rgb(39, 36, 39), 5,
+                    new Container(new Vec2(-150, -35), 'bottom', 380, 70, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
                         [   //Score text is rendered in a container located below the dropdown
-                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 40, 'serif', "center", "middle", "PlayerScore")]
+                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(21, 51, 33), 40, "monospace", "center", "middle", "PlayerScore")]
+                        ),
+                    
+                    //Prompt text telling the user that the help information above exists
+                    new Container(new Vec2(150, -20), 'bottom', 200, 40, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
+                        [   //Text
+                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(21, 51, 33), 20, "monospace", 'center', 'middle', "HelpTextPromptText")
+                        ]
                         )
                     
                 ]
@@ -153,13 +160,19 @@ export class Game {
         new RefVar(
             "PlayerScore",
             function() { //Get
-                return "Score: " + Math.round(Player.smoothScore);
+                return "SCORE: " + Math.round(Player.smoothScore);
             }
         ),
         new RefVar(
-            "HelpText",
+            "HelpText", //The help text displayed above score
             function() { //Get
                 return "Controls: \n" + "Movement: W => move forward, A => rotate left, D => rotate right \n" +"Other: Space => speed up time, Arrow up / down => zoom";
+            }
+        ),
+        new RefVar(
+            "HelpTextPromptText", //A small text box beside score prompting the user to move their mouse up and activate the dropdown to reveal the help text
+            function() { //Get
+                return "↑ CONTROLS ↑";
             }
         )
     ];

@@ -19,7 +19,7 @@
 import { UIelement } from "@scripts/interface/ui/ui_element.mjs";
 import { Renderer } from "@scripts/core/renderer.mjs";
 import { Game } from "@scripts/core/game.mjs";
-import { Vec2, clamp, lerp} from "@scripts/utility/miscellaneous.mjs";
+import { Vec2, clamp, lerp, Colour} from "@scripts/utility/miscellaneous.mjs";
 import { Player } from "@scripts/core/player.mjs";
 import { Time } from "@scripts/utility/time.mjs";
 import { Input } from "@scripts/interface/input.mjs";
@@ -28,11 +28,12 @@ import { Input } from "@scripts/interface/input.mjs";
 //----------------------------------------------------------------------//
 //Navball, displays a copy of the player, and information such as their velocity, velocity direction, closest planet, etc
 export class Navball extends UIelement {
-    constructor(pos, align, radius, playerColour, backgroundColour, windStreakColour, textColour, outlineColour, outlineWidth, velRefName, velDirRefName) {
+    constructor(pos, align, radius, playerColour, backgroundColour, backgroundColourOuter, windStreakColour, textColour, outlineColour, outlineWidth, velRefName, velDirRefName) {
         super(pos, align, radius * 2, radius * 2);
         this.radius = radius;
         this.playerColour = playerColour;
         this.backgroundColour = backgroundColour;
+        this.backgroundColourOuter = backgroundColourOuter;
         this.windStreakColour = windStreakColour;
         this.textColour = textColour;
         this.outlineColour = outlineColour;
@@ -80,10 +81,12 @@ export class Navball extends UIelement {
     DrawBackground(center) {
         //----------------------------------------//
         //Draw the background
-        Game.renderer.fill(this.backgroundColour);
+        var gradient = Game.renderer.radGradient(center, center, 0, this.radius, false, true);
+        gradient.addColorStop(0.4, this.backgroundColour.txt()); //Starts at 0.4 because the player takes up (some) space in the middle
+        gradient.addColorStop(1, this.backgroundColourOuter.txt());
+        Game.renderer.fill(gradient);
         Game.renderer.beginPath();
         Game.renderer.arc(center, this.radius, 0, Math.PI * 2, false, true);
-        Game.renderer.closePath();
         Game.renderer.fillShape();
         //----------------------------------------//
     }
@@ -151,11 +154,26 @@ export class Navball extends UIelement {
                 3, //Min size
                 10 //Max size
             );
-            Game.renderer.stroke(this.windStreakColour, WIDTH, false, true);
+            
             Game.renderer.lineDash(lineDashArrayStart, false, true);
+
+            //Draw the 'shadow'
+            const SHADOW_DEPTH = 5;
+            const SHADOW_P1 = p1.sub(new Vec2(0, SHADOW_DEPTH));
+            const SHADOW_P2 = p2.sub(new Vec2(0, SHADOW_DEPTH));
+            Game.renderer.stroke(Colour.lerp(this.windStreakColour, Colour.rgb(0,0,0), 0.7), WIDTH, false, true);
+            Game.renderer.beginPath();
+            Game.renderer.line(SHADOW_P1, SHADOW_P2, false, true); 
+            Game.renderer.strokeShape();
+
+
+            //Draw the line
+            Game.renderer.stroke(this.windStreakColour, WIDTH, false, true);
             Game.renderer.beginPath();
             Game.renderer.line(p1, p2, false, true); 
             Game.renderer.strokeShape();
+
+            
 
             //Reset line dash
             Game.renderer.lineDash([]);

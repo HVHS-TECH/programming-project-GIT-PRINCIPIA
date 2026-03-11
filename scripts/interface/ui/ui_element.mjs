@@ -63,6 +63,7 @@ export class UIelement {
         var center = alignment_mul_scaleCnvSize_half_vec2.add(pos); 
         return center;
     }
+    
     //local version, relative to parent
     GetCenter() {
         var width = Game.renderer.cnvWidth;

@@ -393,18 +393,25 @@ export class Renderer {
             console.warn("Renderer.text called on a page with no canvas. This might break things.");
             return;
         }
+
+        size = this.worldToCanvasNum(size, playerRelative, scaleWithScreen);
+        pos = this.worldToCanvas(pos, playerRelative, scaleWithScreen);
+
         
         const TEXT_ARRAY = text.split("\n"); //Split text up into different lines
+        const NUM_LINES = TEXT_ARRAY.length;
+        const LINE_SPACING = size;
         this.cnv.font = size + "px " + font;
         this.cnv.textAlign = horizontalAlign;
-        var start = 0;
-        var end = NUM_LINES * LINE_OFFSET;
 
-        if (verticalAlign.includes('middle')) {start = -NUM_LINES * LINE_OFFSET / 2; end = NUM_LINES * LINE_OFFSET / 2;}
-        if (verticalAlign.includes('top')) {start = -NUM_LINES * LINE_OFFSET; end = 0;}
-        if (verticalAlign.includes('bottom')) {start = 0; end = NUM_LINES * LINE_OFFSET}
-        for (var y = start; y < end; y += LINE_OFFSET) {
-            this.cnv.fillText(TEXT_ARRAY[Math.round((y + NUM_LINES * LINE_OFFSET / 2) / LINE_OFFSET)], pos.x, pos.y + y + LINE_OFFSET / 2);
+        var start = 0;
+        var end = NUM_LINES * LINE_SPACING;
+
+        if (verticalAlign.includes('middle')) {start = -(NUM_LINES - 1) * LINE_SPACING / 2; end = (NUM_LINES - 1) * LINE_SPACING / 2;}
+        if (verticalAlign.includes('top')) {start = -(NUM_LINES - 1) * LINE_SPACING; end = 0;}
+        if (verticalAlign.includes('bottom')) {start = 0; end = (NUM_LINES - 1) * LINE_SPACING}
+        for (var y = start; y <= end; y += LINE_SPACING) {
+            this.cnv.fillText(TEXT_ARRAY[Math.round((y - start) / LINE_SPACING)], pos.x, pos.y + y);
         }   
 
 
