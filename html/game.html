@@ -3,11 +3,23 @@
     <head>
         <title>Astro Explorer</title>
         <link rel="stylesheet" href="../css/styles.css">
-        <base href="">
     </head>
     <body>
         <canvas id="canvas"></canvas>
 
+        <!--Change the root url (<base> tag) so that both github pages and local host work-->
+        <!--This is the url that will be added at the start of all import map entries-->
+        <script>
+            if (window.location.hostname.includes('github.io')) { 
+                //We are on github pages
+                console.log("Github pages!");
+                document.head.innerHTML += '<base href="/programming-project-GIT-PRINCIPIA">';
+            } else {
+                //We are on localhost
+                console.log("Local host!");
+                document.head.innerHTML += '<base href="">';
+            }
+            </script>
         <!--Avoid relative references exceeding max depth (of 2)-->
         <script type="importmap">
             {
@@ -15,17 +27,6 @@
                 {
                     "@scripts/": "/scripts/"
                 }
-            }
-        </script>
-        <!--Change the root url (<base> tag) so that both github pages and local host work-->
-        <!--This is the url that will be added at the start of all import map entries-->
-        <script>
-            if (window.location.hostname.includes('github.io')) { 
-                //We are on github pages
-                document.head.innerHTML += '<base href="/programming-project-GIT-PRINCIPIA/">';
-            } else {
-                //We are on localhost
-                document.head.innerHTML += '<base href="/">';
             }
         </script>
         <script type="module" src='../scripts/core/main.mjs'></script>
