@@ -363,14 +363,14 @@ export class Renderer {
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
-    //line(a, b, screenSpace)
+    //line(a, b, playerRelative, scaleWithScreen)
     //draws a line from a - b
     //playerRelative: is the point relative to the player
     //scaleWithScreen: should the function manage alignment and screen size scaling?
     line(a, b, playerRelative, scaleWithScreen) {
         //Safety check
         if (!this.hasCnv) {
-            console.warn("Renderer.drawPolygon called on a page with no canvas. This might break things.");
+            console.warn("Renderer.line called on a page with no canvas. This might break things.");
             return;
         }
 
@@ -384,6 +384,33 @@ export class Renderer {
         this.cnv.lineTo(b.x, b.y);
     }
     //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //text(text, pos, playerRelative, scaleWithScreen)
+    text(text, horizontalAlign, verticalAlign, size, font, pos, playerRelative, scaleWithScreen) {
+        //Safety check
+        if (!this.hasCnv) {
+            console.warn("Renderer.text called on a page with no canvas. This might break things.");
+            return;
+        }
+        
+        const TEXT_ARRAY = text.split("\n"); //Split text up into different lines
+        this.cnv.font = size + "px " + font;
+        this.cnv.textAlign = horizontalAlign;
+        var start = 0;
+        var end = NUM_LINES * LINE_OFFSET;
+
+        if (verticalAlign.includes('middle')) {start = -NUM_LINES * LINE_OFFSET / 2; end = NUM_LINES * LINE_OFFSET / 2;}
+        if (verticalAlign.includes('top')) {start = -NUM_LINES * LINE_OFFSET; end = 0;}
+        if (verticalAlign.includes('bottom')) {start = 0; end = NUM_LINES * LINE_OFFSET}
+        for (var y = start; y < end; y += LINE_OFFSET) {
+            this.cnv.fillText(TEXT_ARRAY[Math.round((y + NUM_LINES * LINE_OFFSET / 2) / LINE_OFFSET)], pos.x, pos.y + y + LINE_OFFSET / 2);
+        }   
+
+
+    }
+    //----------------------------------------------------------------------//
+
 
     //----------------------------------------------------------------------//
     //Helper functions                                                      //

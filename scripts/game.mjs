@@ -96,7 +96,7 @@ export class Game {
                     //Help information
                     new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(0,0,0), 20, 'serif', 'center', 'middle', "HelpText"),
                     //Container for score text
-                    new Container(new Vec2(0, 0), 'bottom', 380, 70, Colour.rgb(151, 202, 193), Colour.rgb(39, 36, 39), 5,
+                    new Container(new Vec2(0, -35), 'bottom', 380, 70, Colour.rgb(151, 202, 193), Colour.rgb(39, 36, 39), 5,
                         [   //Score text is rendered in a container located below the dropdown
                             new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 40, 'serif', "center", "middle", "PlayerScore")]
                         )

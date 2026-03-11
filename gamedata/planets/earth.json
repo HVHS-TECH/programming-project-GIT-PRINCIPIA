@@ -57,7 +57,7 @@
             {"chunk": 19, "depth": 20},
             {"chunk": 20, "depth": 20},
             {"chunk": 21, "depth": 30},
-            {"rchunkad": 22, "depth": 10}
+            {"chunk": 22, "depth": 10}
         ]
     }
     

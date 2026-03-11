@@ -134,7 +134,7 @@ export class Player {
                 const BASE_DIR = Player.dir + Math.PI;
                 const BASE_WIDTH = 0.5;
                 const BASE_SPEED = 0.7;
-                const FRAME_INTERVAL = 2; //Spawn particles every <FRAME_INTERVAL> frames
+                const FRAME_INTERVAL = 1; //Spawn particles every <FRAME_INTERVAL> frames
                 //----------------------------------------//
                 if (Time.frame % FRAME_INTERVAL == 0) {
                     
@@ -457,9 +457,10 @@ export class Player {
     static explode() {
         Player.exploded = true;
         const NUM_PARTICLES = 80;
-        const SPEED = 3;
+        const SPEED = 5;
+        const INNER_SPEED = 1;
         const RANDOMNESS = 0.5;
-        spawnExplosion(Player.pos, Player.vel, SPEED, SPEED * 2, NUM_PARTICLES, RANDOMNESS, Colour.rgba(250,150,100,1), Colour.rgba(255, 72, 0, 0.5), Colour.rgba(151, 151, 151, 0))
+        spawnExplosion(Player.pos, Player.vel, INNER_SPEED, SPEED, NUM_PARTICLES, RANDOMNESS, Colour.rgba(250,150,100,1), Colour.rgba(255, 72, 0, 0.5), Colour.rgba(151, 151, 151, 0))
         Player.die();//Die!!!
     }
     //----------------------------------------------------------------------//

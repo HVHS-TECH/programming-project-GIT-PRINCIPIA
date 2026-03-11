@@ -368,7 +368,7 @@ export class Dropdown extends UIelement {
 
     //----------------------------------------------------------------------//
     //CheckToToggle()
-    //User defined
+    //User defined, set in constructor
     CheckToToggle() {
 
     }

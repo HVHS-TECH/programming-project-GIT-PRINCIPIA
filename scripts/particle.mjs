@@ -131,8 +131,11 @@ export function spawnExplosion(pos, vel, innerVel, outerVel, numParticles, rando
         Game.addParticle(new Particle(
             pos, r + (Math.random() * 2 - 1) * randomness * Math.PI * 2, vel.add(
                 new Vec2(
-                    Math.sin(r) * outerVel + (Math.random() * 2 - 1) * randomness, 
-                    Math.cos(r) * outerVel + (Math.random() * 2 - 1) * randomness
+                    Math.sin(r) * outerVel //Determine the fraction of the movement taken up by the x axis
+                     + (Math.random() * 2 - 1) * randomness, 
+
+                    Math.cos(r) * outerVel //Determine the fraction of the movement taken up by the y axis
+                     + (Math.random() * 2 - 1) * randomness
                 )
             ), 
             1, 10, 
@@ -152,8 +155,11 @@ export function spawnExplosion(pos, vel, innerVel, outerVel, numParticles, rando
         Game.addParticle(new Particle(
             pos, r + (Math.random() * 2 - 1) * randomness * Math.PI * 2, vel.add(
                 new Vec2(
-                    Math.sin(r) * innerVel / 3 + (Math.random() * 2 - 1) * randomness, 
-                    Math.cos(r) * innerVel / 3 + (Math.random() * 2 - 1) * randomness
+                    Math.sin(r) * innerVel //Determine the fraction of the movement taken up by the x axis
+                     + (Math.random() * 2 - 1) * randomness, 
+
+                    Math.cos(r) * innerVel //Determine the fraction of the movement taken up by the y axis
+                     + (Math.random() * 2 - 1) * randomness
                 )
             ), 
             1, 10, 
