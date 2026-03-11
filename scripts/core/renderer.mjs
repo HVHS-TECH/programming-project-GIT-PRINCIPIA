@@ -5,11 +5,11 @@
 //Renderer class                                                        //
 //Manages render functions and canvas setup                             //
 //----------------------------------------------------------------------//
-import {Planet} from './planet.mjs';
-import { Player } from './player.mjs';
-import { Vec2, Colour } from './miscellaneous.mjs';
-import { Game } from './game.mjs';
-import { UIelement } from './ui_element.mjs';
+import {Planet} from '@scripts/core/planet.mjs';
+import { Player } from '@scripts/core/player.mjs';
+import { Vec2, Colour } from '@scripts/utility/miscellaneous.mjs';
+import { Game } from '@scripts/core/game.mjs';
+import { UIelement } from '@scripts/interface/ui/ui_element.mjs';
 export class Renderer {
     constructor() {
         //----------------------------------------//

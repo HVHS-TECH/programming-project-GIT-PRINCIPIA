@@ -5,10 +5,10 @@
 //Loader class                                                          //
 //Manages loading planets, images and assets, etc                       //
 //----------------------------------------------------------------------//
-import { Planet, Mountain, Ocean } from "./planet.mjs"
-import { Player } from "./player.mjs";
-import { Vec2, Colour } from "./miscellaneous.mjs";
-import { Game } from "./game.mjs";
+import { Planet, Mountain, Ocean } from "@scripts/core/planet.mjs"
+import { Player } from "@scripts/core/player.mjs";
+import { Vec2, Colour } from "@scripts/utility/miscellaneous.mjs";
+import { Game } from "@scripts/core/game.mjs";
 //Loader class, 
 export class Loader {
 

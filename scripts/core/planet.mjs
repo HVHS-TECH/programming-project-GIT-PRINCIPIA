@@ -5,11 +5,11 @@
 //Planet class                                                          //
 //An object to represent a planet, handling rendering and update logic  //
 //----------------------------------------------------------------------//
-import {Colour, Vec2, DEG2RAD} from './miscellaneous.mjs';
-import { Renderer } from './renderer.mjs';
-import { Game } from './game.mjs';
-import { Player } from './player.mjs';
-import { Time } from './time.mjs';
+import {Colour, Vec2, DEG2RAD} from '@scripts/utility/miscellaneous.mjs';
+import { Renderer } from '@scripts/core/renderer.mjs';
+import { Game } from '@scripts/core/game.mjs';
+import { Player } from '@scripts/core/player.mjs';
+import { Time } from '@scripts/utility/time.mjs';
 //----------------------------------------------------------------------//
 //Mountain class
 //Simple data structure to store mountain data

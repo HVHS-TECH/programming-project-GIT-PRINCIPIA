@@ -6,6 +6,15 @@
     </head>
     <body>
 
-        <script type="module" src='./scripts/main.mjs'></script>
+        <!--Avoid relative references exceeding max depth (of 2)-->
+        <script type="importmap">
+            {
+                "imports": 
+                {
+                    "@scripts/": "/scripts/"
+                }
+            }
+        </script>
+        <script type="module" src='./scripts/core/main.mjs'></script>
     </body>
 </html>

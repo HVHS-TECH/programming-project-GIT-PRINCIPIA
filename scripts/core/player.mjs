@@ -5,14 +5,14 @@
 //Player class                                                          //
 //Manages player movement and logic, as well as player rendering        //
 //----------------------------------------------------------------------//
-import { Planet } from "./planet.mjs";
-import { Game } from "./game.mjs";
-import { Input } from "./input.mjs";
-import { Vec2, Colour } from "./miscellaneous.mjs";
-import { Renderer } from "./renderer.mjs";
-import { Time } from "./time.mjs";
-import { Particle, spawnExplosion } from "./particle.mjs";
-import { lerp, clamp } from "./miscellaneous.mjs";
+import { Planet } from "@scripts/core/planet.mjs";
+import { Game } from "@scripts/core/game.mjs";
+import { Input } from "@scripts/interface/input.mjs";
+import { Vec2, Colour } from "@scripts/utility/miscellaneous.mjs";
+import { Renderer } from "@scripts/core/renderer.mjs";
+import { Time } from "@scripts/utility/time.mjs";
+import { Particle, spawnExplosion } from "@scripts/utility/particle.mjs";
+import { lerp, clamp } from "@scripts/utility/miscellaneous.mjs";
 export class Player {
     static pos = new Vec2(0, 0);
     static vel = new Vec2(0, 0);
