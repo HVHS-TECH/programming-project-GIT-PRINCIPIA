@@ -364,7 +364,7 @@ export class Player {
     //Draw()
     //Calls DrawPlayer() with default values
     static Draw() {
-        //this.drawTrajectory();
+        this.drawTrajectory();
         this.DrawPlayer(new Vec2(0, 0), 1, true, true, false);
     }
     //----------------------------------------------------------------------//
@@ -401,7 +401,8 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 1000;
+        const DEPTH = 10000;
+        const DT = 2;
         var closestPlanetIdx = Game.getClosestPlanet(Player.pos, true);
         //----------------------------------------//
         //Simulation state variables
@@ -417,11 +418,43 @@ export class Player {
             fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRad, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
         }
         //----------------------------------------//
+        Game.renderer.stroke('blue', 2, false, true);
+        Game.renderer.beginPath();
         for (var i = 0; i < DEPTH; i++) {
+            //----------------------------------------//
+            //verlet integration
+            for (var p = 0; p < fake_planets.length; p++) {
+                fake_planets[p].Update(DT, fake_planets);
+            }
+            for (var p = 0; p < fake_planets.length; p++) {
+                fake_planets[p].Integrate(DT, fake_planets);
+            }
+            for (var p = 0; p < fake_planets.length; p++) {
+                fake_planets[p].Update(DT, fake_planets);
+            }
+            //----------------------------------------//
+
+            //----------------------------------------//
+            //apply gravity to player
+            for (var p = 0; p < fake_planets.length; p++) {
+                const DELTA = fake_planets[p].pos.sub(pos);
+                const DELTA_NORM = DELTA.norm();
+                const DIST = DELTA.len();
+                const ACCEL = Game.G * fake_planets[p].mass / (DIST * DIST) * DT;
+                vel = vel.add(DELTA_NORM.mul(ACCEL));
+            }
+            //----------------------------------------//
+            pos = pos.add(vel.mul(DT));
+            Game.renderer.line(
+                lastPos.sub(fake_planets[closestPlanetIdx].pos).add(Game.PLANETS[closestPlanetIdx].pos), 
+                pos.sub(fake_planets[closestPlanetIdx].pos).add(Game.PLANETS[closestPlanetIdx].pos), 
+                true, true
+            );
 
             
-            
+            lastPos = pos;
         }
+        Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
 

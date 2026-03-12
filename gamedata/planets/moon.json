@@ -3,11 +3,12 @@
         "name": "moon",
         "x": 0,
         "y": 6000,
-        "xVel": -3.05,
+        "xVel": -3,
         "yVel": 0,
         "mass": 10000,
         "radius": 150, 
-        "atmoRadius": 0
+        "atmoRadius": 0,
+        "referenceBodyNames": ["earth", "sun"]
     },
     "colour": {
         "colour": {"r": 200, "g": 200, "b": 200}, 

@@ -74,6 +74,7 @@ export class Loader {
             jsonObject.data.mass, 
             jsonObject.data.radius, 
             jsonObject.data.atmoRadius, //Atmosphere radius from planet center
+            jsonObject.data.referenceBodyNames, //The bodies that this body orbits
             Colour.rgb(jsonObject.colour.colour.r, jsonObject.colour.colour.g, jsonObject.colour.colour.b), //Ground colour
             Colour.rgb(jsonObject.colour.outlineColour.r, jsonObject.colour.outlineColour.g, jsonObject.colour.outlineColour.b), //Outline colour
             Colour.rgb(jsonObject.colour.innerColour.r, jsonObject.colour.innerColour.g, jsonObject.colour.innerColour.b), //Dirt colour

@@ -34,7 +34,7 @@ export class Ocean {
 export class Planet {
     static GROUND_STROKE_WIDTH = 2; //Width of ground outline
     static MOUNTAIN_STROKE_WIDTH = 3; //Width of mountain outline
-    constructor(name, pos, vel, mass, radius, atmoRadius, colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid, mountainColour, snowColour, mountainOutlineColour, mountains, oceanColourShallow, oceanColourDeep, oceans) {
+    constructor(name, pos, vel, mass, radius, atmoRadius, referenceBodyNames, colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid, mountainColour, snowColour, mountainOutlineColour, mountains, oceanColourShallow, oceanColourDeep, oceans) {
         //Base data
         this.name = name;
         this.pos = pos;
@@ -43,6 +43,8 @@ export class Planet {
         this.radius = radius;
         this.atmoRadius = atmoRadius;
         
+        //Orbit
+        this.referenceBodyNames = referenceBodyNames; //The planets that can apply forces to this
 
         //Planet colours
         this.colour = colour;
@@ -75,24 +77,34 @@ export class Planet {
     //----------------------------------------------------------------------//
     //Update(dt)
     //Called every frame with (scaled) delta time dt
-    Update(dt) {
-        //Do orbital physics
-        //Loop through all the planets
-        for (var p = 0; p < Game.PLANETS.length; p++) {
-            //If the planet is this, don't apply a force
-            if (Game.PLANETS[p] == this) continue;
+    Update(dt, planets) {
+        if (this.referenceBodyNames == ["none"]) return; //Not orbiting anything
+        for (var i = 0; i < this.referenceBodyNames.length; i++) {
+            const NAME = this.referenceBodyNames[i];
+            var other = null;
+            for(var p = 0; p < planets.length; p++) {
+                if (planets[p].name == NAME) {
+                    other = planets[p];
+                    break;
+                }
+            }
+            if (other == null) {
+                console.error("Planet.Update() : could not find reference body '" + NAME + "' in list of planets:");
+                console.dir(planets); //Log the list of planets
+                return;
+            }
+            console.dir(other);
+            const DELTA = other.pos.sub(this.pos);
+            const DELTA_NORM = DELTA.norm();
+            const DIST = DELTA.len();
 
-            var other = Game.PLANETS[p];
-            var delta = other.pos.sub(this.pos);
-            var dist = delta.len(); //Distance to the other planet
-            var deltaNorm = delta.norm();
-
-            //Calculate and apply the force
-            //Halve acceleration for vertlet integration in Game.Update()
-            var force = Game.G * other.mass / (dist * dist) * dt * 0.5;
-            this.vel = this.vel.add(deltaNorm.mul(new Vec2(force, force)));
+            const ACCEL = Game.G * other.mass / (DIST * DIST) * dt * 0.5; //0.5 for verlet integration
+            console.log("before");
+            console.dir(this.vel);
+            this.vel = this.vel.add(DELTA_NORM.mul(ACCEL));
+            console.dir(this.vel);
+            console.log("after");
         }
-        
     }
     //----------------------------------------------------------------------//
 

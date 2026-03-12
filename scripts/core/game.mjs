@@ -235,13 +235,13 @@ export class Game {
             //----------------------------------------//
             //Use verlet velocity integration to reduce integration error
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update(Time.scaleDeltaTime);
+                Game.PLANETS[p].Update(Time.scaleDeltaTime, Game.PLANETS);
             }
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Integrate(Time.scaleDeltaTime);
+                Game.PLANETS[p].Integrate(Time.scaleDeltaTime, Game.PLANETS);
             }
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update(Time.scaleDeltaTime);
+                Game.PLANETS[p].Update(Time.scaleDeltaTime, Game.PLANETS);
             }
             //----------------------------------------//
 
