@@ -10,6 +10,8 @@
                 var base = document.createElement('base');
                 base.href = ("/programming-project-GIT_PRINCIPIA");
                 document.head.appendChild(base);
+
+                document.getElementById("mainScript").src = "/programming-project-GIT_PRINCIPIA/scripts/cpre/main.mjs";
             } else {
                 //We are on localhost, do nothing
             }
@@ -27,6 +29,6 @@
             }
         </script>
 
-        <script type="module" src='/scripts/core/main.mjs'></script>
+        <script id="mainScript" type="module" src='./scripts/core/main.mjs'></script>
     </body>
 </html>
