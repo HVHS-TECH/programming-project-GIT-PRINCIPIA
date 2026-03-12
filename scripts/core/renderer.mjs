@@ -409,7 +409,7 @@ export class Renderer {
         if (verticalAlign.includes('top')) {start = -(NUM_LINES - 1) * LINE_SPACING; end = 0;}
         if (verticalAlign.includes('bottom')) {start = 0; end = (NUM_LINES - 1) * LINE_SPACING}
         for (var y = start; y <= end; y += LINE_SPACING) {
-            this.cnv.fillText(TEXT_ARRAY[Math.round((y - start) / LINE_SPACING)], pos.x, pos.y + y);
+            this.cnv.fillText(TEXT_ARRAY[Math.round((y - start) / LINE_SPACING)], pos.x, pos.y + y + LINE_SPACING / 3); //idk why 3, but it works
         }   
 
 
