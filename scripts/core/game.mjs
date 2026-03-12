@@ -8,23 +8,23 @@
 
 
 
-import { Renderer } from "@scripts/core/renderer.mjs";
-import { Planet } from "@scripts/core/planet.mjs";
-import { Page, Vec2, RefVar, Colour, lerp } from "@scripts/utility/miscellaneous.mjs";
-import { Player } from "@scripts/core/player.mjs";
-import { Input } from "@scripts/interface/input.mjs";
-import { UIelement } from "@scripts/interface/ui/ui_element.mjs";
-import { Navball } from "@scripts/interface/ui/navball.mjs";
-import { VertMeter } from "@scripts/interface/ui/vert_meter.mjs";
-import { Text } from "@scripts/interface/ui/text.mjs";
-import { Container } from "@scripts/interface/ui/container.mjs";
-import { Dropdown } from "@scripts/interface/ui/dropdown.mjs";
+import { Renderer } from "./renderer.mjs";
+import { Planet } from "./planet.mjs";
+import { Page, Vec2, RefVar, Colour, lerp } from "../utility/miscellaneous.mjs";
+import { Player } from "./player.mjs";
+import { Input } from "../interface/input.mjs";
+import { UIelement } from "../interface/ui/ui_element.mjs";
+import { Navball } from "../interface/ui/navball.mjs";
+import { VertMeter } from "../interface/ui/vert_meter.mjs";
+import { Text } from "../interface/ui/text.mjs";
+import { Container } from "../interface/ui/container.mjs";
+import { Dropdown } from "../interface/ui/dropdown.mjs";
 
-import { Loader } from '@scripts/data/loader.mjs'
+import { Loader } from '../data/loader.mjs'
 
-import { Particle } from "@scripts/utility/particle.mjs";
+import { Particle } from "../utility/particle.mjs";
 
-import { Time } from "@scripts/utility/time.mjs";
+import { Time } from "../utility/time.mjs";
 export class Game {
 
     static INDEX_TITLE = "Astro Explorer - Index";

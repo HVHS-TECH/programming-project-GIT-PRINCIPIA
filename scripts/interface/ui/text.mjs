@@ -7,13 +7,13 @@
 //lines and rendering, as well as content updating                      //
 //----------------------------------------------------------------------//
 
-import { UIelement } from "@scripts/interface/ui/ui_element.mjs";
-import { Renderer } from "@scripts/core/renderer.mjs";
-import { Game } from "@scripts/core/game.mjs";
-import { Vec2, clamp, lerp} from "@scripts/utility/miscellaneous.mjs";
-import { Player } from "@scripts/core/player.mjs";
-import { Time } from "@scripts/utility/time.mjs";
-import { Input } from "@scripts/interface/input.mjs";
+import { UIelement } from "./ui_element.mjs";
+import { Renderer } from "../../core/renderer.mjs";
+import { Game } from "../../core/game.mjs";
+import { Vec2, clamp, lerp} from "../../utility/miscellaneous.mjs";
+import { Player } from "../../core/player.mjs";
+import { Time } from "../../utility/time.mjs";
+import { Input } from "../../interface/input.mjs";
 
 
 //----------------------------------------------------------------------//

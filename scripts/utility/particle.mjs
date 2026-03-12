@@ -7,10 +7,10 @@
 //----------------------------------------------------------------------//
 
 
-import { Vec2, Colour, lerp } from "@scripts/utility/miscellaneous.mjs"
-import { Game } from "@scripts/core/game.mjs";
-import { Renderer } from "@scripts/core/renderer.mjs";
-import { Time } from "@scripts/utility/time.mjs";
+import { Vec2, Colour, lerp } from "./miscellaneous.mjs"
+import { Game } from "../core/game.mjs";
+import { Renderer } from "../core/renderer.mjs";
+import { Time } from "./time.mjs";
 
 
 

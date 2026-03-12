@@ -5,6 +5,6 @@
 //Main                                                                  //
 //Sets off the game class                                               //
 //----------------------------------------------------------------------//
-import {Game} from '@scripts/core/game.mjs';
+import {Game} from './game.mjs';
 
 Game.Start();
