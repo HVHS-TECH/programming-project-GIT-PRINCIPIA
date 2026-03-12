@@ -23,6 +23,7 @@ import { Vec2, clamp, lerp} from "../../utility/miscellaneous.mjs";
 import { Player } from "../../core/player.mjs";
 import { Time } from "../../utility/time.mjs";
 import { Input } from "../../interface/input.mjs";
+import { Colour } from "../../utility/miscellaneous.mjs";
 
 
 //----------------------------------------------------------------------//

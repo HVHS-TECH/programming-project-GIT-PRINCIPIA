@@ -9,7 +9,6 @@
 // - base functions                                                     //
 //----------------------------------------------------------------------//
 
-import { UIelement } from "./ui_element.mjs";
 import { Renderer } from "../../core/renderer.mjs";
 import { Game } from "../../core/game.mjs";
 import { Vec2, clamp, lerp} from "../../utility/miscellaneous.mjs";

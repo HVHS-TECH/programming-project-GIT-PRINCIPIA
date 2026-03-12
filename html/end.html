@@ -2,30 +2,11 @@
 <html>
     <head>
         <title>Astro Explorer - End Screen</title>
-        <link rel="stylesheet" href="../css/styles.css">
-        <!--Change the root url (<base> tag) so that both github pages and local host work-->
-        <!--This is the url that will be added at the start of all import map entries-->
-        <script>
-            if (window.location.origin.includes('github.io')) { 
-                //We are on github pages
-                var base = document.createElement('base');
-                base.href = ("/programming-project-GIT_PRINCIPIA");
-                document.head.appendChild(base);
-            } else {
-                //We are on localhost, do nothing
-            }
-        </script>
+        
     </head>
     <body>
 
         
-        <script type="importmap">
-            {
-                "imports": {
-                    "@scripts/": "/scripts/"
-                }
-            }
-        </script>
-        <script type="module" src='./scripts/core/main.mjs'></script>
+        <script type="module" src='../scripts/core/main.mjs'></script>
     </body>
 </html>
