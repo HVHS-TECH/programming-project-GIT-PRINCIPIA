@@ -8,12 +8,12 @@
         <script>
             if (window.location.origin.includes('github.io')) { 
                 //We are on github pages
-                document.write("<base href='hvhs-tech.github.io/programming-project-GIT_PRINCIPIA'>");
+                document.getElementById('baseTag').href = ("<base href='/programming-project-GIT_PRINCIPIA'>");
             } else {
-                //We are on localhost
-                document.write("<base href=''>");
+                //We are on localhost, do nothing
             }
         </script>
+        <base id="baseTag" href="">
     </head>
     <body>
         <div class="column center">
