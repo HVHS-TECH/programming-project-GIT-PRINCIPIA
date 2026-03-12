@@ -375,12 +375,12 @@ export class Game {
     //----------------------------------------------------------------------//
     //getClosestPlanet(pos)
     //returns the index of the closest planet
-    static getClosestPlanet(pos, subRadius) {
+    static getClosestPlanet(pos, subRadius, planets = Game.PLANETS) {
         var closestPlanet = 0;
         var closestPlanetDist = 1000000000000;
-        for (var p = 0; p < Game.PLANETS.length; p++) {
+        for (var p = 0; p < planets.length; p++) {
             
-            var dist = Vec2.dist(Game.PLANETS[p].pos, pos) - ((subRadius) ? Game.PLANETS[p].radius : 0);
+            var dist = Vec2.dist(planets[p].pos, pos) - ((subRadius) ? planets[p].radius : 0);
             if (dist < closestPlanetDist) {
                 closestPlanet = p;
                 closestPlanetDist = dist;

@@ -256,17 +256,17 @@ export class Player {
     static ApplyGravity() {
         //Apply gravity
         for (var p = 0; p < Game.PLANETS.length; p++) {
-            var other = Game.PLANETS[p];
-            var delta = other.pos.sub(Player.pos);
+            const OTHER = Game.PLANETS[p];
+            var delta = OTHER.pos.sub(Player.pos);
             var dist = delta.len() - Player.HEIGHT / 2;
             const DELTA_NORM = delta.norm();
 
             //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
-            if (dist < other.radius) {
+            if (dist < OTHER.radius) {
                 //----------------------------------------//
                 //resolve collision
-                while (dist < other.radius) {
-                    delta = other.pos.sub(Player.pos);
+                while (dist < OTHER.radius) {
+                    delta = OTHER.pos.sub(Player.pos);
                     dist = delta.len() - Player.HEIGHT / 2;
                     Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
                 }
@@ -274,7 +274,7 @@ export class Player {
 
                 //----------------------------------------//
                 //Should the player explode (were they moving too fast?)
-                const REL_VEL = Player.vel.sub(other.vel);
+                const REL_VEL = Player.vel.sub(OTHER.vel);
                 const VEL_NORM = REL_VEL.norm();
                 const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, DELTA_NORM);
                 const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), DELTA_NORM);
@@ -285,7 +285,7 @@ export class Player {
                 //Adjust velocity (skid / slide)
                 const FRICTION = 0.9; //Closer to one = slicker
                 const SKID_VEL = REL_VEL.mul(FRICTION);
-                Player.vel = other.vel.add(SKID_VEL);
+                Player.vel = OTHER.vel.add(SKID_VEL);
 
                 //only explode if the player hasn't already exploded
                 if (REL_VEL.len() > Player.IMPACT_TOLERANCE - IMPACT_SEVERITY && !Player.exploded) {
@@ -297,13 +297,14 @@ export class Player {
 
                 
                 
-                
-                Player.dir = delta.dir(); //Lock the player outward
+                //Lock the player outward
+                Player.dir = delta.dir(); 
                 Player.ang_vel = 0;
                 break;
             }
-            var force = Game.G * other.mass / (dist * dist) * Time.scaleDeltaTime;
-            Player.vel = Player.vel.add(DELTA_NORM.mul(new Vec2(force, force)));
+            //Update the player's velocity
+            const FORCE = Game.G * OTHER.mass / (dist * dist) * Time.scaleDeltaTime;
+            Player.vel = Player.vel.add(DELTA_NORM.mul(FORCE));
         }
     }
     //----------------------------------------------------------------------//
@@ -315,11 +316,11 @@ export class Player {
     static ApplyAtmosphericEffects() {
         //----------------------------------------//
         //is the player in an atmosphere?
-        var other = Game.PLANETS[Game.getClosestPlanet(Player.pos)];
-        var delta = other.pos.sub(Player.pos);
-        var dist = delta.len();
-        var atmoRad = other.atmoRad;
-        if (dist > atmoRad) {
+        const OTHER = Game.PLANETS[Game.getClosestPlanet(Player.pos)];
+        const DELTA = OTHER.pos.sub(Player.pos);
+        const DIST = DELTA.len();
+        const ATMO_RAD = OTHER.atmoRad;
+        if (DIST > ATMO_RAD) {
             //We are not in an atmosphere - exiting function!
             return;
         }
@@ -327,10 +328,10 @@ export class Player {
 
         //----------------------------------------//
         //We ARE in an atmosphere
-        const REL_VEL = Player.vel.sub(other.vel);
+        const REL_VEL = Player.vel.sub(OTHER.vel);
         const DRAG = new Vec2(1, 1);
         const SLOWED_VEL = DRAG.mul(REL_VEL);
-        Player.vel = other.vel.add(SLOWED_VEL);
+        Player.vel = OTHER.vel.add(SLOWED_VEL);
 
 
         //----------------------------------------//
@@ -343,7 +344,7 @@ export class Player {
     //Integrates the players position and rotation
     static Integrate() {
         //Integrate position based on velocity and delta time
-        Player.pos = Player.pos.add(Player.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
+        Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
 
         //Integrate rotation based on angular velocity and delta time
         Player.dir += Player.ang_vel * Time.scaleDeltaTime / Game.smoothTimeWarp;
@@ -351,7 +352,7 @@ export class Player {
         //Integrate zoom based on input and delta time
         const ZOOM_SPEED = 0.05 / Game.smoothTimeWarp;
         Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * Time.scaleDeltaTime + 1));
-        Player.zoom = clamp(Player.zoom, 0.00001, 10000000);
+        Player.zoom = clamp(Player.zoom, 0.015, 50); //Restrict player zoom
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
 
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
@@ -402,8 +403,9 @@ export class Player {
     //draws the trajectory of the player
     static drawTrajectory() {
         const DEPTH = 10000;
-        const DT = 2;
-        var closestPlanetIdx = Game.getClosestPlanet(Player.pos, true);
+        const DT = 0.5;
+        const START_CLOSEST_PLANET_IDX = Game.getClosestPlanet(Player.pos, true);
+        const START_CLOSEST_PLANET_POS = Game.PLANETS[START_CLOSEST_PLANET_IDX].pos;
         //----------------------------------------//
         //Simulation state variables
         var pos = Player.pos;
@@ -418,8 +420,9 @@ export class Player {
             fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRad, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
         }
         //----------------------------------------//
-        Game.renderer.stroke('blue', 2, false, true);
-        Game.renderer.beginPath();
+        const LINE_COLOUR = Colour.rgb(255, 17, 17);
+        Game.renderer.stroke(LINE_COLOUR, 2, false, true);
+        Game.renderer.beginPath(); //Only begin path once for performance
         for (var i = 0; i < DEPTH; i++) {
             //----------------------------------------//
             //verlet integration
@@ -435,22 +438,52 @@ export class Player {
             //----------------------------------------//
 
             //----------------------------------------//
-            //apply gravity to player
+            //apply gravity to fake player
             for (var p = 0; p < fake_planets.length; p++) {
                 const DELTA = fake_planets[p].pos.sub(pos);
                 const DELTA_NORM = DELTA.norm();
                 const DIST = DELTA.len();
                 const ACCEL = Game.G * fake_planets[p].mass / (DIST * DIST) * DT;
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
+                if (DIST < fake_planets[p].radius) {
+                    vel = fake_planets[p].vel;
+                    break;
+                }
             }
             //----------------------------------------//
+
             pos = pos.add(vel.mul(DT));
+
+            //----------------------------------------//
+            //draw a line from the previous position to this iteration's position
+            const FAKE_CLOSEST_PLANET_POS = fake_planets[START_CLOSEST_PLANET_IDX].pos;
             Game.renderer.line(
-                lastPos.sub(fake_planets[closestPlanetIdx].pos).add(Game.PLANETS[closestPlanetIdx].pos), 
-                pos.sub(fake_planets[closestPlanetIdx].pos).add(Game.PLANETS[closestPlanetIdx].pos), 
+                pos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
+
+                lastPos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
                 true, true
             );
+            //----------------------------------------//
 
+            //----------------------------------------//
+            //Draw intercept lines
+            const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
+            const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
+            const DELTA = THIS_ITERATION_CLOSEST_PLANET_POS.sub(pos);
+            const DIST = DELTA.len();
+            const THRESH_MUL_RAD = 3;
+            if (DIST < fake_planets[THIS_ITERATION_CLOSEST_PLANET].radius * THRESH_MUL_RAD
+                && THIS_ITERATION_CLOSEST_PLANET != START_CLOSEST_PLANET_IDX) 
+            {
+                //Draw an intercept line
+                Game.renderer.line(
+                    pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+
+                    lastPos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+                    true, true
+                );
+            }
+            //----------------------------------------//
             
             lastPos = pos;
         }

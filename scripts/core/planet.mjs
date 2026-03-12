@@ -78,9 +78,9 @@ export class Planet {
     //Update(dt)
     //Called every frame with (scaled) delta time dt
     Update(dt, planets) {
-        if (this.referenceBodyNames == ["none"]) return; //Not orbiting anything
         for (var i = 0; i < this.referenceBodyNames.length; i++) {
             const NAME = this.referenceBodyNames[i];
+            if (NAME == "none") continue; //don't apply gravity from no planet
             var other = null;
             for(var p = 0; p < planets.length; p++) {
                 if (planets[p].name == NAME) {
@@ -93,17 +93,12 @@ export class Planet {
                 console.dir(planets); //Log the list of planets
                 return;
             }
-            console.dir(other);
             const DELTA = other.pos.sub(this.pos);
             const DELTA_NORM = DELTA.norm();
             const DIST = DELTA.len();
 
             const ACCEL = Game.G * other.mass / (DIST * DIST) * dt * 0.5; //0.5 for verlet integration
-            console.log("before");
-            console.dir(this.vel);
             this.vel = this.vel.add(DELTA_NORM.mul(ACCEL));
-            console.dir(this.vel);
-            console.log("after");
         }
     }
     //----------------------------------------------------------------------//
