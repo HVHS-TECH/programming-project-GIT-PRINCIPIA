@@ -7,12 +7,13 @@
         <script>
             if (window.location.origin.includes('github.io')) { 
                 //We are on github pages
-                document.getElementById('baseTag').href = ("<base href='/programming-project-GIT_PRINCIPIA'>");
+                var base = document.createElement('base');
+                base.href = ("<base href='/programming-project-GIT_PRINCIPIA'>");
+                document.head.appendChild(base);
             } else {
                 //We are on localhost, do nothing
             }
         </script>
-        <base id="baseTag" href="">
     </head>
     <body>
 
