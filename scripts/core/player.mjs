@@ -402,10 +402,11 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 10000;
-        const DT = 0.5;
+        const DEPTH = 20000;
+        const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
         const START_CLOSEST_PLANET_IDX = Game.getClosestPlanet(Player.pos, true);
         const START_CLOSEST_PLANET_POS = Game.PLANETS[START_CLOSEST_PLANET_IDX].pos;
+
         //----------------------------------------//
         //Simulation state variables
         var pos = Player.pos;
@@ -455,37 +456,46 @@ export class Player {
             pos = pos.add(vel.mul(DT));
 
             //----------------------------------------//
-            //draw a line from the previous position to this iteration's position
-            const FAKE_CLOSEST_PLANET_POS = fake_planets[START_CLOSEST_PLANET_IDX].pos;
-            Game.renderer.line(
-                pos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
+            //Only draw lines every so many iterations
+            const FREQUENCY = 15;
+            if (i % FREQUENCY == 0) {
+                //----------------------------------------//
+                //Draw intercept lines
+                const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
+                const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
+                const DELTA = THIS_ITERATION_CLOSEST_PLANET_POS.sub(pos);
+                const DIST = DELTA.len();
+                const THRESH_MUL_RAD = 2;
 
-                lastPos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
-                true, true
-            );
-            //----------------------------------------//
 
-            //----------------------------------------//
-            //Draw intercept lines
-            const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
-            const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
-            const DELTA = THIS_ITERATION_CLOSEST_PLANET_POS.sub(pos);
-            const DIST = DELTA.len();
-            const THRESH_MUL_RAD = 3;
-            if (DIST < fake_planets[THIS_ITERATION_CLOSEST_PLANET].radius * THRESH_MUL_RAD
-                && THIS_ITERATION_CLOSEST_PLANET != START_CLOSEST_PLANET_IDX) 
-            {
-                //Draw an intercept line
+                if (DIST < fake_planets[THIS_ITERATION_CLOSEST_PLANET].radius * THRESH_MUL_RAD
+                    && THIS_ITERATION_CLOSEST_PLANET != START_CLOSEST_PLANET_IDX) 
+                {
+                    //Draw an intercept line
+                    Game.renderer.line(
+                        pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+
+                        lastPos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+                        true, true
+                    );
+                }
+                //----------------------------------------//
+                
+                //----------------------------------------//
+                //draw a line from the previous position to this iteration's position
+                const FAKE_CLOSEST_PLANET_POS = fake_planets[START_CLOSEST_PLANET_IDX].pos;
                 Game.renderer.line(
-                    pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+                    pos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
 
-                    lastPos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+                    lastPos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
                     true, true
                 );
+                //----------------------------------------//
+
+                //Update last pos
+                lastPos = pos;
             }
             //----------------------------------------//
-            
-            lastPos = pos;
         }
         Game.renderer.strokeShape();
     }
