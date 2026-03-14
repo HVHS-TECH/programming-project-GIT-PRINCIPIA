@@ -5,7 +5,7 @@
         "y": -3000,
         "xVel": -1.8,
         "yVel": 1.8,
-        "mass": 500,
+        "mass": 100,
         "radius": 20, 
         "atmoRadius": 0,
         "referenceBodyNames": ["earth", "sun", "venus", "mars", "moon"]

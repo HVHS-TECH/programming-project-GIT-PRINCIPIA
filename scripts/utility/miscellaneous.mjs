@@ -85,7 +85,16 @@ export class Vec2 {
     //len()
     //returns the length of this
     len() {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
+        return Math.sqrt(this.sqrMag());
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //sqrMag()
+    //returns the square magnitude of this
+    sqrMag() {
+        return (this.x * this.x + this.y * this.y);
     }
     //----------------------------------------------------------------------//
 
@@ -120,6 +129,11 @@ export class Vec2 {
     static dist(a, b) {
         var delta = a.sub(b);
         return delta.len();
+    }
+    //squared version (for performance)
+    static sqrDist(a, b) {
+        var delta = a.sub(b);
+        return delta.sqrMag();
     }
     //----------------------------------------------------------------------//
 

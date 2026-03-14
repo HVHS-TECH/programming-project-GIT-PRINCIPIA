@@ -95,9 +95,9 @@ export class Planet {
             }
             const DELTA = other.pos.sub(this.pos);
             const DELTA_NORM = DELTA.norm();
-            const DIST = DELTA.len();
+            const DIST_SQUARED = DELTA.sqrMag();
 
-            const ACCEL = Game.G * other.mass / (DIST * DIST) * dt * 0.5; //0.5 for verlet integration
+            const ACCEL = Game.G * other.mass / (DIST_SQUARED) * dt * 0.5; //0.5 for verlet integration
             this.vel = this.vel.add(DELTA_NORM.mul(ACCEL));
         }
     }

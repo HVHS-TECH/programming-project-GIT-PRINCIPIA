@@ -272,23 +272,19 @@ export class Player {
                 }
                 //----------------------------------------//
 
-                //----------------------------------------//
-                //Should the player explode (were they moving too fast?)
-                const REL_VEL = Player.vel.sub(OTHER.vel);
-                const VEL_NORM = REL_VEL.norm();
-                const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, DELTA_NORM);
-                const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), DELTA_NORM);
-                const IMPACT_SEVERITY = 
-                Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * 0.7 //Punish the player for landing while moving sideways
-                 + Math.max(DIR_DOT_DELTA_NORM, 0) * 1.5; //Punish the player for not landing upright
                 
+                //----------------------------------------//
+                const REL_VEL = Player.vel.sub(OTHER.vel);
+
                 //Adjust velocity (skid / slide)
                 const FRICTION = 0.9; //Closer to one = slicker
                 const SKID_VEL = REL_VEL.mul(FRICTION);
                 Player.vel = OTHER.vel.add(SKID_VEL);
 
+                
+
                 //only explode if the player hasn't already exploded
-                if (REL_VEL.len() > Player.IMPACT_TOLERANCE - IMPACT_SEVERITY && !Player.exploded) {
+                if (Player.IsImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded) {
                     Player.explode();
                     return;
                 }
@@ -309,6 +305,22 @@ export class Player {
     }
     //----------------------------------------------------------------------//
 
+
+    //----------------------------------------------------------------------//
+    //IsImpactFatal(relative velocity, deltaNorm)
+    //returns true or false depending on how severe the impact was
+    //true = die
+    //false = live
+    static IsImpactFatal(relVel, deltaNorm) {
+        const VEL_NORM = relVel.norm();
+        const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, deltaNorm);
+        const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), deltaNorm);
+        const IMPACT_SEVERITY = 
+        Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * 0.7 //Punish the player for landing while moving sideways
+            + Math.max(DIR_DOT_DELTA_NORM, 0) * 1.5; //Punish the player for not landing upright
+        return (relVel.len() > (Player.IMPACT_TOLERANCE - IMPACT_SEVERITY));
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //ApplyAtmosphericEffects()
@@ -402,17 +414,25 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 20000;
+        const DEPTH = 50000;
         const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
-        const START_CLOSEST_PLANET_IDX = Game.getClosestPlanet(Player.pos, true);
-        const START_CLOSEST_PLANET_POS = Game.PLANETS[START_CLOSEST_PLANET_IDX].pos;
+        var startSunIdx;
+        for (var p = 0; p < Game.PLANETS.length; p++) {
+            if (Game.PLANETS[p].name == "sun") {
+                startSunIdx = p; 
+                break;
+            }
+        }
+        const START_SUN_POS = Game.PLANETS[startSunIdx].pos;
 
         //----------------------------------------//
         //Simulation state variables
         var pos = Player.pos;
+        var posDraw = pos;
         var vel = Player.vel;
 
-        var lastPos = Player.pos;
+        var lastPos = pos;
+        var lastPosDraw = lastPos;
 
         //Make sure to not just assign a reference to Game.PLANETS - make an actual copy
         var fake_planets = [];
@@ -422,8 +442,10 @@ export class Player {
         }
         //----------------------------------------//
         const LINE_COLOUR = Colour.rgb(255, 17, 17);
+        
+        Game.renderer.beginPath();
         Game.renderer.stroke(LINE_COLOUR, 2, false, true);
-        Game.renderer.beginPath(); //Only begin path once for performance
+        var drawIterations = 0; //Counts up every time i % <FREQUENCY> == 0
         for (var i = 0; i < DEPTH; i++) {
             //----------------------------------------//
             //verlet integration
@@ -443,34 +465,55 @@ export class Player {
             for (var p = 0; p < fake_planets.length; p++) {
                 const DELTA = fake_planets[p].pos.sub(pos);
                 const DELTA_NORM = DELTA.norm();
-                const DIST = DELTA.len();
-                const ACCEL = Game.G * fake_planets[p].mass / (DIST * DIST) * DT;
+                const DIST_SQUARED = DELTA.sqrMag();
+                const ACCEL = Game.G * fake_planets[p].mass / (DIST_SQUARED) * DT;
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
-                if (DIST < fake_planets[p].radius) {
+                if (DIST_SQUARED < fake_planets[p].radius * fake_planets[p].radius) {
                     vel = fake_planets[p].vel;
-                    break;
+                    Game.renderer.strokeShape();
+
+                    if (Player.IsImpactFatal(vel.sub(fake_planets[p].vel), DELTA_NORM)) {
+                        //Draw an impact circle
+                        Game.renderer.stroke(Colour.rgb(255, 55, 20), 10, true, true);
+                        Game.renderer.beginPath();
+                        Game.renderer.arc(pos, 10, 0, Math.PI * 2, true, true);
+                        Game.renderer.strokeShape();
+
+                        //Draw a huge outline to the impact circle
+                        Game.renderer.stroke(Colour.rgb(255, 200, 20), 10, true, true);
+                        Game.renderer.beginPath();
+                        Game.renderer.arc(pos, 300, 0, Math.PI * 2, true, true);
+                        Game.renderer.strokeShape();
+                    }
+                    
+                    return;
                 }
             }
             //----------------------------------------//
 
             pos = pos.add(vel.mul(DT));
-
+            
+            
             //----------------------------------------//
             //Only draw lines every so many iterations
-            const FREQUENCY = 15;
+            const FREQUENCY = 1;
             if (i % FREQUENCY == 0) {
+                drawIterations ++;
+                const FAKE_CLOSEST_PLANET_POS = fake_planets[startSunIdx].pos;
+                posDraw = pos.sub(FAKE_CLOSEST_PLANET_POS);
                 //----------------------------------------//
                 //Draw intercept lines
                 const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
                 const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
                 const DELTA = THIS_ITERATION_CLOSEST_PLANET_POS.sub(pos);
                 const DIST = DELTA.len();
-                const THRESH_MUL_RAD = 2;
+                const THRESH_MUL_RAD = 5;
 
 
                 if (DIST < fake_planets[THIS_ITERATION_CLOSEST_PLANET].radius * THRESH_MUL_RAD
-                    && THIS_ITERATION_CLOSEST_PLANET != START_CLOSEST_PLANET_IDX) 
+                    && THIS_ITERATION_CLOSEST_PLANET != startSunIdx) 
                 {
+                    
                     //Draw an intercept line
                     Game.renderer.line(
                         pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
@@ -479,25 +522,30 @@ export class Player {
                         true, true
                     );
                 }
+                else {
+                    //----------------------------------------//
+                    //draw a line from the previous position to this iteration's position
+                    
+                    Game.renderer.line(
+                        posDraw.add(START_SUN_POS), 
+
+                        lastPosDraw.add(START_SUN_POS), 
+                        true, true
+                    );
+                    //----------------------------------------//
+                }
                 //----------------------------------------//
                 
-                //----------------------------------------//
-                //draw a line from the previous position to this iteration's position
-                const FAKE_CLOSEST_PLANET_POS = fake_planets[START_CLOSEST_PLANET_IDX].pos;
-                Game.renderer.line(
-                    pos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
-
-                    lastPos.sub(FAKE_CLOSEST_PLANET_POS).add(START_CLOSEST_PLANET_POS), 
-                    true, true
-                );
-                //----------------------------------------//
+                
 
                 //Update last pos
                 lastPos = pos;
+                lastPosDraw = posDraw;
             }
             //----------------------------------------//
         }
         Game.renderer.strokeShape();
+        
     }
     //----------------------------------------------------------------------//
 
