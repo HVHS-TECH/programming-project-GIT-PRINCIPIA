@@ -25,6 +25,8 @@ import { Loader } from '../data/loader.mjs'
 import { Particle } from "../utility/particle.mjs";
 
 import { Time } from "../utility/time.mjs";
+
+import { State } from "../data/state.mjs";
 export class Game {
 
     static INDEX_TITLE = "Astro Explorer - Index";

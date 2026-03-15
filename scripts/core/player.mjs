@@ -12,6 +12,8 @@ import { Vec2, Colour } from "../utility/miscellaneous.mjs";
 import { Time } from "../utility/time.mjs";
 import { Particle, spawnExplosion } from "../utility/particle.mjs";
 import { lerp, clamp } from "../utility/miscellaneous.mjs";
+
+import { State } from "../data/state.mjs";
 export class Player {
     static pos = new Vec2(0, 0);
     static vel = new Vec2(0, 0);
@@ -252,6 +254,7 @@ export class Player {
         //Since the above if statement might have reduced the player's fuel below 0, we need to check again
         if (Player.fuel <= 0) {
             Player.fuel = 0;
+            State.setState("GAME_OVER-status", "no-fuel");
             Player.die();
         }
         //----------------------------------------//
@@ -295,6 +298,7 @@ export class Player {
 
                 //only explode if the player hasn't already exploded
                 if (Player.isImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded) {
+                    State.setState("GAME_OVER-status", "crashed");
                     Player.explode();
                     return;
                 }
@@ -413,6 +417,7 @@ export class Player {
         const REENTRY_SEVERITY = Player.getReentrySeverity(Player.pos, Player.vel);
         Player.spawnReentryParticles(REENTRY_SEVERITY);
         if (REENTRY_SEVERITY > Player.REENTRY_TOLERANCE) {
+            State.setState("GAME_OVER-status", "burnt-up");
             Player.explode();
             return;
         }
@@ -692,6 +697,7 @@ export class Player {
         const INNER_SPEED = 1;
         const RANDOMNESS = 0.5;
         spawnExplosion(Player.pos, Player.vel, INNER_SPEED, SPEED, NUM_PARTICLES, RANDOMNESS, Colour.rgba(250,150,100,1), Colour.rgba(255, 72, 0, 0.5), Colour.rgba(151, 151, 151, 0))
+        
         Player.die();//Die!!!
     }
     //----------------------------------------------------------------------//
