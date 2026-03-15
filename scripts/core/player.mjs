@@ -328,10 +328,10 @@ export class Player {
     static ApplyAtmosphericEffects() {
         //----------------------------------------//
         //is the player in an atmosphere?
-        const OTHER = Game.PLANETS[Game.getClosestPlanet(Player.pos)];
+        const OTHER = Game.PLANETS[Game.getClosestPlanet(Player.pos, true)];
         const DELTA = OTHER.pos.sub(Player.pos);
         const DIST = DELTA.len();
-        const ATMO_RAD = OTHER.atmoRad;
+        const ATMO_RAD = OTHER.atmoRadius;
         if (DIST > ATMO_RAD) {
             //We are not in an atmosphere - exiting function!
             return;
@@ -341,8 +341,37 @@ export class Player {
         //----------------------------------------//
         //We ARE in an atmosphere
         const REL_VEL = Player.vel.sub(OTHER.vel);
-        const DRAG = new Vec2(1, 1);
-        const SLOWED_VEL = DRAG.mul(REL_VEL);
+        const REL_VEL_NORM = REL_VEL.norm();
+
+        const SQR_VEL_MAG = REL_VEL.sqrMag();
+        const AIR_DENSITY = 0.05 * (ATMO_RAD / DIST - 1);
+
+        const DRAG_COEFFICIENT = 1;
+        
+        const SLOWED_VEL = REL_VEL.sub(REL_VEL_NORM.mul(0.5 * DRAG_COEFFICIENT * SQR_VEL_MAG * AIR_DENSITY));
+
+        /*
+        const PLAYER_DIR_VEC = new Vec2(Math.sin(Player.dir), Math.cos(Player.dir));
+        const AOA = Vec2.angDiff(PLAYER_DIR_VEC, SLOWED_VEL);
+
+        const UP = SLOWED_VEL.rotate(-(Math.PI / 2 + Math.PI / 2)).mul((AOA > 0) ? 1 : -1).norm();
+
+        const STALL_ANGLE = 20;
+        const STALL = (Math.abs(AOA) > STALL_ANGLE);
+        const STALLED_LIFT = 0.1;
+        const LIFT_COEFFICITENT = clamp((STALL) ? Math.abs(AOA) / STALL_ANGLE : STALLED_LIFT, 0, 1);
+
+        const LIFT_AREA = 0.001;
+        const LIFT_FORCE = 0.5 * LIFT_COEFFICITENT * AIR_DENSITY * SQR_VEL_MAG * LIFT_AREA;
+
+        const FINAL_REL_VEL = SLOWED_VEL.add(UP.mul(LIFT_FORCE));
+
+        console.log("AOA: " + AOA);
+        console.log("UP: ");
+        console.dir(UP);
+
+        console.log("Lift coeff: " + LIFT_COEFFICITENT);
+        */
         Player.vel = OTHER.vel.add(SLOWED_VEL);
 
 
@@ -436,10 +465,14 @@ export class Player {
 
         //Make sure to not just assign a reference to Game.PLANETS - make an actual copy
         var fake_planets = [];
+        var prevPlanetPositions = [];
         for (var i = 0; i < Game.PLANETS.length; i++) {
             const REAL_PLANET = Game.PLANETS[i];
-            fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRad, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
+            fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRadius, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
+            prevPlanetPositions[i] = fake_planets[i].pos;
         }
+
+        
         //----------------------------------------//
         const LINE_COLOUR = Colour.rgb(255, 17, 17);
         
@@ -469,23 +502,34 @@ export class Player {
                 const ACCEL = Game.G * fake_planets[p].mass / (DIST_SQUARED) * DT;
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
                 if (DIST_SQUARED < fake_planets[p].radius * fake_planets[p].radius) {
-                    vel = fake_planets[p].vel;
+                    
+                    Game.renderer.strokeShape(); //finish drawing the trajectory
+
+                    const MIN_DIST_FOR_IMPACT_MARKER = 200;
+                    if (Vec2.dist(Player.pos, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
+
+
+                    //Draw a huge outline around the impact circle (for when the player is zoomed out)
+                    const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
+                    const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
+                    
+                    Game.renderer.stroke(Colour.rgba(255, 200, 20, 0.5), 10, true, true);
+                    Game.renderer.beginPath();
+                    Game.renderer.arc(pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 300, 0, Math.PI * 2, true, true);
+                    Game.renderer.strokeShape();
+                    
+
+
+                    //Draw an impact circle
+                    const SAFE_IMPACT_COLOUR = Colour.rgba(100, 220, 50, 0.5); //Green if safe
+                    const FATAL_IMPACT_COLOUR = Colour.rgba(255, 55, 20, 0.9); //Red if fatal
+                    const STROKE_COLOUR = (Player.IsImpactFatal(vel.sub(fake_planets[p].vel), DELTA_NORM)) ? FATAL_IMPACT_COLOUR : SAFE_IMPACT_COLOUR;
+                    Game.renderer.stroke(STROKE_COLOUR, 5, true, true);
+                    Game.renderer.beginPath();
+                    Game.renderer.arc(pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 10, 0, Math.PI * 2, true, true);
                     Game.renderer.strokeShape();
 
-                    if (Player.IsImpactFatal(vel.sub(fake_planets[p].vel), DELTA_NORM)) {
-                        //Draw an impact circle
-                        Game.renderer.stroke(Colour.rgb(255, 55, 20), 10, true, true);
-                        Game.renderer.beginPath();
-                        Game.renderer.arc(pos, 10, 0, Math.PI * 2, true, true);
-                        Game.renderer.strokeShape();
-
-                        //Draw a huge outline to the impact circle
-                        Game.renderer.stroke(Colour.rgb(255, 200, 20), 10, true, true);
-                        Game.renderer.beginPath();
-                        Game.renderer.arc(pos, 300, 0, Math.PI * 2, true, true);
-                        Game.renderer.strokeShape();
-                    }
-                    
+                        
                     return;
                 }
             }
@@ -505,6 +549,7 @@ export class Player {
                 //Draw intercept lines
                 const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
                 const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
+                const LAST_ITERATION_CLOSEST_PLANET_POS = prevPlanetPositions[THIS_ITERATION_CLOSEST_PLANET];
                 const DELTA = THIS_ITERATION_CLOSEST_PLANET_POS.sub(pos);
                 const DIST = DELTA.len();
                 const THRESH_MUL_RAD = 5;
@@ -518,7 +563,7 @@ export class Player {
                     Game.renderer.line(
                         pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
 
-                        lastPos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+                        lastPos.sub(LAST_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
                         true, true
                     );
                 }
@@ -541,6 +586,11 @@ export class Player {
                 //Update last pos
                 lastPos = pos;
                 lastPosDraw = posDraw;
+
+                //Update planet last positions
+                for (var p = 0; p < fake_planets.length; p++) {
+                    prevPlanetPositions[p] = fake_planets[p].pos;
+                }
             }
             //----------------------------------------//
         }

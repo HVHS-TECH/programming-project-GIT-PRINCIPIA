@@ -178,6 +178,19 @@ export class Vec2 {
     //----------------------------------------------------------------------//
 
 
+    //----------------------------------------------------------------------//
+    //angDiff(a, b)
+    //the angle between two vectors (normalized angle)
+    static angDiff(a, b) {
+        const DIR_1 = normalizeAngle(a.dir());
+        const DIR_2 = normalizeAngle(b.dir());
+
+        const DIF = normalizeAngle(DIR_2 - DIR_1);
+        return DIF;
+    }
+    //----------------------------------------------------------------------//
+
+
 }
 //----------------------------------------------------------------------//
 
