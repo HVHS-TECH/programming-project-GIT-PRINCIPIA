@@ -190,7 +190,7 @@ export class Navball extends UIelement {
     DrawPlayer(center) {
         //----------------------------------------//
         //Draw the player at an enlarged size
-        Player.DrawPlayer(center, this.playerScale, false, true, true);
+        Player.drawPlayer(center, this.playerScale, false, true, true);
         //----------------------------------------//
     }
 

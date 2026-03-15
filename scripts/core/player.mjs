@@ -31,7 +31,17 @@ export class Player {
     static deathCounter = 0; //A counter that starts counting up when the player dies. When it reaches deathCounterThreshold, the user is redirected to 'end.html'
     static exploded = false;
     static DEATH_COUNTER_THRESH = 120; //120 'frames' at 60 'fps'
-    static IMPACT_TOLERANCE = 2;
+
+    //Impacts
+    static IMPACT_TOLERANCE = 1.5;
+    static IMPACT_FATALITY_SIDEWAYS_COMPONENT = 0.7; //How severe sideways impacts are
+    static IMPACT_FATALITY_DIRECTION_COMPONENT = 10; //How severe not being upright on impacts is
+    
+    //Reentry
+    static REENTRY_TOLERANCE = 0.04; //The maximum drag force the player can withstand
+    static REENTRY_PARTICLE_THRESH = 0.02;
+    
+    static IMMUNITY_TIME = 1; //<IMMUNITY_TIME> seconds of immunity
 
     static smoothScore = 0;
     static score = 0;
@@ -46,7 +56,7 @@ export class Player {
                 
             }
             Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
-            Player.ApplyGravity();
+            Player.applyGravity();
             Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
             return;
         }
@@ -101,16 +111,16 @@ export class Player {
         //----------------------------------------//
 
         Player.Integrate();
-        Player.UpdateThruster();
-        Player.ApplyGravity();
-        Player.ApplyAtmosphericEffects();
+        Player.updateThruster();
+        Player.applyGravity();
+        Player.applyAtmosphericEffects();
     }
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
-    //UpdateThruster()
+    //updateThruster()
     //Manages thruster and fuel
-    static UpdateThruster() {
+    static updateThruster() {
         if (Player.fuel != 0) {
             var inputForward = (Input.KeyDown("KeyW")) * Player.THRUSTER_FORCE * Time.scaleDeltaTime;
 
@@ -253,7 +263,7 @@ export class Player {
     //----------------------------------------------------------------------//
     //ApplyGravity()
     //Applies gravitational attraction from planets to the player
-    static ApplyGravity() {
+    static applyGravity() {
         //Apply gravity
         for (var p = 0; p < Game.PLANETS.length; p++) {
             const OTHER = Game.PLANETS[p];
@@ -284,7 +294,7 @@ export class Player {
                 
 
                 //only explode if the player hasn't already exploded
-                if (Player.IsImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded) {
+                if (Player.isImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded) {
                     Player.explode();
                     return;
                 }
@@ -307,78 +317,123 @@ export class Player {
 
 
     //----------------------------------------------------------------------//
-    //IsImpactFatal(relative velocity, deltaNorm)
+    //isImpactFatal(relative velocity, deltaNorm)
     //returns true or false depending on how severe the impact was
     //true = die
     //false = live
-    static IsImpactFatal(relVel, deltaNorm) {
+    static isImpactFatal(relVel, deltaNorm) {
         const VEL_NORM = relVel.norm();
         const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, deltaNorm);
         const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), deltaNorm);
         const IMPACT_SEVERITY = 
-        Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * 0.7 //Punish the player for landing while moving sideways
-            + Math.max(DIR_DOT_DELTA_NORM, 0) * 1.5; //Punish the player for not landing upright
+        Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * Player.IMPACT_FATALITY_SIDEWAYS_COMPONENT //Punish the player for landing while moving sideways
+            + Math.max(DIR_DOT_DELTA_NORM, 0) * Player.IMPACT_FATALITY_DIRECTION_COMPONENT; //Punish the player for not landing upright
         return (relVel.len() > (Player.IMPACT_TOLERANCE - IMPACT_SEVERITY));
     }
     //----------------------------------------------------------------------//
 
+
     //----------------------------------------------------------------------//
-    //ApplyAtmosphericEffects()
-    //Applys aerodynamic forces and reentry heating to the player
-    static ApplyAtmosphericEffects() {
+    //getDrag()
+    //returns the drag force experienced by the player at velocity 'vel' and
+    //position 'pos'
+    static getDrag(pos, vel, planets = Game.PLANETS) {
         //----------------------------------------//
         //is the player in an atmosphere?
-        const OTHER = Game.PLANETS[Game.getClosestPlanet(Player.pos, true)];
-        const DELTA = OTHER.pos.sub(Player.pos);
+        const OTHER = planets[Game.getClosestPlanet(pos, true, planets)];
+        const DELTA = OTHER.pos.sub(pos);
         const DIST = DELTA.len();
         const ATMO_RAD = OTHER.atmoRadius;
         if (DIST > ATMO_RAD) {
             //We are not in an atmosphere - exiting function!
-            return;
+            return new Vec2(0,0);
         }
         //----------------------------------------//
 
         //----------------------------------------//
         //We ARE in an atmosphere
-        const REL_VEL = Player.vel.sub(OTHER.vel);
+        const REL_VEL = vel.sub(OTHER.vel);
         const REL_VEL_NORM = REL_VEL.norm();
 
         const SQR_VEL_MAG = REL_VEL.sqrMag();
-        const AIR_DENSITY = 0.05 * (ATMO_RAD / DIST - 1);
 
-        const DRAG_COEFFICIENT = 1;
+        //----------------------------------------//
+        //getAirDensity()
+        //returns the air density from 0 - 1 at a given distance
+        //must be multiplied by the real density at sea level
+        function getAirDensity(radius, atmoRad, dist, power) {
+            const X1 = radius;
+            const X2 = atmoRad;
+
+            const Y1 = 1; //Full air density at radius
+            const Y2 = 0; //No air at atmorad
+
+            const M = (Y2 - Y1) / (X2 - X1);
+            return Math.pow(M * (dist - X1) + Y1, power);
+        }
+        //----------------------------------------//
+
+
+        const DENSITY_POWER = 5;
+        const SEA_LEVEL_DENSITY = 0.2;
+        const AIR_DENSITY = SEA_LEVEL_DENSITY * getAirDensity(OTHER.radius, ATMO_RAD, DIST, DENSITY_POWER);
+
+
+        const DRAG_COEFFICIENT = 0.5;
         
-        const SLOWED_VEL = REL_VEL.sub(REL_VEL_NORM.mul(0.5 * DRAG_COEFFICIENT * SQR_VEL_MAG * AIR_DENSITY));
+        const DRAG_FORCE = REL_VEL_NORM.mul(-1 * 0.5 * DRAG_COEFFICIENT * SQR_VEL_MAG * AIR_DENSITY);
 
-        /*
-        const PLAYER_DIR_VEC = new Vec2(Math.sin(Player.dir), Math.cos(Player.dir));
-        const AOA = Vec2.angDiff(PLAYER_DIR_VEC, SLOWED_VEL);
-
-        const UP = SLOWED_VEL.rotate(-(Math.PI / 2 + Math.PI / 2)).mul((AOA > 0) ? 1 : -1).norm();
-
-        const STALL_ANGLE = 20;
-        const STALL = (Math.abs(AOA) > STALL_ANGLE);
-        const STALLED_LIFT = 0.1;
-        const LIFT_COEFFICITENT = clamp((STALL) ? Math.abs(AOA) / STALL_ANGLE : STALLED_LIFT, 0, 1);
-
-        const LIFT_AREA = 0.001;
-        const LIFT_FORCE = 0.5 * LIFT_COEFFICITENT * AIR_DENSITY * SQR_VEL_MAG * LIFT_AREA;
-
-        const FINAL_REL_VEL = SLOWED_VEL.add(UP.mul(LIFT_FORCE));
-
-        console.log("AOA: " + AOA);
-        console.log("UP: ");
-        console.dir(UP);
-
-        console.log("Lift coeff: " + LIFT_COEFFICITENT);
-        */
-        Player.vel = OTHER.vel.add(SLOWED_VEL);
-
-
+        return DRAG_FORCE;
         //----------------------------------------//
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //GetReentrySeverity()
+    //pos: the position of the assessment of severity
+    //vel: the velocity of the assessment of severity
+    //returns: a number based on how severe the reentry is at pos and vel
+    static getReentrySeverity(pos, vel, planets = Game.PLANETS) {
+        const DRAG = Player.getDrag(pos, vel, planets);
+        const DRAG_MAGNITUDE = DRAG.len();
+        return DRAG_MAGNITUDE;
+    }
+    //----------------------------------------------------------------------//
+
+    
+    //----------------------------------------------------------------------//
+    //applyAtmosphericEffects()
+    //Returns velocity 'vel' with aerodynamic forces applied
+    static applyAtmosphericEffects() {
+        //Drag
+        const DRAG = Player.getDrag(Player.pos, Player.vel);
+        Player.vel = Player.vel.add(DRAG); //Drag is already negative, so we add it to velocity
+
+        //Reentry
+        const REENTRY_SEVERITY = Player.getReentrySeverity(Player.pos, Player.vel);
+        Player.spawnReentryParticles(REENTRY_SEVERITY);
+        if (REENTRY_SEVERITY > Player.REENTRY_TOLERANCE) {
+            Player.explode();
+            return;
+        }
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //spawnReentryParticles()
+    //severity: the severity of the current reentry state
+    static spawnReentryParticles(severity) {
+        const INTERVAL = 0.9;
+        if (severity > Player.REENTRY_PARTICLE_THRESH && Time.seconds % 1 < INTERVAL) {
+            //Reentry is severe enough to spawn particles
+            const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
+            const OTHER_VEL = Game.PLANETS[CLOSEST_IDX].vel;
+            Game.addParticle(
+                new Particle(Player.pos, Player.dir, OTHER_VEL, 0, 3, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 10, function(){}, function(){})
+            );
+        }
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //Integrate()
@@ -407,16 +462,16 @@ export class Player {
     //Calls DrawPlayer() with default values
     static Draw() {
         this.drawTrajectory();
-        this.DrawPlayer(new Vec2(0, 0), 1, true, true, false);
+        this.drawPlayer(new Vec2(0, 0), 1, true, true, false);
     }
     //----------------------------------------------------------------------//
 
 
     //----------------------------------------------------------------------//
-    //DrawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff)
+    //drawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff)
     //Draws the player based on an offset, scale, and whether it is relative to the player position and or scales with screen size
     //useSmoothDirDiff: if true, replace Player.dir with Player.dir - Player.smoothDir
-    static DrawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff) {
+    static drawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff) {
         if (this.exploded) return; //Don't render the player if they exploded!
         if (playerRelative) offset = offset.add(Player.pos);
 
@@ -443,7 +498,7 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 50000;
+        const DEPTH = 10000;
         const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
         var startSunIdx;
         for (var p = 0; p < Game.PLANETS.length; p++) {
@@ -505,7 +560,7 @@ export class Player {
                     
                     Game.renderer.strokeShape(); //finish drawing the trajectory
 
-                    const MIN_DIST_FOR_IMPACT_MARKER = 200;
+                    const MIN_DIST_FOR_IMPACT_MARKER = 50;
                     if (Vec2.dist(Player.pos, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
 
 
@@ -513,7 +568,7 @@ export class Player {
                     const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
                     const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
                     
-                    Game.renderer.stroke(Colour.rgba(255, 200, 20, 0.5), 10, true, true);
+                    Game.renderer.stroke(Colour.rgba(255, 200, 20, 0.8), 10, true, true);
                     Game.renderer.beginPath();
                     Game.renderer.arc(pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 300, 0, Math.PI * 2, true, true);
                     Game.renderer.strokeShape();
@@ -523,7 +578,7 @@ export class Player {
                     //Draw an impact circle
                     const SAFE_IMPACT_COLOUR = Colour.rgba(100, 220, 50, 0.5); //Green if safe
                     const FATAL_IMPACT_COLOUR = Colour.rgba(255, 55, 20, 0.9); //Red if fatal
-                    const STROKE_COLOUR = (Player.IsImpactFatal(vel.sub(fake_planets[p].vel), DELTA_NORM)) ? FATAL_IMPACT_COLOUR : SAFE_IMPACT_COLOUR;
+                    const STROKE_COLOUR = (Player.isImpactFatal(vel.sub(fake_planets[p].vel), DELTA_NORM)) ? FATAL_IMPACT_COLOUR : SAFE_IMPACT_COLOUR;
                     Game.renderer.stroke(STROKE_COLOUR, 5, true, true);
                     Game.renderer.beginPath();
                     Game.renderer.arc(pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 10, 0, Math.PI * 2, true, true);
@@ -536,7 +591,7 @@ export class Player {
             //----------------------------------------//
 
             pos = pos.add(vel.mul(DT));
-            
+            vel = vel.add(Player.getDrag(pos, vel, fake_planets));
             
             //----------------------------------------//
             //Only draw lines every so many iterations
@@ -628,6 +683,9 @@ export class Player {
     //explode()
     //spawns two rings of explosion particles, deletes the player image
     static explode() {
+        //Don't explode when the game is still starting
+        if (Time.seconds < Player.IMMUNITY_TIME) return;
+
         Player.exploded = true;
         const NUM_PARTICLES = 80;
         const SPEED = 5;
