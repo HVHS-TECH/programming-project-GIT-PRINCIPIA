@@ -77,16 +77,7 @@ export class Player {
     //Update()
     //called every frame
     static Update() {
-        if (Player.deathCounter > 0) {
-            if (Player.deathCounter > Player.DEATH_COUNTER_THRESH) {
-                Game.setPage(Game.END_TITLE); //Go to 'end.html'
-                
-            }
-            Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
-            Player.applyGravity();
-            Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
-            return;
-        }
+        
 
 
         //----------------------------------------//
@@ -127,6 +118,18 @@ export class Player {
 
         Player.smoothZoom = Math.pow(lerp(Math.pow(Player.smoothZoom, ZOOOM_POWER), Math.pow(Player.zoom, ZOOOM_POWER), ZOOM_SMOOTHING), 1/ZOOOM_POWER);
         //----------------------------------------//
+
+        //Cancel all further functions if player is dying / dead
+        if (Player.deathCounter > 0) {
+            if (Player.deathCounter > Player.DEATH_COUNTER_THRESH) {
+                Game.setPage(Game.END_TITLE); //Go to 'end.html'
+                
+            }
+            Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
+            Player.applyGravity();
+            Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
+            return;
+        }
 
         //----------------------------------------//
         //speed up time to cross large distances
@@ -497,9 +500,11 @@ export class Player {
         Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * Time.scaleDeltaTime + 1));
         Player.zoom = clamp(Player.zoom, 0.015, 50); //Restrict player zoom
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
-
+        
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
         Player.ang_vel *= 0.95 ** Time.scaleDeltaTime;
+
+
     }
     //----------------------------------------------------------------------//
 
@@ -802,7 +807,7 @@ export class Player {
         Player.deathCounter = 1;
         State.setState(Game.SCORE_STATE_ID, Player.score);
         Player.smoothScore = Player.score; //Don't confuse the player by showing the wrong score!
-        
+        Player.zoom = 5;
     }
     //----------------------------------------------------------------------//
 
