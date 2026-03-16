@@ -593,8 +593,8 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 4000;
-        const DT = 2; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
+        const DEPTH = 20000;
+        const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
         var startSunIdx = 0;
         for (var p = 0; p < Game.PLANETS.length; p++) {
             if (Game.PLANETS[p].name == "sun") {
@@ -639,10 +639,9 @@ export class Player {
 
         
         //----------------------------------------//
-        const LINE_COLOUR = Colour.rgb(255, 17, 17);
-        
-        Game.renderer.beginPath();
-        Game.renderer.stroke(LINE_COLOUR, 2, false, true);
+
+
+
         var drawIterations = 0; //Counts up every time i % <FREQUENCY> == 0
         for (var i = 0; i < DEPTH; i++) {
             //----------------------------------------//
@@ -748,34 +747,41 @@ export class Player {
                 //----------------------------------------//
                 //loop through all planets
                 //draw where any start / end of intercepts are
+                const INTERCEPT_CIRCLE_RADIUS = 50;
+                const INTERCEPT_CIRCLE_THICKNESS = 6;
+                Game.renderer.stroke(Colour.rgb(200, 220, 230), INTERCEPT_CIRCLE_THICKNESS, true, true);
+                Game.renderer.beginPath();
                 for (var p = 0; p < fake_planets.length; p++) {
                     if (currInInterceptWithPlanet[p] != prevInInterceptWithPlanet[p]
                         && i > 0 //not first frame e.g don't say that the player pos is the start of an intercept
                     ) {
+                        
+                        
                         //loop through all planets and if the fake player is on an intercept with them, also draw an intercept circle relative to that planet
                         for (var p2 = 0; p2 < fake_planets.length; p2++) {
                             //Only draw intercept circle relative to planets that the fake player is on an intercept with
                             if (!currInInterceptWithPlanet[p2]) continue;
-                            Game.renderer.stroke(Colour.rgb(200, 220, 230), 10, true, true);
-                            Game.renderer.beginPath();
-                            Game.renderer.arc(pos.sub(fake_planets[p2].pos).add(Game.PLANETS[p2].pos), 30, 0, Math.PI * 2, true, true);
-                            Game.renderer.strokeShape();
+                            
+                            Game.renderer.arc(pos.sub(fake_planets[p2].pos).add(Game.PLANETS[p2].pos), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
+                            
                         }
 
                         //also draw relative to the original body
-                        Game.renderer.stroke(Colour.rgb(200, 220, 230), 10, true, true);
-                        Game.renderer.beginPath();
-                        Game.renderer.arc(pos.sub(fake_planets[p].pos).add(Game.PLANETS[p].pos), 30, 0, Math.PI * 2, true, true);
-                        Game.renderer.strokeShape();
+                        Game.renderer.arc(pos.sub(fake_planets[p].pos).add(Game.PLANETS[p].pos), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
+                        
                         
                     }
                 }
+                //Stroke intercept circles
+                Game.renderer.strokeShape();
                 //----------------------------------------//
 
 
                 //----------------------------------------//
                 //update prevInInterceptWithPlanet
-                prevInInterceptWithPlanet = structuredClone(currInInterceptWithPlanet);
+                for (var p = 0; p < currInInterceptWithPlanet.length; p++) {
+                    prevInInterceptWithPlanet[p] = currInInterceptWithPlanet[p];
+                }
                 //----------------------------------------//
 
                 //----------------------------------------//
@@ -803,6 +809,7 @@ export class Player {
             }
             //----------------------------------------//
         }
+
         
         for (var t = 0; t < planetTrajectories.length; t++) {
             planetTrajectories[t].Draw();
