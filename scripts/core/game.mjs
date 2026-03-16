@@ -223,6 +223,9 @@ export class Game {
     static timewarp = 1;
     static smoothTimeWarp = 1;
 
+    //The ID returned by requestAnimationFrame(), used to stop the game loop
+    static animationFrameID = 0;
+
 
     //state id-s
     //the names of the states that make up the game
@@ -258,6 +261,8 @@ export class Game {
 
         //----------------------------------------//
         //Prevent scaleDeltaTime from being VERY large on the first frame due to planet loading etc
+        Time.seconds = 0;
+        Time.frame = 0;
         Time.Update();
         Time.Update();
         Time.Update();
@@ -265,7 +270,18 @@ export class Game {
         
         console.log("Game.Start: initialized");
         
-        requestAnimationFrame(Game.Update);
+        Game.animationFrameID = requestAnimationFrame(Game.Update);
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //Restart()
+    //cancels the game loop, and calls start
+    static Restart() {
+        //Currently, the last Game.Update() callback is waiting to be called. 
+        //If we do not cancel it, we will have two game loops running
+        cancelAnimationFrame(Game.animationFrameID);
+        Game.Start();
     }
     //----------------------------------------------------------------------//
 
@@ -327,7 +343,7 @@ export class Game {
         }
         Game.renderer.Render();
 
-        requestAnimationFrame(Game.Update);
+        Game.animationFrameID = requestAnimationFrame(Game.Update);
     }
     //----------------------------------------------------------------------//
     

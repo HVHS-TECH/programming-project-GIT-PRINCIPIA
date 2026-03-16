@@ -103,6 +103,13 @@ export class Player {
         
         //----------------------------------------//
 
+        //----------------------------------------//
+        //restart the game if the player presses 'r'
+        if (Input.KeyDown("KeyR")) {
+            Game.Restart();
+        }
+        //----------------------------------------//
+
         Player.Integrate(dt);
         Player.updateThruster(dt);
         Player.applyGravity(dt);

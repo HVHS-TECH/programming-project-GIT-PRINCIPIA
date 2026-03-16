@@ -15,7 +15,7 @@ export class Difficulty {
         IMPACT_FATALITY_DIRECTION_COMPONENT: 10, //How severe not being upright on impacts is
         
         //Reentry
-        REENTRY_TOLERANCE: 0.075,
+        REENTRY_TOLERANCE: 0.1,
 
         //Fuel
         MAX_FUEL: 200,
