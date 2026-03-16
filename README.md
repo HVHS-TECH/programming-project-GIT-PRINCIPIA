@@ -9,10 +9,4 @@ cb : callback
 
 TODO:  
 * Implement arrows pointing to planets, with green, orange and red indicators for burning / distance
-* Implement full set of planets (WIP)
-* Implement trajectory prediction (WIP)
-* Implement UI (WIP)  
-* Implement refueling (WIP)
-* Implement lagrange point visualization  
-* Implement thruster, explosion and reentry particles, and a particle class (WIP)
-* Implement reentry physics (WIP)
+* Implement lagrange point visualization
