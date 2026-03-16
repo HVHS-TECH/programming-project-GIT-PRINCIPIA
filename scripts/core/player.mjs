@@ -14,6 +14,31 @@ import { Particle, spawnExplosion } from "../utility/particle.mjs";
 import { lerp, clamp } from "../utility/miscellaneous.mjs";
 
 import { State } from "../data/state.mjs";
+class LineSegment {
+    constructor(start, end) {
+        this.start = start;
+        this.end = end;
+    }
+}
+class Trajectory {
+    constructor(colour, thickness) {
+        this.segments = [];
+        this.colour = colour;
+        this.thickness = thickness;
+    }
+    addSegment(segment) {
+        this.segments.push(segment);
+    }
+    Draw() {
+        Game.renderer.stroke(this.colour, this.thickness, false, true);
+        Game.renderer.beginPath();
+        for (var i = 0; i < this.segments.length; i++) {
+            const SEGMENT = this.segments[i];
+            Game.renderer.line(SEGMENT.start, SEGMENT.end, true, true);
+        }
+        Game.renderer.strokeShape();
+    }
+}
 export class Player {
     static pos = new Vec2(0, 0);
     static vel = new Vec2(0, 0);
@@ -561,10 +586,23 @@ export class Player {
         //Make sure to not just assign a reference to Game.PLANETS - make an actual copy
         var fake_planets = [];
         var prevPlanetPositions = [];
+        //A list for all planets, containing a boolean as to whether the last iteration was an 
+        //intercept with that planet
+        var prevInInterceptWithPlanet = []; 
+        
+        //----------------------------------------//
+        //Since changing stroke colour for each individual line segment is costly, we batch them
+        //for later rendering to save performance
+        //A list of all trajectories relative to planets
+        var planetTrajectories = [];
+        //----------------------------------------//
+        
         for (var i = 0; i < Game.PLANETS.length; i++) {
             const REAL_PLANET = Game.PLANETS[i];
             fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRadius, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
             prevPlanetPositions[i] = fake_planets[i].pos;
+            prevInInterceptWithPlanet[i] = false;
+            planetTrajectories[i] = new Trajectory(REAL_PLANET.colour, 2)
         }
 
         
@@ -598,7 +636,10 @@ export class Player {
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
                 if (DIST_SQUARED < fake_planets[p].radius * fake_planets[p].radius) {
                     
-                    Game.renderer.strokeShape(); //finish drawing the trajectory
+                    //finish drawing the trajectories
+                    for (var t = 0; t < planetTrajectories.length; t++) {
+                        planetTrajectories[t].Draw();
+                    } 
 
                     const MIN_DIST_FOR_IMPACT_MARKER = 50;
                     if (Vec2.dist(Player.pos, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
@@ -642,37 +683,43 @@ export class Player {
                 posDraw = pos.sub(FAKE_CLOSEST_PLANET_POS);
                 //----------------------------------------//
                 //Draw intercept lines
-                const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
-                const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
-                const LAST_ITERATION_CLOSEST_PLANET_POS = prevPlanetPositions[THIS_ITERATION_CLOSEST_PLANET];
-                const DELTA = THIS_ITERATION_CLOSEST_PLANET_POS.sub(pos);
-                const DIST = DELTA.len();
-                const THRESH_MUL_RAD = 5;
+                var didDrawIntercept = false;
+                for (var p = 0; p < fake_planets.length; p++) {
+                    const PLANET_POS = fake_planets[p].pos;
+                    const LAST_ITERATION_PLANET_POS = prevPlanetPositions[p];
+                    const DELTA = PLANET_POS.sub(pos);
+                    const DIST = DELTA.len();
+                    const THRESH_MUL_RAD = 3;
 
 
-                if (DIST < fake_planets[THIS_ITERATION_CLOSEST_PLANET].radius * THRESH_MUL_RAD
-                    && THIS_ITERATION_CLOSEST_PLANET != startSunIdx) 
-                {
-                    
-                    //Draw an intercept line
-                    Game.renderer.line(
-                        pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
+                    if (DIST < fake_planets[p].radius * THRESH_MUL_RAD
+                        && p != startSunIdx) 
+                    {
+                        didDrawIntercept = true;
+                        //Draw an intercept line
+                        planetTrajectories[p].addSegment(
+                            new LineSegment(
+                                pos.sub(PLANET_POS).add(Game.PLANETS[p].pos),
 
-                        lastPos.sub(LAST_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 
-                        true, true
-                    );
+                                lastPos.sub(LAST_ITERATION_PLANET_POS).add(Game.PLANETS[p].pos)
+                            )
+                        );
+                        
+                    }
                 }
-                else {
-                    //----------------------------------------//
-                    //draw a line from the previous position to this iteration's position
-                    
-                    Game.renderer.line(
-                        posDraw.add(START_SUN_POS), 
+                //----------------------------------------//
 
-                        lastPosDraw.add(START_SUN_POS), 
-                        true, true
+
+
+                //----------------------------------------//
+                //draw a line from the previous position to this iteration's position relative to the sun
+                //don't clog up the screen
+                if (!didDrawIntercept) {
+                    planetTrajectories[startSunIdx].addSegment(new LineSegment(
+                            posDraw.sub(fake_planets[startSunIdx].pos).add(START_SUN_POS),
+                            lastPosDraw.sub(prevPlanetPositions[startSunIdx]).add(START_SUN_POS)
+                        )
                     );
-                    //----------------------------------------//
                 }
                 //----------------------------------------//
                 
@@ -689,8 +736,10 @@ export class Player {
             }
             //----------------------------------------//
         }
-        Game.renderer.strokeShape();
         
+        for (var t = 0; t < planetTrajectories.length; t++) {
+            planetTrajectories[t].Draw();
+        }
     }
     //----------------------------------------------------------------------//
 
