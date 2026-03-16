@@ -499,7 +499,7 @@ export class Player {
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
 
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
-        Player.ang_vel *= 0.95 / Time.scaleDeltaTime;
+        Player.ang_vel *= 0.95 ** Time.scaleDeltaTime;
     }
     //----------------------------------------------------------------------//
 
@@ -562,9 +562,9 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 10000;
-        const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
-        var startSunIdx;
+        const DEPTH = 4000;
+        const DT = 2; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
+        var startSunIdx = 0;
         for (var p = 0; p < Game.PLANETS.length; p++) {
             if (Game.PLANETS[p].name == "sun") {
                 startSunIdx = p; 
@@ -588,6 +588,7 @@ export class Player {
         //A list for all planets, containing a boolean as to whether the last iteration was an 
         //intercept with that planet
         var prevInInterceptWithPlanet = []; 
+        var currInInterceptWithPlanet = [];
         
         //----------------------------------------//
         //Since changing stroke colour for each individual line segment is costly, we batch them
@@ -601,7 +602,8 @@ export class Player {
             fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRadius, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
             prevPlanetPositions[i] = fake_planets[i].pos;
             prevInInterceptWithPlanet[i] = false;
-            planetTrajectories[i] = new Trajectory(REAL_PLANET.colour, 2)
+            currInInterceptWithPlanet[i] = false;
+            planetTrajectories[i] = new Trajectory(REAL_PLANET.colour, 2);
         }
 
         
@@ -704,11 +706,46 @@ export class Player {
                             )
                         );
                         
+                        currInInterceptWithPlanet[p] = true;
+                        
+                    } else {
+                        currInInterceptWithPlanet[p] = false;
+                    }
+                }
+                //----------------------------------------//
+
+                //----------------------------------------//
+                //loop through all planets
+                //draw where any start / end of intercepts are
+                for (var p = 0; p < fake_planets.length; p++) {
+                    if (currInInterceptWithPlanet[p] != prevInInterceptWithPlanet[p]
+                        && i > 0 //not first frame e.g don't say that the player pos is the start of an intercept
+                    ) {
+                        //loop through all planets and if the fake player is on an intercept with them, also draw an intercept circle relative to that planet
+                        for (var p2 = 0; p2 < fake_planets.length; p2++) {
+                            //Only draw intercept circle relative to planets that the fake player is on an intercept with
+                            if (!currInInterceptWithPlanet[p2]) continue;
+                            Game.renderer.stroke(Colour.rgb(200, 220, 230), 10, true, true);
+                            Game.renderer.beginPath();
+                            Game.renderer.arc(pos.sub(fake_planets[p2].pos).add(Game.PLANETS[p2].pos), 30, 0, Math.PI * 2, true, true);
+                            Game.renderer.strokeShape();
+                        }
+
+                        //also draw relative to the original body
+                        Game.renderer.stroke(Colour.rgb(200, 220, 230), 10, true, true);
+                        Game.renderer.beginPath();
+                        Game.renderer.arc(pos.sub(fake_planets[p].pos).add(Game.PLANETS[p].pos), 30, 0, Math.PI * 2, true, true);
+                        Game.renderer.strokeShape();
+                        
                     }
                 }
                 //----------------------------------------//
 
 
+                //----------------------------------------//
+                //update prevInInterceptWithPlanet
+                prevInInterceptWithPlanet = structuredClone(currInInterceptWithPlanet);
+                //----------------------------------------//
 
                 //----------------------------------------//
                 //draw a line from the previous position to this iteration's position relative to the sun
