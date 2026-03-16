@@ -153,10 +153,13 @@ export class Player {
         Player.smoothZoom = Math.pow(lerp(Math.pow(Player.smoothZoom, ZOOOM_POWER), Math.pow(Player.zoom, ZOOOM_POWER), ZOOM_SMOOTHING), 1/ZOOOM_POWER);
         //----------------------------------------//
     }
+    //----------------------------------------------------------------------//
+    
 
     //----------------------------------------------------------------------//
     //updateThruster()
     //Manages thruster and fuel
+    //Spawns thruster particles
     static updateThruster() {
         if (Player.fuel != 0) {
             var inputForward = (Input.KeyDown("KeyW")) * Player.THRUSTER_FORCE * Time.scaleDeltaTime;
@@ -171,116 +174,7 @@ export class Player {
                 //Reduce fuel based on fuel consumption and delta time
                 Player.fuel -= Player.FUEL_USED_PER_FRAME * Time.scaleDeltaTime;
 
-                //----------------------------------------//
-                //Thruster particle settings
-                const DIR_RANDOMNESS = 0.1;
-                const VEL_RANDOMNESS = 0.1;
-                const SIZE_RANDOMNESS = 0.5;
-
-                const BASE_DIR = Player.dir + Math.PI;
-                const BASE_WIDTH = 0.5;
-                const BASE_SPEED = 0.7;
-                const FRAME_INTERVAL = 1; //Spawn particles every <FRAME_INTERVAL> frames
-                //----------------------------------------//
-                if (Time.frame % FRAME_INTERVAL == 0) {
-                    
-                    
-                    
-                    const NUM_PARTICLES = 6; //Spawn <NUM_PARTICLES> every <FRAME_INTERVAL> frames
-                    for (var i = 0; i < NUM_PARTICLES; i++) {
-                        //----------------------------------------//
-                        //Flame particle settings
-                        //Randomly vary the particle settings
-                        const PARTICLE_WIDTH = BASE_WIDTH + (Math.random() * 2 - 1) * SIZE_RANDOMNESS;
-                        const PARTICLE_POS = new Vec2(Math.sin(Player.dir + Math.PI) * (Player.HEIGHT / 2 + PARTICLE_WIDTH / 2), Math.cos(Player.dir + Math.PI) * (Player.HEIGHT / 2 + PARTICLE_WIDTH / 2))
-
-                        const PARTICLE_DIR = BASE_DIR + (Math.random() * 2 - 1) * DIR_RANDOMNESS; //Opposite to player direction
-                        const SPEED = BASE_SPEED + (Math.random() * 2 - 1) * VEL_RANDOMNESS;
-
-                        var particleVel = Player.vel.add(
-                            new Vec2(
-                                Math.sin(PARTICLE_DIR) * SPEED, 
-                                Math.cos(PARTICLE_DIR) * SPEED
-                            )
-                        );
-                        //----------------------------------------//
-                        Game.addParticle(new Particle(Player.pos.add(PARTICLE_POS), Player.dir, 
-                        particleVel, 0, 
-                        PARTICLE_WIDTH, 
-                        Colour.rgba(255, 178, 115, 1), 
-                        Colour.rgba(255, 102, 0, 0.2), 
-                        Colour.rgba(0, 0, 0, 0), 
-                        15,
-
-                            //----------------------------------------//
-                            //Update()
-                            function(){ //Update
-                                //Increase the width of the particle, but slowly decrease it as it ages
-                                const CONSTANT_INCREASE = 0.2;
-                                const GRADUAL_DECREASE = 0.6;
-                                this.width += CONSTANT_INCREASE * Time.scaleDeltaTime - this.frame / this.lifetime * GRADUAL_DECREASE * Time.scaleDeltaTime;
-                                
-                                for (var p = 0; p < Game.PLANETS.length; p++) {
-                                    const OTHER = Game.PLANETS[p];
-                                    const DELTA = this.pos.sub(OTHER.pos);
-                                    const DIST = DELTA.len() - this.width / 2;
-                                    const DELTA_NORM = DELTA.norm();
-
-                                    //If the particle is colliding with the planet, change the particle's velocity and shift it to above the surface to resolve the collision.
-                                    if (DIST < OTHER.radius) {
-                                        const LEN = this.vel.len();
-                                        
-                                        //Change the particle's direction to imitate a 'spread outward' effect
-                                        const DOT = Vec2.dot(this.vel.sub(OTHER.vel), DELTA_NORM);
-
-                                        const ROTATABLE_VEL = DELTA_NORM.mul(DOT); //Velocity RELATIVE TO PLANET along DELTA_NORM
-                                        const DIF = this.vel.sub(ROTATABLE_VEL);//Difference between particle vel and relative particle vel along DELTA_NORM
-                                        const ROTATED_VEL = ROTATABLE_VEL.rotate((Math.random() > 0.5) ? 0 : Math.PI); 
-                                        this.vel = DIF.add(ROTATED_VEL.mul(2)); //Make the particle spread outward while still moving with the planet's orbital velocity
-
-                                        this.startColour = Colour.rgba(100, 100, 110, 1);
-                                        this.midColour = Colour.rgba(150,150,170, 0.3);
-                                        this.endColour = Colour.rgba(210, 210, 255, 0);
-                                        
-                                        this.dir = DELTA.dir(); //Lock the player outward
-                                        this.ang_vel = 2;
-                                        this.frame = 0;
-                                        this.lifetime *= 2;
-                                        this.update = function(){
-
-                                            //Get the closest planet
-                                            var closestPlanet = Game.getClosestPlanet(this.pos, true);
-                                            var other = Game.PLANETS[closestPlanet];
-                                            var relVel = this.vel.sub(other.vel);//Relative velocity
-                                            var delta = this.pos.sub(other.pos);//Difference in position between player and plaent
-                                            
-                                            const DELTA_NORM = delta.norm();//Normalized delta
-
-                                            //The increase in width of the particle this frame
-                                            const WIDTH_INCREASE = 0.2 * Time.scaleDeltaTime * relVel.len() * (Math.pow(this.frame / this.lifetime, 2) * 5); 
-                                            this.width += WIDTH_INCREASE; //Increase width
-
-                                            //Prevent the particle clipping into the planet by shifting it up by half the width increase this frame
-                                            this.pos = this.pos.add(DELTA_NORM.mul(WIDTH_INCREASE / 2));
-                                        };
-                                        break;
-                                    }
-                                }
-                            
-                            }, 
-                            //----------------------------------------//
-
-                            
-
-                            //----------------------------------------//
-                            //OnDeath()
-                            function(){}
-                            //----------------------------------------//
-                        ));
-                    }
-                    //End of particle constructor
-                    //----------------------------------------//
-                }
+                Player.spawnThrusterParticles();
             }
             //----------------------------------------//
             
@@ -297,6 +191,122 @@ export class Player {
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //spawnThrusterParticles()
+    static spawnThrusterParticles() {
+        //----------------------------------------//
+        //Thruster particle settings
+        const DIR_RANDOMNESS = 0.1;
+        const VEL_RANDOMNESS = 0.1;
+        const SIZE_RANDOMNESS = 0.5;
+
+        const BASE_DIR = Player.dir + Math.PI;
+        const BASE_WIDTH = 0.5;
+        const BASE_SPEED = 0.7;
+        const FRAME_INTERVAL = 1; //Spawn particles every <FRAME_INTERVAL> frames
+        //----------------------------------------//
+        //We can change how often the particles spawn
+        if (Time.frame % FRAME_INTERVAL == 0) {
+            
+            
+            
+            const NUM_PARTICLES = 6; //Spawn <NUM_PARTICLES> every <FRAME_INTERVAL> frames
+            for (var i = 0; i < NUM_PARTICLES; i++) {
+                //----------------------------------------//
+                //Flame particle settings
+                //Randomly vary the particle settings
+                const PARTICLE_WIDTH = BASE_WIDTH + (Math.random() * 2 - 1) * SIZE_RANDOMNESS;
+                const PARTICLE_POS = new Vec2(Math.sin(Player.dir + Math.PI) * (Player.HEIGHT / 2 + PARTICLE_WIDTH / 2), Math.cos(Player.dir + Math.PI) * (Player.HEIGHT / 2 + PARTICLE_WIDTH / 2))
+
+                const PARTICLE_DIR = BASE_DIR + (Math.random() * 2 - 1) * DIR_RANDOMNESS; //Opposite to player direction
+                const SPEED = BASE_SPEED + (Math.random() * 2 - 1) * VEL_RANDOMNESS;
+
+                var particleVel = Player.vel.add(
+                    new Vec2(
+                        Math.sin(PARTICLE_DIR) * SPEED, 
+                        Math.cos(PARTICLE_DIR) * SPEED
+                    )
+                );
+                //----------------------------------------//
+                Game.addParticle(new Particle(Player.pos.add(PARTICLE_POS), Player.dir, 
+                particleVel, 0, 
+                PARTICLE_WIDTH, 
+                Colour.rgba(255, 178, 115, 1), 
+                Colour.rgba(255, 102, 0, 0.2), 
+                Colour.rgba(0, 0, 0, 0), 
+                15,
+
+                    //----------------------------------------//
+                    //Update()
+                    function(){ //Update
+                        //Increase the width of the particle, but slowly decrease it as it ages
+                        const CONSTANT_INCREASE = 0.2;
+                        const GRADUAL_DECREASE = 0.6;
+                        this.width += CONSTANT_INCREASE * Time.scaleDeltaTime - this.frame / this.lifetime * GRADUAL_DECREASE * Time.scaleDeltaTime;
+                        
+                        for (var p = 0; p < Game.PLANETS.length; p++) {
+                            const OTHER = Game.PLANETS[p];
+                            const DELTA = this.pos.sub(OTHER.pos);
+                            const DIST = DELTA.len() - this.width / 2;
+                            const DELTA_NORM = DELTA.norm();
+
+                            //If the particle is colliding with the planet, change the particle's velocity and shift it to above the surface to resolve the collision.
+                            if (DIST < OTHER.radius) {
+                                const LEN = this.vel.len();
+                                
+                                //Change the particle's direction to imitate a 'spread outward' effect
+                                const DOT = Vec2.dot(this.vel.sub(OTHER.vel), DELTA_NORM);
+
+                                const ROTATABLE_VEL = DELTA_NORM.mul(DOT); //Velocity RELATIVE TO PLANET along DELTA_NORM
+                                const DIF = this.vel.sub(ROTATABLE_VEL);//Difference between particle vel and relative particle vel along DELTA_NORM
+                                const ROTATED_VEL = ROTATABLE_VEL.rotate((Math.random() > 0.5) ? 0 : Math.PI); 
+                                this.vel = DIF.add(ROTATED_VEL.mul(2)); //Make the particle spread outward while still moving with the planet's orbital velocity
+
+                                this.startColour = Colour.rgba(100, 100, 110, 1);
+                                this.midColour = Colour.rgba(150,150,170, 0.3);
+                                this.endColour = Colour.rgba(210, 210, 255, 0);
+                                
+                                this.dir = DELTA.dir(); //Lock the player outward
+                                this.ang_vel = 2;
+                                this.frame = 0;
+                                this.lifetime *= 2;
+                                this.update = function(){
+
+                                    //Get the closest planet
+                                    var closestPlanet = Game.getClosestPlanet(this.pos, true);
+                                    var other = Game.PLANETS[closestPlanet];
+                                    var relVel = this.vel.sub(other.vel);//Relative velocity
+                                    var delta = this.pos.sub(other.pos);//Difference in position between player and plaent
+                                    
+                                    const DELTA_NORM = delta.norm();//Normalized delta
+
+                                    //The increase in width of the particle this frame
+                                    const WIDTH_INCREASE = 0.2 * Time.scaleDeltaTime * relVel.len() * (Math.pow(this.frame / this.lifetime, 2) * 5); 
+                                    this.width += WIDTH_INCREASE; //Increase width
+
+                                    //Prevent the particle clipping into the planet by shifting it up by half the width increase this frame
+                                    this.pos = this.pos.add(DELTA_NORM.mul(WIDTH_INCREASE / 2));
+                                };
+                                break;
+                            }
+                        }
+                    
+                    }, 
+                    //----------------------------------------//
+
+                    
+
+                    //----------------------------------------//
+                    //OnDeath()
+                    function(){}
+                    //----------------------------------------//
+                ));
+            }
+            //End of particle constructor
+            //----------------------------------------//
+        }
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //ApplyGravity()
