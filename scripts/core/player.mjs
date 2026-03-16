@@ -75,6 +75,12 @@ export class Player {
     static Update(dt) {
         Player.manageInterpolatedValues(dt);
         
+        //----------------------------------------//
+        //restart the game if the player presses 'r'
+        if (Input.KeyDown("KeyR")) {
+            Game.Restart();
+        }
+        //----------------------------------------//
 
         //Cancel all further functions if player is dying / dead
         if (Player.deathCounter > 0) {
@@ -103,12 +109,7 @@ export class Player {
         
         //----------------------------------------//
 
-        //----------------------------------------//
-        //restart the game if the player presses 'r'
-        if (Input.KeyDown("KeyR")) {
-            Game.Restart();
-        }
-        //----------------------------------------//
+        
 
         Player.Integrate(dt);
         Player.updateThruster(dt);
