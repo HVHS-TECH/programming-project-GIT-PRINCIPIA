@@ -27,6 +27,8 @@ import { Particle } from "../utility/particle.mjs";
 import { Time } from "../utility/time.mjs";
 
 import { State } from "../data/state.mjs";
+
+import { Difficulty } from "../data/difficulty.mjs";
 export class Game {
 
     static INDEX_TITLE = "Astro Explorer - Index";
@@ -165,13 +167,17 @@ export class Game {
         new RefVar(
             "PlayerFuel",
             function() { //Get
-                return Player.fuel / Player.MAX_FUEL;
+                return Player.fuel / Difficulty.Player.MAX_FUEL;
             }
         ),
         new RefVar(
             "PlayerHeat",
             function() { //Get
-                return 0.5; //Not implemented yet
+                //From 0 - Player.REENTRY_TOLERANCE
+                const DRAG = Player.getReentrySeverity(Player.pos, Player.vel);
+                const SCALE_DRAG = DRAG / Difficulty.Player.REENTRY_TOLERANCE;
+
+                return SCALE_DRAG;
             }
         ),
         new RefVar(

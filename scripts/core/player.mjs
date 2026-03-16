@@ -14,6 +14,7 @@ import { Particle, spawnExplosion } from "../utility/particle.mjs";
 import { lerp, clamp } from "../utility/miscellaneous.mjs";
 
 import { State } from "../data/state.mjs";
+import { Difficulty } from "../data/difficulty.mjs";
 class LineSegment {
     constructor(start, end) {
         this.start = start;
@@ -49,24 +50,18 @@ export class Player {
     static smoothZoom = 0.00001; //Smooth zoom is initialized to be more zoomed out than zoom so that the camera 'zooms in' at the start of the game
     static zoom = 8;
 
-    static MAX_FUEL = 200;
     static fuel = 100;
-    static FUEL_USED_PER_FRAME = 0.05;
-    static THRUSTER_FORCE = 0.01;
+    
     static HEIGHT = 5;
     static WIDTH = 3;
     static deathCounter = 0; //A counter that starts counting up when the player dies. When it reaches deathCounterThreshold, the user is redirected to 'end.html'
     static exploded = false;
     static DEATH_COUNTER_THRESH = 120; //120 'frames' at 60 'fps'
 
-    //Impacts
-    static IMPACT_TOLERANCE = 1.5;
-    static IMPACT_FATALITY_SIDEWAYS_COMPONENT = 0.7; //How severe sideways impacts are
-    static IMPACT_FATALITY_DIRECTION_COMPONENT = 10; //How severe not being upright on impacts is
+    
     
     //Reentry
-    static REENTRY_TOLERANCE = 0.1; //The maximum drag force the player can withstand
-    static REENTRY_PARTICLE_THRESH = 0.025; //The drag force needed for the player to spawn reentry particles
+    static REENTRY_PARTICLE_THRESH = 0.01; //The drag force needed for the player to spawn reentry particles
     
     static IMMUNITY_TIME = 1; //<IMMUNITY_TIME> seconds of immunity
 
@@ -162,7 +157,7 @@ export class Player {
     //Spawns thruster particles
     static updateThruster(dt) {
         if (Player.fuel != 0) {
-            var inputForward = (Input.KeyDown("KeyW")) * Player.THRUSTER_FORCE * dt;
+            var inputForward = (Input.KeyDown("KeyW")) * Difficulty.Player.THRUSTER_FORCE * dt;
 
 
 
@@ -172,7 +167,7 @@ export class Player {
                 Player.vel.y += Math.cos(Player.dir) * inputForward;
 
                 //Reduce fuel based on fuel consumption and delta time
-                Player.fuel -= Player.FUEL_USED_PER_FRAME * dt;
+                Player.fuel -= Difficulty.Player.FUEL_USED_PER_FRAME * dt;
 
                 Player.spawnThrusterParticles();
             }
@@ -375,9 +370,9 @@ export class Player {
         const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, deltaNorm);
         const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), deltaNorm);
         const IMPACT_SEVERITY = 
-        Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * Player.IMPACT_FATALITY_SIDEWAYS_COMPONENT //Punish the player for landing while moving sideways
-            + Math.max(DIR_DOT_DELTA_NORM, 0) * Player.IMPACT_FATALITY_DIRECTION_COMPONENT; //Punish the player for not landing upright
-        return (relVel.len() > (Player.IMPACT_TOLERANCE - IMPACT_SEVERITY));
+        Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * Difficulty.Player.IMPACT_FATALITY_SIDEWAYS_COMPONENT //Punish the player for landing while moving sideways
+            + Math.max(DIR_DOT_DELTA_NORM, 0) * Difficulty.Player.IMPACT_FATALITY_DIRECTION_COMPONENT; //Punish the player for not landing upright
+        return (relVel.len() > (Difficulty.Player.IMPACT_TOLERANCE - IMPACT_SEVERITY));
     }
     //----------------------------------------------------------------------//
 
@@ -427,8 +422,22 @@ export class Player {
         const SEA_LEVEL_DENSITY = 0.3;
         const AIR_DENSITY = SEA_LEVEL_DENSITY * getAirDensity(OTHER.radius, ATMO_RAD, DIST, DENSITY_POWER);
 
+        //Player direction expressed as a vector
+        const DIR_VEC_NORM = new Vec2(Math.sin(Player.dir), Math.cos(Player.dir));
 
-        const DRAG_COEFFICIENT = 0.5;
+        //REL_VEL_NORM dot DIR_VEC_NORM
+        //1 = facing forward (less drag)
+        //-1 = facing backward (more drag)
+        const RV_N_DOT_DV_N = Vec2.dot(REL_VEL_NORM, DIR_VEC_NORM);
+
+        //The effect of the player direction on the drag
+        const MOST_DRAG = 0.2;
+        const DIRECTIONAL_DRAG = MOST_DRAG * (1 - (RV_N_DOT_DV_N + 1) / 2);
+
+        const BASE_DRAG = 0.05;
+
+        //Forward drag + drag based on direction
+        const DRAG_COEFFICIENT = BASE_DRAG + DIRECTIONAL_DRAG;
         
         const DRAG_FORCE = REL_VEL_NORM.mul(-1 * 0.5 * DRAG_COEFFICIENT * SQR_VEL_MAG * AIR_DENSITY);
 
@@ -463,7 +472,7 @@ export class Player {
         const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
         const CLOSEST_VEL = Game.PLANETS[CLOSEST_IDX].vel;
         Player.spawnReentryParticles(REENTRY_SEVERITY, Player.vel.sub(CLOSEST_VEL));
-        if (REENTRY_SEVERITY > Player.REENTRY_TOLERANCE) {
+        if (REENTRY_SEVERITY > Difficulty.Player.REENTRY_TOLERANCE) {
             State.setState(Game.DEATH_STATE_ID, "burnt up during reentry");
             Player.explode();
             return;
@@ -811,7 +820,7 @@ export class Player {
         Game.PLANETS[planetIdx].discovered = true; //mark as discovered
         const VALUE = (1000 / Game.PLANETS[planetIdx].radius);
         Player.score += VALUE * 1000;
-        Player.fuel = clamp(Player.fuel + VALUE * 20, 0, Player.MAX_FUEL);
+        Player.fuel = clamp(Player.fuel + VALUE * 20, 0, Difficulty.Player.MAX_FUEL);
     }
     //----------------------------------------------------------------------//
 
