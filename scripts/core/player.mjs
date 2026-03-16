@@ -415,7 +415,9 @@ export class Player {
 
         //Reentry
         const REENTRY_SEVERITY = Player.getReentrySeverity(Player.pos, Player.vel);
-        Player.spawnReentryParticles(REENTRY_SEVERITY);
+        const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
+        const CLOSEST_VEL = Game.PLANETS[CLOSEST_IDX].vel;
+        Player.spawnReentryParticles(REENTRY_SEVERITY, Player.vel.sub(CLOSEST_VEL));
         if (REENTRY_SEVERITY > Player.REENTRY_TOLERANCE) {
             State.setState(Game.DEATH_STATE_ID, "burnt up during reentry");
             Player.explode();
@@ -427,18 +429,26 @@ export class Player {
     //----------------------------------------------------------------------//
     //spawnReentryParticles()
     //severity: the severity of the current reentry state
-    static spawnReentryParticles(severity) {
+    //relVel: the relative velocity of the player to the closest planet
+    static spawnReentryParticles(severity, relVel) {
         const INTERVAL = 1;
         if (severity > Player.REENTRY_PARTICLE_THRESH && Time.seconds % 1 < INTERVAL) {
             //Reentry is severe enough to spawn particles
             const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
             const OTHER_VEL = Game.PLANETS[CLOSEST_IDX].vel;
             const STARTING_WIDTH = 2;
+            const VEL_RANDOMNESS = 0.5;
+            const VEL = OTHER_VEL.add(
+                new Vec2(
+                    (Math.random() * 2 - 1) * VEL_RANDOMNESS, 
+                    (Math.random() * 2 - 1) * VEL_RANDOMNESS
+                )
+            );
             Game.addParticle(
-                new Particle(Player.pos, Player.dir, OTHER_VEL, 0, STARTING_WIDTH, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 10, 
+                new Particle(Player.pos, Player.dir, VEL, 0, STARTING_WIDTH, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 30, 
                 function(){
                     //Make the particle dwindle in size over time
-                    this.width *= 0.9 / Time.scaleDeltaTime;
+                    this.width *= 0.95 / Time.scaleDeltaTime;
                     this.width = clamp(this.width, 0, STARTING_WIDTH);
                 }, 
                 function(){})
@@ -473,11 +483,29 @@ export class Player {
     //Draw()
     //Calls DrawPlayer() with default values
     static Draw() {
-        this.drawTrajectory();
-        this.drawPlayer(new Vec2(0, 0), 1, true, true, false);
+        Player.drawTrajectory();
+        Player.drawPlayer(new Vec2(0, 0), 1, true, true, false);
+        Player.drawOutline();
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //drawOutline()
+    //draws an outline around the player if the camera is too zoomed out to see it
+    static drawOutline() {
+        const ZOOM_THRESH = 5;
+        //Don't draw the outline if the user can see the player icon
+        if (Player.zoom > ZOOM_THRESH) return;
+        const OUTLINE_COLOUR = Colour.rgb(50, 60, 150);
+        const OUTLINE_WIDTH = 5;
+        const OUTLINE_RADIUS = 20;
+        Game.renderer.stroke(OUTLINE_COLOUR, OUTLINE_WIDTH, false, true);
+        Game.renderer.beginPath();
+        //Use the non-smoothed zoom to give an aesthetic feel
+        Game.renderer.arc(Player.pos, OUTLINE_RADIUS / Player.zoom, 0, Math.PI * 2, true, true);
+        Game.renderer.strokeShape();
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //drawPlayer(offset, scale, playerRelative, doScreenScale, useSmoothDirDiff)
