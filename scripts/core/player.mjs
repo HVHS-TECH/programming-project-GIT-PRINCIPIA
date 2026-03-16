@@ -254,7 +254,7 @@ export class Player {
         //Since the above if statement might have reduced the player's fuel below 0, we need to check again
         if (Player.fuel <= 0) {
             Player.fuel = 0;
-            State.setState("GAME_OVER-status", "no-fuel");
+            State.setState(Game.DEATH_STATE_ID, "ran out of fuel");
             Player.die();
         }
         //----------------------------------------//
@@ -298,7 +298,7 @@ export class Player {
 
                 //only explode if the player hasn't already exploded
                 if (Player.isImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded) {
-                    State.setState("GAME_OVER-status", "crashed");
+                    State.setState(Game.DEATH_STATE_ID, "crashed");
                     Player.explode();
                     return;
                 }
@@ -417,7 +417,7 @@ export class Player {
         const REENTRY_SEVERITY = Player.getReentrySeverity(Player.pos, Player.vel);
         Player.spawnReentryParticles(REENTRY_SEVERITY);
         if (REENTRY_SEVERITY > Player.REENTRY_TOLERANCE) {
-            State.setState("GAME_OVER-status", "burnt-up");
+            State.setState(Game.DEATH_STATE_ID, "burnt up during reentry");
             Player.explode();
             return;
         }
@@ -680,6 +680,8 @@ export class Player {
     //kill the player!
     static die() {
         Player.deathCounter = 1;
+        State.setState(Game.SCORE_STATE_ID, Player.score);
+        Player.smoothScore = Player.score; //Don't confuse the player by showing the wrong score!
         
     }
     //----------------------------------------------------------------------//

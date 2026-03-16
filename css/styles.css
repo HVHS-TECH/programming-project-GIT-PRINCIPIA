@@ -19,7 +19,8 @@ canvas {
     height: 500px;
     flex-direction: column;
     button {
-        width: 25vw;
+        min-width: 25vw;
+        width: fit-content;
         padding: 10px;
         color: black;
         background-color: rgb(248, 229, 155);
@@ -27,7 +28,7 @@ canvas {
         border-radius: 5px;
         border-width: 5px;
         font-size: 30px;
-        margin: 0px;
+        margin: 10px;
     }
     button:hover {
         background-color: rgb(165, 149, 85);
@@ -44,8 +45,22 @@ canvas {
         font-size: 100px;
         color: rgb(255, 237, 163);
         text-shadow: 0px 6px 1px black;
-                 
-           
+        margin: 5px;
+        padding: 0px;
+    }
+    h2 {
+        font-size: 80px;
+        color: rgb(237, 220, 152);
+        text-shadow: 0px 6px 1px black;
+        margin: 5px;
+        padding: 0px;
+    }
+    h3 {
+        font-size: 40px;
+        color: rgb(203, 189, 131);
+        text-shadow: 0px 6px 1px black;
+        margin: 5px;
+        padding: 0px;
     }
 }
 

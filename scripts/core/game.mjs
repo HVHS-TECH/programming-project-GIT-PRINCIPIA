@@ -69,7 +69,38 @@ export class Game {
 
         new Page(Game.END_TITLE, "/html/end.html", false,
             function () {
+                //OnLoad
+                //called on page load
 
+                const DEATH_STATE = State.getState(Game.DEATH_STATE_ID);
+                const SCORE_STATE = State.getState(Game.SCORE_STATE_ID);
+                var highScoreState = State.getState(Game.HIGH_SCORE_ID);
+                var isHighScoreNew = false;
+                //manage high score
+                if (highScoreState == null) {
+                    //no high score
+                    highScoreState = SCORE_STATE;
+                    isHighScoreNew = true;
+                    //Apply changes to high score
+                    State.setState(Game.HIGH_SCORE_ID, highScoreState);
+                } else {
+                    //there is a high score
+                    if (Number(SCORE_STATE) > Number(highScoreState)) {
+                        highScoreState = SCORE_STATE;
+                        isHighScoreNew = true;
+                        //Apply changes to high score
+                        State.setState(Game.HIGH_SCORE_ID, highScoreState);
+                    }
+                }
+                
+
+                var deathReasonElem = document.getElementById("death_reason");
+                var scoreElem = document.getElementById("score");
+                var highScoreElem = document.getElementById("high_score");
+
+                deathReasonElem.textContent = "You " + DEATH_STATE + "!";
+                scoreElem.textContent = "Score: " + Math.round(SCORE_STATE);
+                highScoreElem.textContent = "High Score: " + Math.round(highScoreState) + "" + ((isHighScoreNew) ? " (NEW!)" : "");
             }
         )
 
@@ -185,6 +216,13 @@ export class Game {
 
     static timewarp = 1;
     static smoothTimeWarp = 1;
+
+
+    //state id-s
+    //the names of the states that make up the game
+    static DEATH_STATE_ID = "GAME_OVER-status";
+    static SCORE_STATE_ID = "GAME_OVER-score";
+    static HIGH_SCORE_ID = "GAME-high-score";
     
 
     //----------------------------------------------------------------------//
