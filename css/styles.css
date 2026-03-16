@@ -38,7 +38,7 @@ canvas {
     button:active {
         width: 20vw;
         padding: 8px;
-        margin: 5px; /*Stops the item above moving downward due to the button shrinking*/
+        margin: 15px; /*Stops the item above moving downward due to the button shrinking*/
         font-size: 25px;
     }
     h1 {
