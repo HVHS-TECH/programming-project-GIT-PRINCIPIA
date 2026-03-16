@@ -100,7 +100,11 @@ export class Game {
 
                 deathReasonElem.textContent = "You " + DEATH_STATE + "!";
                 scoreElem.textContent = "Score: " + Math.round(SCORE_STATE);
-                highScoreElem.textContent = "High Score: " + Math.round(highScoreState) + "" + ((isHighScoreNew) ? " (NEW!)" : "");
+                var highScoreMessage = "Previous High Score: " + Math.round(highScoreState);
+                if (isHighScoreNew) {
+                    highScoreMessage = "High Score: " + Math.round(highScoreState) + " (NEW!)";
+                }
+                highScoreElem.textContent = highScoreMessage;
             }
         )
 
