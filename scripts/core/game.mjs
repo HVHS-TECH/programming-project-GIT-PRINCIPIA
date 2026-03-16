@@ -135,19 +135,19 @@ export class Game {
             new Container(new Vec2(0, 0), 'center', 900, 150, Colour.rgb(255, 241, 179), Colour.rgb(41, 2, 32), 10, 
                 [
                     //Help information
-                    new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(21, 51, 33), 20, "monospace", 'center', 'middle', "HelpText"),
+                    new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(0, 0, 0), 23, "monospace", 'center', 'middle', "HelpText"),
                     //Container for score text
-                    new Container(new Vec2(-150, -35), 'bottom', 380, 70, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
+                    new Container(new Vec2(-200, -35), 'bottom', 450, 70, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
                         [   //Score text is rendered in a container located below the dropdown
-                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(21, 51, 33), 40, "monospace", "center", "middle", "PlayerScore")]
+                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 60, "monospace", "center", "middle", "PlayerScore")]
                         ),
                     
                     //Prompt text telling the user that the help information above exists
-                    new Container(new Vec2(150, -20), 'bottom', 200, 40, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
+                    new Container(new Vec2(200, -20), 'bottom', 200, 40, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
                         [   //Text
-                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(21, 51, 33), 20, "monospace", 'center', 'middle', "HelpTextPromptText")
+                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 25, "monospace", 'center', 'middle', "HelpTextPromptText")
                         ]
-                        )
+                    )
                     
                 ]
             )

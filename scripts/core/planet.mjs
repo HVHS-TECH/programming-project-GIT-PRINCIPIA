@@ -126,9 +126,25 @@ export class Planet {
         this.DrawGround();
         this.DrawGroundOutline();
         this.DrawOceans();
+
+        this.DrawLocatorOutline();
     }
     //----------------------------------------------------------------------//
 
+
+    //----------------------------------------------------------------------//
+    //DrawLocatorOutline()
+    //draws a circle around the planet showing where it is
+    DrawLocatorOutline() {
+        Game.renderer.stroke(Colour.rgb(183, 100, 200), 2, false, true);
+        Game.renderer.beginPath();
+        Game.renderer.arc(this.pos, this.radius * 3, 0, Math.PI * 2, true, true);
+        Game.renderer.strokeShape();
+    }
+    //----------------------------------------------------------------------//
+
+
+    
     //----------------------------------------------------------------------//
     //DrawGroundOutline()
     //Draws an outline around the planet

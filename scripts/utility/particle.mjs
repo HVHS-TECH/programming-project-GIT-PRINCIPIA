@@ -21,7 +21,7 @@ export class Particle {
         this.vel = vel;
         this.angVel = angVel;
         this.width = width;
-        this.currColour = Colour.rgb(255,255,255);
+        this.currColour = startColour;
         this.startColour = startColour;
         this.midColour = midColour;
         this.endColour = endColour;

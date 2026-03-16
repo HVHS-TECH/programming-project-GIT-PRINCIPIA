@@ -65,8 +65,8 @@ export class Player {
     static IMPACT_FATALITY_DIRECTION_COMPONENT = 10; //How severe not being upright on impacts is
     
     //Reentry
-    static REENTRY_TOLERANCE = 0.05; //The maximum drag force the player can withstand
-    static REENTRY_PARTICLE_THRESH = 0.009; //The drag force needed for the player to spawn reentry particles
+    static REENTRY_TOLERANCE = 0.1; //The maximum drag force the player can withstand
+    static REENTRY_PARTICLE_THRESH = 0.025; //The drag force needed for the player to spawn reentry particles
     
     static IMMUNITY_TIME = 1; //<IMMUNITY_TIME> seconds of immunity
 
@@ -403,8 +403,8 @@ export class Player {
         //----------------------------------------//
 
 
-        const DENSITY_POWER = 7;
-        const SEA_LEVEL_DENSITY = 0.5;
+        const DENSITY_POWER = 5;
+        const SEA_LEVEL_DENSITY = 0.3;
         const AIR_DENSITY = SEA_LEVEL_DENSITY * getAirDensity(OTHER.radius, ATMO_RAD, DIST, DENSITY_POWER);
 
 
@@ -456,13 +456,13 @@ export class Player {
     //severity: the severity of the current reentry state
     //relVel: the relative velocity of the player to the closest planet
     static spawnReentryParticles(severity, relVel) {
-        const INTERVAL = 1;
+        const INTERVAL = 1; //0 for not at all, 1 for all the time
         if (severity > Player.REENTRY_PARTICLE_THRESH && Time.seconds % 1 < INTERVAL) {
             //Reentry is severe enough to spawn particles
             const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
             const OTHER_VEL = Game.PLANETS[CLOSEST_IDX].vel;
-            const STARTING_WIDTH = 2;
-            const VEL_RANDOMNESS = 0.5;
+            const STARTING_WIDTH = 4;
+            const VEL_RANDOMNESS = 0.3;
             const VEL = OTHER_VEL.add(
                 new Vec2(
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS, 
@@ -470,7 +470,7 @@ export class Player {
                 )
             );
             Game.addParticle(
-                new Particle(Player.pos, Player.dir, VEL, 0, STARTING_WIDTH, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 30, 
+                new Particle(Player.pos, Player.dir, VEL, 0, STARTING_WIDTH, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 40, 
                 function(){
                     //Make the particle dwindle in size over time
                     this.width *= 0.95 / Time.scaleDeltaTime;
@@ -499,7 +499,7 @@ export class Player {
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
 
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
-        Player.ang_vel *= 0.95;
+        Player.ang_vel *= 0.95 / Time.scaleDeltaTime;
     }
     //----------------------------------------------------------------------//
 
@@ -526,8 +526,7 @@ export class Player {
         const OUTLINE_RADIUS = 20;
         Game.renderer.stroke(OUTLINE_COLOUR, OUTLINE_WIDTH, false, true);
         Game.renderer.beginPath();
-        //Use the non-smoothed zoom to give an aesthetic feel
-        Game.renderer.arc(Player.pos, OUTLINE_RADIUS / Player.zoom, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(Player.pos, OUTLINE_RADIUS / Player.smoothZoom, 0, Math.PI * 2, true, true);
         Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
