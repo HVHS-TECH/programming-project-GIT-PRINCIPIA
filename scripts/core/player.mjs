@@ -79,7 +79,41 @@ export class Player {
     static Update() {
         
 
+        Player.manageInterpolatedValues();
+        
 
+        //Cancel all further functions if player is dying / dead
+        if (Player.deathCounter > 0) {
+            if (Player.deathCounter > Player.DEATH_COUNTER_THRESH) {
+                Game.setPage(Game.END_TITLE); //Go to 'end.html'
+                
+            }
+            Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
+            Player.applyGravity();
+            Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
+            return;
+        }
+
+        //----------------------------------------//
+        //speed up time to cross large distances
+        if (Input.KeyDown("Space")) {
+            Game.timewarp = 5;
+        } else {
+            Game.timewarp = 1;
+        }
+        //----------------------------------------//
+
+        Player.Integrate();
+        Player.updateThruster();
+        Player.applyGravity();
+        Player.applyAtmosphericEffects();
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------//
+    //manageInterpolatedValues()
+    //interpolates things like smooth zoom, smooth score, etc
+    static manageInterpolatedValues() {
         //----------------------------------------//
         //Smoothly rotate so that the nearest planet tends toward the bottom of the screen
         var closestPlanet = Game.getClosestPlanet(Player.pos, true);
@@ -118,34 +152,7 @@ export class Player {
 
         Player.smoothZoom = Math.pow(lerp(Math.pow(Player.smoothZoom, ZOOOM_POWER), Math.pow(Player.zoom, ZOOOM_POWER), ZOOM_SMOOTHING), 1/ZOOOM_POWER);
         //----------------------------------------//
-
-        //Cancel all further functions if player is dying / dead
-        if (Player.deathCounter > 0) {
-            if (Player.deathCounter > Player.DEATH_COUNTER_THRESH) {
-                Game.setPage(Game.END_TITLE); //Go to 'end.html'
-                
-            }
-            Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
-            Player.applyGravity();
-            Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
-            return;
-        }
-
-        //----------------------------------------//
-        //speed up time to cross large distances
-        if (Input.KeyDown("Space")) {
-            Game.timewarp = 5;
-        } else {
-            Game.timewarp = 1;
-        }
-        //----------------------------------------//
-
-        Player.Integrate();
-        Player.updateThruster();
-        Player.applyGravity();
-        Player.applyAtmosphericEffects();
     }
-    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //updateThruster()
