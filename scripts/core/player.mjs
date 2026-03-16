@@ -56,7 +56,8 @@ export class Player {
     static WIDTH = 3;
     static deathCounter = 0; //A counter that starts counting up when the player dies. When it reaches deathCounterThreshold, the user is redirected to 'end.html'
     static exploded = false;
-    static DEATH_COUNTER_THRESH = 120; //120 'frames' at 60 'fps'
+    static mightExplodeOnReentry = false; //If drawTrajectory realises that the player will explode on reentry, slow down time
+    static DEATH_COUNTER_THRESH = 180; //<DEATH_COUNTER_THRESH> 'frames' at 60 'fps'
 
     
     
@@ -91,11 +92,15 @@ export class Player {
 
         //----------------------------------------//
         //speed up time to cross large distances
-        if (Input.KeyDown("Space")) {
+        if (Player.mightExplodeOnReentry) {
+            Game.timewarp = 0.3; //Slow down time to let the player see themselves explode!
+        }
+        else if (Input.KeyDown("Space")) {
             Game.timewarp = 5;
         } else {
             Game.timewarp = 1;
         }
+        
         //----------------------------------------//
 
         Player.Integrate(dt);
@@ -376,6 +381,17 @@ export class Player {
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //getHeat()
+    //basically just proportional to drag
+    static getHeat(pos, vel, planets = Game.PLANETS) {
+        //From 0 - Player.REENTRY_TOLERANCE
+        const DRAG = Player.getReentrySeverity(pos, vel, planets);
+        const SCALE_DRAG = DRAG / Difficulty.Player.REENTRY_TOLERANCE;
+
+        return SCALE_DRAG;
+    }
+    //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
     //getDrag()
@@ -472,7 +488,7 @@ export class Player {
         const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
         const CLOSEST_VEL = Game.PLANETS[CLOSEST_IDX].vel;
         Player.spawnReentryParticles(REENTRY_SEVERITY, Player.vel.sub(CLOSEST_VEL));
-        if (REENTRY_SEVERITY > Difficulty.Player.REENTRY_TOLERANCE) {
+        if (Player.getHeat(Player.pos, Player.vel) >= 1) {
             State.setState(Game.DEATH_STATE_ID, "burnt up during reentry");
             Player.explode();
             return;
@@ -593,7 +609,7 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 20000;
+        const DEPTH = 10000;
         const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
         var startSunIdx = 0;
         for (var p = 0; p < Game.PLANETS.length; p++) {
@@ -627,7 +643,30 @@ export class Player {
         //A list of all trajectories relative to planets
         var planetTrajectories = [];
         //----------------------------------------//
-        
+
+
+        //----------------------------------------//
+        //helper function to draw an impact circle
+        function drawImpactCircle(pos, fatal) {
+            Game.renderer.stroke(Colour.rgba(255, 200, 20, 0.8), 10, true, true);
+            Game.renderer.beginPath();
+            Game.renderer.arc(pos, 300, 0, Math.PI * 2, true, true);
+            Game.renderer.strokeShape();
+            
+
+
+            //Draw an impact circle
+            const SAFE_IMPACT_COLOUR = Colour.rgba(100, 220, 50, 0.5); //Green if safe
+            const FATAL_IMPACT_COLOUR = Colour.rgba(255, 55, 20, 0.9); //Red if fatal
+            const STROKE_COLOUR = (fatal) ? FATAL_IMPACT_COLOUR : SAFE_IMPACT_COLOUR;
+            Game.renderer.stroke(STROKE_COLOUR, 5, true, true);
+            Game.renderer.beginPath();
+            Game.renderer.arc(pos, 10, 0, Math.PI * 2, true, true);
+            Game.renderer.strokeShape();
+        }
+        //----------------------------------------//
+
+
         for (var i = 0; i < Game.PLANETS.length; i++) {
             const REAL_PLANET = Game.PLANETS[i];
             fake_planets.push(new Planet(REAL_PLANET.name, REAL_PLANET.pos, REAL_PLANET.vel, REAL_PLANET.mass, REAL_PLANET.radius, REAL_PLANET.atmoRadius, REAL_PLANET.colour, REAL_PLANET.outlineColour, REAL_PLANET.innerColour, REAL_PLANET.mantleColour, REAL_PLANET.outerCoreColour, REAL_PLANET.innerColourColour, REAL_PLANET.atmoColourLow, REAL_PLANET.atmoColourMid, REAL_PLANET.mountainColour, REAL_PLANET.snowColour, REAL_PLANET.mountainOutlineColour, REAL_PLANET.mountains, REAL_PLANET.oceanColourShallow, REAL_PLANET.oceanColourDeep, REAL_PLANET.oceans));
@@ -676,25 +715,12 @@ export class Player {
                     if (Vec2.dist(Player.pos, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
 
 
-                    //Draw a huge outline around the impact circle (for when the player is zoomed out)
-                    const THIS_ITERATION_CLOSEST_PLANET = Game.getClosestPlanet(pos, true, fake_planets);
-                    const THIS_ITERATION_CLOSEST_PLANET_POS = fake_planets[THIS_ITERATION_CLOSEST_PLANET].pos;
+                    //Draw a huge outline around the impact circle (for when the player is zoomed out
+                    const PLANET_POS = fake_planets[p].pos;
+                    const REL_VEL = vel.sub(fake_planets[p].vel);
                     
-                    Game.renderer.stroke(Colour.rgba(255, 200, 20, 0.8), 10, true, true);
-                    Game.renderer.beginPath();
-                    Game.renderer.arc(pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 300, 0, Math.PI * 2, true, true);
-                    Game.renderer.strokeShape();
-                    
-
-
-                    //Draw an impact circle
-                    const SAFE_IMPACT_COLOUR = Colour.rgba(100, 220, 50, 0.5); //Green if safe
-                    const FATAL_IMPACT_COLOUR = Colour.rgba(255, 55, 20, 0.9); //Red if fatal
-                    const STROKE_COLOUR = (Player.isImpactFatal(vel.sub(fake_planets[p].vel), DELTA_NORM)) ? FATAL_IMPACT_COLOUR : SAFE_IMPACT_COLOUR;
-                    Game.renderer.stroke(STROKE_COLOUR, 5, true, true);
-                    Game.renderer.beginPath();
-                    Game.renderer.arc(pos.sub(THIS_ITERATION_CLOSEST_PLANET_POS).add(Game.PLANETS[THIS_ITERATION_CLOSEST_PLANET].pos), 10, 0, Math.PI * 2, true, true);
-                    Game.renderer.strokeShape();
+                    const POS = pos.sub(PLANET_POS).add(Game.PLANETS[p].pos);
+                    drawImpactCircle(POS, Player.isImpactFatal(REL_VEL, DELTA_NORM))
 
                         
                     return;
@@ -796,7 +822,34 @@ export class Player {
                 }
                 //----------------------------------------//
                 
-                
+
+                //----------------------------------------//
+                //if the player is going to explode, in update() time will be slowed down to let the player understand what happened
+
+                //The number of seconds before blowing up that time slows down
+                const SECONDS_BEFORE_DEATH = 0.3;
+                if (Player.getHeat(pos, vel, fake_planets) >= 1) {
+                    if (i < SECONDS_BEFORE_DEATH * 60) {
+                        Player.mightExplodeOnReentry = true;
+
+                        
+                    }
+                    
+                    for (var p = 0; p < currInInterceptWithPlanet.length; p++) {
+                        if (currInInterceptWithPlanet[p]) {
+                            drawImpactCircle(pos.sub(fake_planets[p].pos).add(Game.PLANETS[p].pos), true);
+                        }
+                    }
+                    
+                    //Finish drawing
+                    for (var t = 0; t < planetTrajectories.length; t++) {
+                        planetTrajectories[t].Draw();
+                    }
+                    return;
+                } else {
+                    Player.mightExplodeOnReentry = false;
+                }
+                //----------------------------------------//
 
                 //Update last pos
                 lastPos = pos;

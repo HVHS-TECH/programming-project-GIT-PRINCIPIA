@@ -173,11 +173,7 @@ export class Game {
         new RefVar(
             "PlayerHeat",
             function() { //Get
-                //From 0 - Player.REENTRY_TOLERANCE
-                const DRAG = Player.getReentrySeverity(Player.pos, Player.vel);
-                const SCALE_DRAG = DRAG / Difficulty.Player.REENTRY_TOLERANCE;
-
-                return SCALE_DRAG;
+                return Player.getHeat(Player.pos, Player.vel);
             }
         ),
         new RefVar(
@@ -292,7 +288,8 @@ export class Game {
         //   (e.g 1.25)
 
         
-        const INTEGER_PORTION = Math.floor(Game.smoothTimeWarp);
+        //Can't go below 1
+        const INTEGER_PORTION = Math.max(Math.floor(Game.smoothTimeWarp), 1);
 
         const DT = Time.scaleDeltaTime * (Game.smoothTimeWarp / INTEGER_PORTION);
         for (var k = 0; k < INTEGER_PORTION; k++) {

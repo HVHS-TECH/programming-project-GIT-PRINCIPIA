@@ -46,6 +46,7 @@ export class Renderer {
     //Render()
     //Renders the scene
     Render() {
+        
         //----------------------------------------//
         //Update the dimension variables
         this.cnvWidth = window.innerWidth;
