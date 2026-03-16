@@ -76,10 +76,8 @@ export class Player {
     //----------------------------------------------------------------------//
     //Update()
     //called every frame
-    static Update() {
-        
-
-        Player.manageInterpolatedValues();
+    static Update(dt) {
+        Player.manageInterpolatedValues(dt);
         
 
         //Cancel all further functions if player is dying / dead
@@ -88,9 +86,11 @@ export class Player {
                 Game.setPage(Game.END_TITLE); //Go to 'end.html'
                 
             }
+            //Don't use dt for death counter, instead use the raw time.scaleDeltaTime
+            //dt scales with timewarp - but dying faster when timewarping reduces the player's awareness of dying
             Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
-            Player.applyGravity();
-            Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
+            Player.applyGravity(dt);
+            Player.pos = Player.pos.add(Player.vel.mul(dt));
             return;
         }
 
@@ -103,17 +103,17 @@ export class Player {
         }
         //----------------------------------------//
 
-        Player.Integrate();
-        Player.updateThruster();
-        Player.applyGravity();
-        Player.applyAtmosphericEffects();
+        Player.Integrate(dt);
+        Player.updateThruster(dt);
+        Player.applyGravity(dt);
+        Player.applyAtmosphericEffects(dt);
     }
     //----------------------------------------------------------------------//
 
     //----------------------------------------//
     //manageInterpolatedValues()
     //interpolates things like smooth zoom, smooth score, etc
-    static manageInterpolatedValues() {
+    static manageInterpolatedValues(dt) {
         //----------------------------------------//
         //Smoothly rotate so that the nearest planet tends toward the bottom of the screen
         var closestPlanet = Game.getClosestPlanet(Player.pos, true);
@@ -125,7 +125,7 @@ export class Player {
         const DIRECTION_SMOOTHING = 0.01; 
         const SMOOTH_DIR_VEC = new Vec2(Math.sin(Player.smoothDir - Math.PI), Math.cos(Player.smoothDir - Math.PI));
         
-        Player.smoothDir = Vec2.slerp(SMOOTH_DIR_VEC, DELTA_NORM, DIRECTION_SMOOTHING).dir() + Math.PI; 
+        Player.smoothDir = Vec2.slerp(SMOOTH_DIR_VEC, DELTA_NORM, DIRECTION_SMOOTHING * dt).dir() + Math.PI; 
         //----------------------------------------//
         
 
@@ -134,7 +134,7 @@ export class Player {
 
         //How fast to reach the target value (higher = faster, lower = smoother)
         const SCORE_SMOOTHING = 0.1;
-        Player.smoothScore = lerp(Player.smoothScore, Player.score, SCORE_SMOOTHING);
+        Player.smoothScore = lerp(Player.smoothScore, Player.score, SCORE_SMOOTHING * dt);
         //----------------------------------------//
 
 
@@ -150,7 +150,7 @@ export class Player {
         const ZOOOM_POWER = 0.00005; 
         //-------------//
 
-        Player.smoothZoom = Math.pow(lerp(Math.pow(Player.smoothZoom, ZOOOM_POWER), Math.pow(Player.zoom, ZOOOM_POWER), ZOOM_SMOOTHING), 1/ZOOOM_POWER);
+        Player.smoothZoom = Math.pow(lerp(Math.pow(Player.smoothZoom, ZOOOM_POWER), Math.pow(Player.zoom, ZOOOM_POWER), ZOOM_SMOOTHING * dt), 1/ZOOOM_POWER);
         //----------------------------------------//
     }
     //----------------------------------------------------------------------//
@@ -160,9 +160,9 @@ export class Player {
     //updateThruster()
     //Manages thruster and fuel
     //Spawns thruster particles
-    static updateThruster() {
+    static updateThruster(dt) {
         if (Player.fuel != 0) {
-            var inputForward = (Input.KeyDown("KeyW")) * Player.THRUSTER_FORCE * Time.scaleDeltaTime;
+            var inputForward = (Input.KeyDown("KeyW")) * Player.THRUSTER_FORCE * dt;
 
 
 
@@ -172,7 +172,7 @@ export class Player {
                 Player.vel.y += Math.cos(Player.dir) * inputForward;
 
                 //Reduce fuel based on fuel consumption and delta time
-                Player.fuel -= Player.FUEL_USED_PER_FRAME * Time.scaleDeltaTime;
+                Player.fuel -= Player.FUEL_USED_PER_FRAME * dt;
 
                 Player.spawnThrusterParticles();
             }
@@ -238,11 +238,11 @@ export class Player {
 
                     //----------------------------------------//
                     //Update()
-                    function(){ //Update
+                    function(dt){ //Update
                         //Increase the width of the particle, but slowly decrease it as it ages
                         const CONSTANT_INCREASE = 0.2;
                         const GRADUAL_DECREASE = 0.6;
-                        this.width += CONSTANT_INCREASE * Time.scaleDeltaTime - this.frame / this.lifetime * GRADUAL_DECREASE * Time.scaleDeltaTime;
+                        this.width += CONSTANT_INCREASE * dt - this.frame / this.lifetime * GRADUAL_DECREASE * dt;
                         
                         for (var p = 0; p < Game.PLANETS.length; p++) {
                             const OTHER = Game.PLANETS[p];
@@ -270,7 +270,7 @@ export class Player {
                                 this.ang_vel = 2;
                                 this.frame = 0;
                                 this.lifetime *= 2;
-                                this.update = function(){
+                                this.update = function(dt){
 
                                     //Get the closest planet
                                     var closestPlanet = Game.getClosestPlanet(this.pos, true);
@@ -281,7 +281,7 @@ export class Player {
                                     const DELTA_NORM = delta.norm();//Normalized delta
 
                                     //The increase in width of the particle this frame
-                                    const WIDTH_INCREASE = 0.2 * Time.scaleDeltaTime * relVel.len() * (Math.pow(this.frame / this.lifetime, 2) * 5); 
+                                    const WIDTH_INCREASE = 0.2 * dt * relVel.len() * (Math.pow(this.frame / this.lifetime, 2) * 5); 
                                     this.width += WIDTH_INCREASE; //Increase width
 
                                     //Prevent the particle clipping into the planet by shifting it up by half the width increase this frame
@@ -311,7 +311,7 @@ export class Player {
     //----------------------------------------------------------------------//
     //ApplyGravity()
     //Applies gravitational attraction from planets to the player
-    static applyGravity() {
+    static applyGravity(dt) {
         //Apply gravity
         for (var p = 0; p < Game.PLANETS.length; p++) {
             const OTHER = Game.PLANETS[p];
@@ -358,7 +358,7 @@ export class Player {
                 break;
             }
             //Update the player's velocity
-            const FORCE = Game.G * OTHER.mass / (dist * dist) * Time.scaleDeltaTime;
+            const FORCE = Game.G * OTHER.mass / (dist * dist) * dt;
             Player.vel = Player.vel.add(DELTA_NORM.mul(FORCE));
         }
     }
@@ -453,10 +453,10 @@ export class Player {
     //----------------------------------------------------------------------//
     //applyAtmosphericEffects()
     //Returns velocity 'vel' with aerodynamic forces applied
-    static applyAtmosphericEffects() {
+    static applyAtmosphericEffects(dt) {
         //Drag
         const DRAG = Player.getDrag(Player.pos, Player.vel);
-        Player.vel = Player.vel.add(DRAG); //Drag is already negative, so we add it to velocity
+        Player.vel = Player.vel.add(DRAG.mul(dt)); //Drag is already negative, so we add it to velocity
 
         //Reentry
         const REENTRY_SEVERITY = Player.getReentrySeverity(Player.pos, Player.vel);
@@ -505,21 +505,21 @@ export class Player {
     //----------------------------------------------------------------------//
     //Integrate()
     //Integrates the players position and rotation
-    static Integrate() {
+    static Integrate(dt) {
         //Integrate position based on velocity and delta time
-        Player.pos = Player.pos.add(Player.vel.mul(Time.scaleDeltaTime));
+        Player.pos = Player.pos.add(Player.vel.mul(dt));
 
         //Integrate rotation based on angular velocity and delta time
-        Player.dir += Player.ang_vel * Time.scaleDeltaTime / Game.smoothTimeWarp;
+        Player.dir += Player.ang_vel * dt / Game.smoothTimeWarp;
 
         //Integrate zoom based on input and delta time
         const ZOOM_SPEED = 0.05 / Game.smoothTimeWarp;
-        Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * Time.scaleDeltaTime + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * Time.scaleDeltaTime + 1));
+        Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * dt + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * dt + 1));
         Player.zoom = clamp(Player.zoom, 0.015, 50); //Restrict player zoom
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
         
-        Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
-        Player.ang_vel *= 0.95 ** Time.scaleDeltaTime;
+        Player.ang_vel += rotate / (Player.ang_vel + 1) * dt;
+        Player.ang_vel *= 0.95 ** dt;
 
 
     }

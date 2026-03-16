@@ -35,7 +35,7 @@ export class Particle {
     //----------------------------------------------------------------------//
     //Update()
     //Updates the particle position and other variables
-    Update() {
+    Update(dt) {
         //is the particle 'dead'?
         //>= because Game.mjs will not update it (to call OnDeath()) if frame > this.lifetime
         if (this.frame >= this.lifetime) {
@@ -57,12 +57,12 @@ export class Particle {
 
 
         //Integrate position based on velocity and delta time
-        this.pos = this.pos.add(this.vel.mul(new Vec2(Time.scaleDeltaTime, Time.scaleDeltaTime)));
+        this.pos = this.pos.add(this.vel.mul(dt));
 
         //Integrate rotation based on angular velocity and delta time
-        this.rot += this.angVel * Time.scaleDeltaTime;
-        this.update();
-        this.frame += Time.scaleDeltaTime;
+        this.rot += this.angVel * dt;
+        this.update(dt);
+        this.frame += dt;
     }
     //----------------------------------------------------------------------//
 

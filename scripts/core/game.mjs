@@ -273,19 +273,33 @@ export class Game {
     //called every frame
     //manages game logic, then renders scene using renderer
     static Update() {
-        const TIMEWARP_SMOOTHING = 1;
+        const TIMEWARP_SMOOTHING = 0.2;
         Game.smoothTimeWarp = lerp(Game.smoothTimeWarp, Game.timewarp, TIMEWARP_SMOOTHING);
-        for (var k = 0; k < Game.smoothTimeWarp; k++) {
+
+        //---TIMEWARP---
+        //If time warp is an integer (e.g 2) we can just integrate twice
+        //If, however, time warp is NOT an integer, (e.g 2.5) we must:
+        //
+        // - update an integer number of times (e.g 2)
+        //
+        // - set dt to an appropriate value to manage the decimal part of the timewarp value
+        //   (e.g 1.25)
+
+        
+        const INTEGER_PORTION = Math.floor(Game.smoothTimeWarp);
+
+        const DT = Time.scaleDeltaTime * (Game.smoothTimeWarp / INTEGER_PORTION);
+        for (var k = 0; k < INTEGER_PORTION; k++) {
             //----------------------------------------//
             //Use verlet velocity integration to reduce integration error
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update(Time.scaleDeltaTime, Game.PLANETS);
+                Game.PLANETS[p].Update(DT, Game.PLANETS);
             }
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Integrate(Time.scaleDeltaTime, Game.PLANETS);
+                Game.PLANETS[p].Integrate(DT);
             }
             for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update(Time.scaleDeltaTime, Game.PLANETS);
+                Game.PLANETS[p].Update(DT, Game.PLANETS);
             }
             //----------------------------------------//
 
@@ -296,12 +310,12 @@ export class Game {
             for (var i = 0; i < Game.PARTICLES.length; i++) {
                 if (Game.PARTICLES[i].frame < Game.PARTICLES[i].lifetime) {
                     //Particle is alive, update
-                    Game.PARTICLES[i].Update();
+                    Game.PARTICLES[i].Update(DT);
                 }
                 
             }
 
-            Player.Update();
+            Player.Update(DT);
 
         }
         Time.Update();
