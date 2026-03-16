@@ -40,8 +40,8 @@ export class Player {
     static IMPACT_FATALITY_DIRECTION_COMPONENT = 10; //How severe not being upright on impacts is
     
     //Reentry
-    static REENTRY_TOLERANCE = 0.04; //The maximum drag force the player can withstand
-    static REENTRY_PARTICLE_THRESH = 0.02;
+    static REENTRY_TOLERANCE = 0.05; //The maximum drag force the player can withstand
+    static REENTRY_PARTICLE_THRESH = 0.009; //The drag force needed for the player to spawn reentry particles
     
     static IMMUNITY_TIME = 1; //<IMMUNITY_TIME> seconds of immunity
 
@@ -378,8 +378,8 @@ export class Player {
         //----------------------------------------//
 
 
-        const DENSITY_POWER = 5;
-        const SEA_LEVEL_DENSITY = 0.2;
+        const DENSITY_POWER = 7;
+        const SEA_LEVEL_DENSITY = 0.5;
         const AIR_DENSITY = SEA_LEVEL_DENSITY * getAirDensity(OTHER.radius, ATMO_RAD, DIST, DENSITY_POWER);
 
 
@@ -428,13 +428,20 @@ export class Player {
     //spawnReentryParticles()
     //severity: the severity of the current reentry state
     static spawnReentryParticles(severity) {
-        const INTERVAL = 0.9;
+        const INTERVAL = 1;
         if (severity > Player.REENTRY_PARTICLE_THRESH && Time.seconds % 1 < INTERVAL) {
             //Reentry is severe enough to spawn particles
             const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
             const OTHER_VEL = Game.PLANETS[CLOSEST_IDX].vel;
+            const STARTING_WIDTH = 2;
             Game.addParticle(
-                new Particle(Player.pos, Player.dir, OTHER_VEL, 0, 3, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 10, function(){}, function(){})
+                new Particle(Player.pos, Player.dir, OTHER_VEL, 0, STARTING_WIDTH, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 10, 
+                function(){
+                    //Make the particle dwindle in size over time
+                    this.width *= 0.9 / Time.scaleDeltaTime;
+                    this.width = clamp(this.width, 0, STARTING_WIDTH);
+                }, 
+                function(){})
             );
         }
     }
