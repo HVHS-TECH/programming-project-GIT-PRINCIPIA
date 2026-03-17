@@ -356,7 +356,9 @@ export class Player {
                     return;
                 }
                 //----------------------------------------//
-                Player.discoverPlanet(p);//Must be called after checking for crash, because otherwise you could crash into a planet and still discover it.
+
+                //Only discover a planet if you can do so
+                if (!Player.exploded) Player.discoverPlanet(p);
 
                 
                 
