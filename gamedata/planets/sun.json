@@ -6,32 +6,28 @@
         "xVel": 0,
         "yVel": 0,
         "mass": 1000000,
-        "radius": 1000, 
-        "atmoRadius": 2500,
+        "radius": 1500, 
+        
         "referenceBodyNames": ["none"]
     },
-    
-    "colour": {
+    "land": {
         "colour": {"r": 250, "g": 200, "b": 150}, 
         "outlineColour": {"r": 220, "g": 220, "b": 220},
         "innerColour": {"r": 255, "g": 230, "b": 200}, 
         "mantleColour": {"r": 255, "g": 235, "b": 210},
         "outerCoreColour": {"r": 255, "g": 240, "b": 220},
         "innerCoreColour": {"r": 255, "g": 250, "b": 230},
-        "atmoColourLow": {"r": 253, "g": 253, "b": 253}, 
-        "atmoColourMid": {"r": 100, "g": 100, "b": 100},
         "mountainColour": {"r": 85, "g": 66, "b": 55},
         "snowColour": {"r": 220, "g": 200, "b": 200},
         "mountainOutlineColour": {"r": 80, "g": 80, "b": 80},
-        "oceanColourShallow": {"r": 0, "g": 0, "b": 0},
-        "oceanColourDeep": {"r": 0, "g": 0, "b": 0}
-    },
-    "features": {
         "mountains": [
             
-        ],
-        "oceans": [
-            
         ]
+    },
+    "atmosphere": {
+        "atmoRadius": 2500,
+        "density": 2,
+        "atmoColourLow": {"r": 253, "g": 253, "b": 253}, 
+        "atmoColourMid": {"r": 100, "g": 100, "b": 100}
     }
 }

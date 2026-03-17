@@ -184,7 +184,7 @@ export class Game {
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
                 var closest_planet = Game.getClosestPlanet(Player.pos, true);
-                vel = vel.sub(Game.PLANETS[closest_planet].vel);
+                vel = vel.sub(Game.PLANETS[closest_planet].data.vel);
                 return vel.len(); 
             }
         ),
@@ -194,7 +194,7 @@ export class Game {
                 //Get the velocity relative to the closest planet
                 var vel = Player.vel;
                 var closest_planet = Game.getClosestPlanet(Player.pos, true);
-                vel = vel.sub(Game.PLANETS[closest_planet].vel);
+                vel = vel.sub(Game.PLANETS[closest_planet].data.vel);
                 return vel.dir();
             }
         ),
@@ -462,7 +462,7 @@ export class Game {
         var closestPlanetDistSquared = 1000000000000;
         for (var p = 0; p < planets.length; p++) {
             
-            const DIST_SQUARED = Vec2.sqrDist(planets[p].pos, pos) - ((subRadius) ? planets[p].radius * planets[p].radius : 0);
+            const DIST_SQUARED = Vec2.sqrDist(planets[p].data.pos, pos) - ((subRadius) ? planets[p].data.radius * planets[p].data.radius : 0);
             if (DIST_SQUARED < closestPlanetDistSquared) {
                 closestPlanet = p;
                 closestPlanetDistSquared = DIST_SQUARED;

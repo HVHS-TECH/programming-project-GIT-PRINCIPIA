@@ -4,12 +4,19 @@
 //Written by Alex Curwen                                                //
 //Planet class                                                          //
 //An object to represent a planet, handling rendering and update logic  //
+//Also contains mountain class,                                         //
+//ocean class,                                                          //
+//planet colours class                                                  //
+//(for cleanliness)                                                     //
 //----------------------------------------------------------------------//
+
+"use strict";
 import {Colour, Vec2, DEG2RAD, normalizeAngle} from "../utility/miscellaneous.mjs";
 import { Renderer } from './renderer.mjs';
 import { Game } from './game.mjs';
 import { Player } from './player.mjs';
 import { Time } from '../utility/time.mjs';
+
 //----------------------------------------------------------------------//
 //Mountain class
 //Simple data structure to store mountain data
@@ -22,6 +29,7 @@ export class Mountain {
 }
 //----------------------------------------------------------------------//
 
+
 //----------------------------------------------------------------------//
 //Ocean class
 //Simple data structure to store ocean data
@@ -31,21 +39,19 @@ export class Ocean {
         this.depth = depth;
     }
 }
-export class Planet {
-    static GROUND_STROKE_WIDTH = 2; //Width of ground outline
-    static MOUNTAIN_STROKE_WIDTH = 3; //Width of mountain outline
-    constructor(name, pos, vel, mass, radius, atmoRadius, referenceBodyNames, colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, atmoColourLow, atmoColourMid, mountainColour, snowColour, mountainOutlineColour, mountains, oceanColourShallow, oceanColourDeep, oceans) {
-        //Base data
-        this.name = name;
-        this.pos = pos;
-        this.vel = vel;
-        this.mass = mass;
-        this.radius = radius;
-        this.atmoRadius = atmoRadius;
-        
-        //Orbit
-        this.referenceBodyNames = referenceBodyNames; //The planets that can apply forces to this
+//----------------------------------------------------------------------//
 
+
+//----------------------------------------------------------------------//
+//Planet land class
+//Land colours
+//Land data
+//Land features
+//Helps to simplify planet contructor and readability
+export class PlanetSurface {
+    constructor(colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, mountainColour, snowColour, mountainOutlineColour, mountains) {
+        
+        
         //Planet colours
         this.colour = colour;
         this.outlineColour = outlineColour;
@@ -54,36 +60,101 @@ export class Planet {
         this.outerCoreColour = outerCoreColour;
         this.innerCoreColour = innerCoreColour;
 
-        //Atmosphere colours
-        this.atmoColourLow = atmoColourLow;
-        this.atmoColourMid = atmoColourMid;
 
         //Mountains
         this.mountainColour = mountainColour;
         this.snowColour = snowColour;
         this.mountainOutlineColour = mountainOutlineColour;
         this.mountains = mountains;
+    }   
+}
+//----------------------------------------------------------------------//
 
+
+//----------------------------------------------------------------------//
+//Planet oceans class
+//Ocean colours
+//Ocean data
+export class PlanetOceans {
+    constructor(oceanColourShallow, oceanColourDeep, oceans) {
         //Oceans
         this.oceanColourShallow = oceanColourShallow;
         this.oceanColourDeep = oceanColourDeep;
         this.oceans = oceans;
+    }
+}
+//----------------------------------------------------------------------//
+
+
+//----------------------------------------------------------------------//
+//Planet data class
+//Radius
+//Mass
+//Position
+//Velocity
+//Name
+//Reference body
+export class PlanetData {
+    constructor(name, pos, vel, radius, mass, referenceBodyNames) {
+        //Base data
+        this.name = name;
+        this.pos = pos;
+        this.vel = vel;
+        this.radius = radius;
+        this.mass = mass;
+        
+        //Orbit
+        this.referenceBodyNames = referenceBodyNames; //The planets that can apply forces to this
+
 
 
         //Discovered
         this.discovered = false;
+    }
+}
+//----------------------------------------------------------------------//
+
+
+//----------------------------------------------------------------------//
+//Planet atmosphere class
+//Atmosphere radius
+//Atmosphere colours
+//Atmosphere density
+export class PlanetAtmosphere {
+    constructor(radius, seaLvlDensity, atmoColourLow, atmoColourMid) {
+        this.radius = radius;
+        this.seaLvlDensity = seaLvlDensity; //Atmosphere density at sea level
+
+        //Atmosphere colours
+        this.atmoColourLow = atmoColourLow;
+        this.atmoColourMid = atmoColourMid;
+    }
+}
+//----------------------------------------------------------------------//
+
+
+//----------------------------------------------------------------------//
+//Planet class
+export class Planet {
+    static GROUND_STROKE_WIDTH = 2; //Width of ground outline
+    static MOUNTAIN_STROKE_WIDTH = 3; //Width of mountain outline
+    constructor(data, land, ocean, atmosphere) {
+        this.data = data;
+        this.land = land;
+        this.ocean = ocean;
+        this.atmosphere = atmosphere;
     }
 
     //----------------------------------------------------------------------//
     //Update(dt)
     //Called every frame with (scaled) delta time dt
     Update(dt, planets) {
-        for (var i = 0; i < this.referenceBodyNames.length; i++) {
-            const NAME = this.referenceBodyNames[i];
+        for (var i = 0; i < this.data.referenceBodyNames.length; i++) {
+            const NAME = this.data.referenceBodyNames[i];
             if (NAME == "none") continue; //don't apply gravity from no planet
             var other = null;
             for(var p = 0; p < planets.length; p++) {
-                if (planets[p].name == NAME) {
+                if (planets[p].data.name == NAME) {
                     other = planets[p];
                     break;
                 }
@@ -93,12 +164,12 @@ export class Planet {
                 console.dir(planets); //Log the list of planets
                 return;
             }
-            const DELTA = other.pos.sub(this.pos);
+            const DELTA = other.data.pos.sub(this.data.pos);
             const DELTA_NORM = DELTA.norm();
             const DIST_SQUARED = DELTA.sqrMag();
 
-            const ACCEL = Game.G * other.mass / (DIST_SQUARED) * dt * 0.5; //0.5 for verlet integration
-            this.vel = this.vel.add(DELTA_NORM.mul(ACCEL));
+            const ACCEL = Game.G * other.data.mass / (DIST_SQUARED) * dt * 0.5; //0.5 for verlet integration
+            this.data.vel = this.data.vel.add(DELTA_NORM.mul(ACCEL));
         }
     }
     //----------------------------------------------------------------------//
@@ -109,7 +180,7 @@ export class Planet {
     //integrate the planet's postiion with (scaled) delta time dt
     Integrate(dt) {
         //Integrate postiion based on velocity and delta time
-        this.pos = this.pos.add(this.vel.mul(dt));
+        this.data.pos = this.data.pos.add(this.data.vel.mul(dt));
     }
     //----------------------------------------------------------------------//
 
@@ -118,14 +189,17 @@ export class Planet {
     //Draw()
     //Draws the planet and its features (atmosphere etc)
     Draw() {
-        
         //Layered from back to front
-        this.DrawAtmosphere();
+
+        if (this.atmosphere != null) this.DrawAtmosphere();
         
-        this.DrawMountains();
-        this.DrawGround();
-        this.DrawGroundOutline();
-        this.DrawOceans();
+        if (this.land != null) {
+            this.DrawMountains();
+            this.DrawGround();
+            this.DrawGroundOutline();
+        }
+
+        if (this.ocean != null) this.DrawOceans();
 
         this.DrawLocatorOutline();
     }
@@ -138,7 +212,7 @@ export class Planet {
     DrawLocatorOutline() {
         Game.renderer.stroke(Colour.rgb(183, 100, 200), 2, false, true);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius * 3, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(this.data.pos, this.data.radius * 3, 0, Math.PI * 2, true, true);
         Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
@@ -149,9 +223,9 @@ export class Planet {
     //DrawGroundOutline()
     //Draws an outline around the planet
     DrawGroundOutline() {
-        Game.renderer.stroke(this.outlineColour, Planet.GROUND_STROKE_WIDTH, true, true);
+        Game.renderer.stroke(this.land.outlineColour, Planet.GROUND_STROKE_WIDTH, true, true);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(this.data.pos, this.data.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
         Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
@@ -162,20 +236,20 @@ export class Planet {
     //Draws the planet surface and interior 
     DrawGround() {
         //Draw planet ground
-        var groundGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
+        var groundGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, 0, this.data.radius, true, true);
 
-        groundGrad.addColorStop(0.2, this.innerCoreColour.txt());
-        groundGrad.addColorStop(0.4, this.outerCoreColour.txt());
-        groundGrad.addColorStop(0.7, this.mantleColour.txt());
-        groundGrad.addColorStop(0.8, this.mantleColour.txt());
-        groundGrad.addColorStop(0.98, this.innerColour.txt());
-        groundGrad.addColorStop(0.99, this.colour.txt());
-        groundGrad.addColorStop(1, this.colour.txt());
+        groundGrad.addColorStop(0.2, this.land.innerCoreColour.txt());
+        groundGrad.addColorStop(0.4, this.land.outerCoreColour.txt());
+        groundGrad.addColorStop(0.7, this.land.mantleColour.txt());
+        groundGrad.addColorStop(0.8, this.land.mantleColour.txt());
+        groundGrad.addColorStop(0.98, this.land.innerColour.txt());
+        groundGrad.addColorStop(0.99, this.land.colour.txt());
+        groundGrad.addColorStop(1, this.land.colour.txt());
 
         Game.renderer.fill(groundGrad);
         
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(this.data.pos, this.data.radius - Planet.GROUND_STROKE_WIDTH / 2, 0, Math.PI * 2, true, true);
         Game.renderer.fillShape();
     }
     //----------------------------------------------------------------------//
@@ -186,16 +260,16 @@ export class Planet {
     //Draws the atmosphere of the planet
     DrawAtmosphere() {
         //Draw planet atmosphere
-        var atmoGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
+        var atmoGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, this.data.radius, this.atmosphere.radius, true, true);
 
         
-        atmoGrad.addColorStop(0, this.atmoColourLow.txt());
-        atmoGrad.addColorStop(0.3, this.atmoColourMid.txt());
+        atmoGrad.addColorStop(0, this.atmosphere.atmoColourLow.txt());
+        atmoGrad.addColorStop(0.3, this.atmosphere.atmoColourMid.txt());
         atmoGrad.addColorStop(0.9, 'transparent');
 
         Game.renderer.fill(atmoGrad);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.pos, this.atmoRadius, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(this.data.pos, this.atmosphere.radius, 0, Math.PI * 2, true, true);
         Game.renderer.fillShape();
     }
     //----------------------------------------------------------------------//
@@ -206,17 +280,17 @@ export class Planet {
     //Draws the mountains on the planet
     DrawMountains() {
         const FUDGE_FACTOR = 5; //Fudge factor to shift the mountain into the ground
-        var mountainGrad = Game.renderer.radGradient(this.pos, this.pos, this.radius, this.atmoRadius, true, true);
-        mountainGrad.addColorStop(0, this.mountainColour.txt());
-        mountainGrad.addColorStop(0.28, this.mountainColour.txt());
-        mountainGrad.addColorStop(0.3, this.snowColour.txt());
-        mountainGrad.addColorStop(1, this.snowColour.txt());
+        var mountainGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, this.data.radius, this.data.radius * 2, true, true);
+        mountainGrad.addColorStop(0, this.land.mountainColour.txt());
+        mountainGrad.addColorStop(0.28, this.land.mountainColour.txt());
+        mountainGrad.addColorStop(0.3, this.land.snowColour.txt());
+        mountainGrad.addColorStop(1, this.land.snowColour.txt());
         Game.renderer.fill(mountainGrad);
-        Game.renderer.stroke(this.mountainOutlineColour, Planet.MOUNTAIN_STROKE_WIDTH, true, true);
-        const CIRCUMFERENCE = 2 * Math.PI * this.radius;
+        Game.renderer.stroke(this.land.mountainOutlineColour, Planet.MOUNTAIN_STROKE_WIDTH, true, true);
+        const CIRCUMFERENCE = 2 * Math.PI * this.data.radius;
         //Loop through all the mountains and draw them
-        for (var m = 0; m < this.mountains.length; m++) {
-            const MOUNTAIN = this.mountains[m];
+        for (var m = 0; m < this.land.mountains.length; m++) {
+            const MOUNTAIN = this.land.mountains[m];
 
             //                ^
             //               / \
@@ -247,22 +321,22 @@ export class Planet {
             const SIDE_ANGLE_HALF = SIDE_ANGLE / 2;
 
             const LEFT = new Vec2(
-                Math.sin(MOUNTAIN.rad - SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR),
-                Math.cos(MOUNTAIN.rad - SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR)
+                Math.sin(MOUNTAIN.rad - SIDE_ANGLE_HALF / 2) * (this.data.radius - FUDGE_FACTOR),
+                Math.cos(MOUNTAIN.rad - SIDE_ANGLE_HALF / 2) * (this.data.radius - FUDGE_FACTOR)
             );
 
             const RIGHT = new Vec2(
-                Math.sin(MOUNTAIN.rad + SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR),
-                Math.cos(MOUNTAIN.rad + SIDE_ANGLE_HALF / 2) * (this.radius - FUDGE_FACTOR)
+                Math.sin(MOUNTAIN.rad + SIDE_ANGLE_HALF / 2) * (this.data.radius - FUDGE_FACTOR),
+                Math.cos(MOUNTAIN.rad + SIDE_ANGLE_HALF / 2) * (this.data.radius - FUDGE_FACTOR)
             );
 
-            const TOP_DIST = MOUNTAIN.height + this.radius;
+            const TOP_DIST = MOUNTAIN.height + this.data.radius;
 
             const TOP = new Vec2(
                 Math.sin(MOUNTAIN.rad) * TOP_DIST, 
                 Math.cos(MOUNTAIN.rad) * TOP_DIST
             );
-            const VERTICES = [TOP.add(this.pos), RIGHT.add(this.pos), LEFT.add(this.pos)];
+            const VERTICES = [TOP.add(this.data.pos), RIGHT.add(this.data.pos), LEFT.add(this.data.pos)];
             Game.renderer.drawPolygon(VERTICES, true, true);
             Game.renderer.fillShape();
             Game.renderer.strokeShape();
@@ -275,21 +349,21 @@ export class Planet {
     //DrawOceans()
     //Draws the oceans of the planet
     DrawOceans() {
-        var oceanGrad = Game.renderer.radGradient(this.pos, this.pos, 0, this.radius, true, true);
-        oceanGrad.addColorStop(0, this.oceanColourDeep.txt());
-        oceanGrad.addColorStop(0.97, this.oceanColourDeep.txt());
-        oceanGrad.addColorStop(0.995, this.oceanColourShallow.txt());
-        oceanGrad.addColorStop(1, this.oceanColourShallow.txt());
+        var oceanGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, 0, this.data.radius, true, true);
+        oceanGrad.addColorStop(0, this.ocean.oceanColourDeep.txt());
+        oceanGrad.addColorStop(0.97, this.ocean.oceanColourDeep.txt());
+        oceanGrad.addColorStop(0.995, this.ocean.oceanColourShallow.txt());
+        oceanGrad.addColorStop(1, this.ocean.oceanColourShallow.txt());
         
         //Loop through all the mountains and draw them
-        for (var o = 0; o < this.oceans.length;o++) {
-            const OCEAN = this.oceans[o];
+        for (var o = 0; o < this.ocean.oceans.length;o++) {
+            const OCEAN = this.ocean.oceans[o];
             const CHUNK_WIDTH = 15;
             const LEFT = (OCEAN.chunk * CHUNK_WIDTH - CHUNK_WIDTH / 2) * DEG2RAD;
             const RIGHT = (OCEAN.chunk * CHUNK_WIDTH + CHUNK_WIDTH / 2) * DEG2RAD;
             Game.renderer.stroke(oceanGrad, OCEAN.depth, true, true);
             Game.renderer.beginPath();
-            Game.renderer.arc(this.pos, this.radius - OCEAN.depth / 2, LEFT, RIGHT, true, true);
+            Game.renderer.arc(this.data.pos, this.data.radius - OCEAN.depth / 2, LEFT, RIGHT, true, true);
             Game.renderer.strokeShape();
         }
     }

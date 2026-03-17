@@ -5,7 +5,8 @@
 //Loader class                                                          //
 //Manages loading planets, images and assets, etc                       //
 //----------------------------------------------------------------------//
-import { Planet, Mountain, Ocean } from "../core/planet.mjs"
+"use strict";
+import { Planet, Mountain, Ocean, PlanetData, PlanetSurface, PlanetOceans, PlanetAtmosphere } from "../core/planet.mjs"
 import { Player } from "../core/player.mjs";
 import { Vec2, Colour } from "../utility/miscellaneous.mjs";
 //Loader class, 
@@ -25,17 +26,26 @@ export class Loader {
         var ret = [];
         //Load all the planets from the planets list 'PLANET_REFERENCES_JSON_LIST'
         for (var i = 0; i < PLANET_REFERENCES_JSON_LIST.length; i++) {
-            const JSON_OBJECT = Loader.GetJSONobject("../gamedata/planets/" + PLANET_REFERENCES_JSON_LIST[i]);
+            const PATH = "../gamedata/planets/" + PLANET_REFERENCES_JSON_LIST[i];
+            const JSON_OBJECT = Loader.GetJSONobject(PATH);
             const PLANET = Loader.JSONobjectToPlanet(JSON_OBJECT);
-            ret.push(PLANET);
+            if (PLANET == null) {
+                //The loader has failed to load the planet
+                //Log an error message
+                console.error("Loader.LoadPlanets() : Failed to load planet from path '" + PATH + "'");
+            } else {
+                //Only add valid planets to the list
+                ret.push(PLANET);
+            }
+            
         }
 
         //Loop through all the planets, and set the player's starting position
         for (var i = 0; i < ret.length; i++) {
-            if (ret[i].name == STARTING_PLANET_NAME) {
-                Player.pos = ret[i].pos.add(new Vec2(0, ret[i].radius));
-                Player.vel = ret[i].vel;
-                ret[i].discovered = true;
+            if (ret[i].data.name == STARTING_PLANET_NAME) {
+                Player.pos = ret[i].data.pos.add(new Vec2(0, ret[i].data.radius));
+                Player.vel = ret[i].data.vel;
+                ret[i].data.discovered = true;
                 console.log("Player starting position set to be on '" + STARTING_PLANET_NAME + "'");
                 break;
             }
@@ -50,46 +60,102 @@ export class Loader {
     //JSONobjectToPlanet(jsonObject)
     //Returns a planet generated from jsonObject
     static JSONobjectToPlanet(jsonObject) {
-        //Mountains array
-        const MOUNTAINS = [];
 
-        //Loop through all JSON mountains, convert to mountain class, add to MOUNTAINS array
-        for (var i = 0; i < jsonObject.features.mountains.length; i++) {
-            const MOUNTAIN = new Mountain(jsonObject.features.mountains[i].rad, jsonObject.features.mountains[i].width, jsonObject.features.mountains[i].height);
-            MOUNTAINS.push(MOUNTAIN);
+        //----------------------------------------//
+        if (jsonObject.data == null) {
+            //Planet does not have the required data to exist
+            //Cancel loading planet
+            //Error message will be generated in LoadPlanets() - which has the file path for debugging
+            return null; 
         }
-
-        //Oceans array
-        const OCEANS = [];
-
-        //Loop through all JSON oceans, convert to ocean class, add to OCEANS array
-        for (var i = 0; i < jsonObject.features.oceans.length; i++) {
-            const OCEAN = new Ocean(jsonObject.features.oceans[i].chunk, jsonObject.features.oceans[i].depth);
-            OCEANS.push(OCEAN);
-        }
-        return new Planet(
-            jsonObject.data.name,  
+        const DATA = new PlanetData(
+            jsonObject.data.name, 
             new Vec2(jsonObject.data.x, jsonObject.data.y),  //Position
             new Vec2(jsonObject.data.xVel, jsonObject.data.yVel), //Velocity
+            jsonObject.data.radius,
             jsonObject.data.mass, 
-            jsonObject.data.radius, 
-            jsonObject.data.atmoRadius, //Atmosphere radius from planet center
-            jsonObject.data.referenceBodyNames, //The bodies that this body orbits
-            Colour.rgb(jsonObject.colour.colour.r, jsonObject.colour.colour.g, jsonObject.colour.colour.b), //Ground colour
-            Colour.rgb(jsonObject.colour.outlineColour.r, jsonObject.colour.outlineColour.g, jsonObject.colour.outlineColour.b), //Outline colour
-            Colour.rgb(jsonObject.colour.innerColour.r, jsonObject.colour.innerColour.g, jsonObject.colour.innerColour.b), //Dirt colour
-            Colour.rgb(jsonObject.colour.mantleColour.r, jsonObject.colour.mantleColour.g, jsonObject.colour.mantleColour.b), //Mantle colour
-            Colour.rgb(jsonObject.colour.outerCoreColour.r, jsonObject.colour.outerCoreColour.g, jsonObject.colour.outerCoreColour.b), //Outer core colour
-            Colour.rgb(jsonObject.colour.innerCoreColour.r, jsonObject.colour.innerCoreColour.g, jsonObject.colour.innerCoreColour.b), //Inner core colour
-            Colour.rgb(jsonObject.colour.atmoColourLow.r, jsonObject.colour.atmoColourLow.g, jsonObject.colour.atmoColourLow.b), //Atmosphere colour low
-            Colour.rgb(jsonObject.colour.atmoColourMid.r, jsonObject.colour.atmoColourMid.g, jsonObject.colour.atmoColourMid.b), //Atmosphere colour mid
-            Colour.rgb(jsonObject.colour.mountainColour.r, jsonObject.colour.mountainColour.g, jsonObject.colour.mountainColour.b), //Mountain colour
-            Colour.rgb(jsonObject.colour.snowColour.r, jsonObject.colour.snowColour.g, jsonObject.colour.snowColour.b), //Snow colour
-            Colour.rgb(jsonObject.colour.mountainOutlineColour.r, jsonObject.colour.mountainOutlineColour.g, jsonObject.colour.mountainOutlineColour.b), //Outline colour of the mountains
-            MOUNTAINS, //Mountains list (list of Mountain classes)
-            Colour.rgb(jsonObject.colour.oceanColourShallow.r, jsonObject.colour.oceanColourShallow.g, jsonObject.colour.oceanColourShallow.b), //Top ocean colour
-            Colour.rgb(jsonObject.colour.oceanColourDeep.r, jsonObject.colour.oceanColourDeep.g, jsonObject.colour.oceanColourDeep.b), //Deep ocean colour
-            OCEANS //Oceans list (list of Ocean classes)
+            jsonObject.data.referenceBodyNames //The planets that can gravitationally affect this planet
+        );
+        //----------------------------------------//
+        
+        
+        //----------------------------------------//
+        var land = null;
+        if (jsonObject.land != null) {
+            //The planet has a surface
+
+            //Mountains array
+            const MOUNTAINS = [];
+
+            //Loop through all JSON mountains, convert to mountain class, add to MOUNTAINS array
+            for (var i = 0; i < jsonObject.land.mountains.length; i++) {
+                const MOUNTAIN = new Mountain(jsonObject.land.mountains[i].rad, jsonObject.land.mountains[i].width, jsonObject.land.mountains[i].height);
+                MOUNTAINS.push(MOUNTAIN);
+            }
+
+            land = new PlanetSurface(
+                Colour.rgb(jsonObject.land.colour.r, jsonObject.land.colour.g, jsonObject.land.colour.b), //Ground colour
+                Colour.rgb(jsonObject.land.outlineColour.r, jsonObject.land.outlineColour.g, jsonObject.land.outlineColour.b), //Outline colour
+                Colour.rgb(jsonObject.land.innerColour.r, jsonObject.land.innerColour.g, jsonObject.land.innerColour.b), //Dirt colour
+                Colour.rgb(jsonObject.land.mantleColour.r, jsonObject.land.mantleColour.g, jsonObject.land.mantleColour.b), //Mantle colour
+                Colour.rgb(jsonObject.land.outerCoreColour.r, jsonObject.land.outerCoreColour.g, jsonObject.land.outerCoreColour.b), //Outer core colour
+                Colour.rgb(jsonObject.land.innerCoreColour.r, jsonObject.land.innerCoreColour.g, jsonObject.land.innerCoreColour.b), //Inner core colour
+                Colour.rgb(jsonObject.land.mountainColour.r, jsonObject.land.mountainColour.g, jsonObject.land.mountainColour.b), //Mountain colour
+                Colour.rgb(jsonObject.land.snowColour.r, jsonObject.land.snowColour.g, jsonObject.land.snowColour.b), //Snow colour
+                Colour.rgb(jsonObject.land.mountainOutlineColour.r, jsonObject.land.mountainOutlineColour.g, jsonObject.land.mountainOutlineColour.b), //Outline colour of the mountains
+                MOUNTAINS, //Mountains list (list of Mountain classes)
+            );
+        } else {
+            console.warn("Planet '" + DATA.name + "' does not have a surface. \n" + 
+                        "This may or may not be intentional.");
+        }
+        
+        //----------------------------------------//
+
+
+        //----------------------------------------//
+        var ocean = null;
+        if (jsonObject.ocean != null) {
+            //The planet has an ocean
+
+            //Oceans array
+            const OCEANS = [];
+
+            
+            //Loop through all JSON oceans, convert to ocean class, add to OCEANS array
+            for (var i = 0; i < jsonObject.ocean.oceans.length; i++) {
+                const OCEAN = new Ocean(jsonObject.ocean.oceans[i].chunk, jsonObject.ocean.oceans[i].depth);
+                OCEANS.push(OCEAN);
+            }
+            
+            ocean = new PlanetOceans(
+                Colour.rgb(jsonObject.ocean.oceanColourShallow.r, jsonObject.ocean.oceanColourShallow.g, jsonObject.ocean.oceanColourShallow.b), //Top ocean colour
+                Colour.rgb(jsonObject.ocean.oceanColourDeep.r, jsonObject.ocean.oceanColourDeep.g, jsonObject.ocean.oceanColourDeep.b), //Deep ocean colour
+                OCEANS //Oceans list (list of Ocean classes)
+            );
+        }
+        
+        //----------------------------------------//
+
+
+        //----------------------------------------//
+        var atmosphere = null;
+        if (jsonObject.atmosphere != null) {
+            //The planet has an atmosphere
+
+            atmosphere = new PlanetAtmosphere(
+                jsonObject.atmosphere.atmoRadius,
+                jsonObject.atmosphere.density, //At sea level
+                Colour.rgb(jsonObject.atmosphere.atmoColourLow.r, jsonObject.atmosphere.atmoColourLow.g, jsonObject.atmosphere.atmoColourLow.b),
+                Colour.rgb(jsonObject.atmosphere.atmoColourMid.r, jsonObject.atmosphere.atmoColourMid.g, jsonObject.atmosphere.atmoColourMid.b)
+            );
+        }
+        
+        //----------------------------------------//
+        
+
+        return new Planet(
+            DATA, land, ocean, atmosphere
         );
     }
 
