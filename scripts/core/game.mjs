@@ -247,6 +247,7 @@ export class Game {
         console.log("Game.Start: initializing");
 
         Game.initializeState();
+        Player.Initialize();
 
         //----------------------------------------//
         //Only try to load planets / particles if the page has a canvas to display them
@@ -273,7 +274,7 @@ export class Game {
         
         console.log("Game.Start: initialized");
         
-        Game.animationFrameID = requestAnimationFrame(Game.Update);
+        Game.animationFrameID = setTimeout(Game.Update, 0);
     }
     //----------------------------------------------------------------------//
 

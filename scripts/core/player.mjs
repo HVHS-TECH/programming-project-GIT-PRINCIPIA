@@ -70,6 +70,23 @@ export class Player {
     static score = 0;
     
     //----------------------------------------------------------------------//
+    //Initialize()
+    //Initialize player state
+    static Initialize() {
+        Player.deathCounter = 0;
+        Player.exploded = false;
+        Player.fuel = 100;
+        Player.score = 0; //Don't reset smoothScore - the score resetting back to 0 looks cool
+        Player.zoom = 8;
+        Player.ang_vel = 0;
+        Player.dir = 0;
+        Player.smoothDir = 0;
+        Player.smoothZoom = 0.00001;
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
     //Update()
     //called every frame
     static Update(dt) {
@@ -328,14 +345,16 @@ export class Player {
             const DELTA_NORM = delta.norm();
 
             //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
-            if (dist < OTHER.radius) {
+            if (Player.isIntersecting(Player.pos, OTHER.pos, OTHER.radius)) {
                 //----------------------------------------//
                 //resolve collision
-                while (dist < OTHER.radius) {
-                    delta = OTHER.pos.sub(Player.pos);
-                    dist = delta.len() - Player.HEIGHT / 2;
+                while (Player.isIntersecting(Player.pos, OTHER.pos, OTHER.radius)) {
+                    
                     Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
                 }
+                //Update variables as they are used later
+                    delta = OTHER.pos.sub(Player.pos);
+                    dist = delta.len();
                 //----------------------------------------//
 
                 
@@ -364,10 +383,36 @@ export class Player {
 
                 
                 
-                //Lock the player outward
                 const DIR_DIFF = normalizeAngle(Player.dir) - normalizeAngle(delta.dir());
-                Player.ang_vel *= 1 - 0.01 ** (1 / dt);
-                Player.ang_vel -= ((DIR_DIFF) * 0.01) * dt;
+                
+                
+                const MIN_VEL_FOR_SHEAR_TILT = 0.05;
+                if (REL_VEL.len() > MIN_VEL_FOR_SHEAR_TILT) {
+                    //Player is sliding sideways, tip over
+
+                    //Parallel to planet surface
+                    const SIDE_AXIS = Vec2.rotatePoint(DELTA_NORM, Math.PI / 2);
+
+                    const VEL_DOT_AXIS = Vec2.dot(REL_VEL, SIDE_AXIS);
+
+                    //The proportion of REL_VEL along SIDE_AXIS
+                    const PROJECTION_ALONG_SIDE_AXIS = SIDE_AXIS.mul(VEL_DOT_AXIS);
+
+
+                    const SHEAR_TORQUE = PROJECTION_ALONG_SIDE_AXIS.len() * Math.sign(VEL_DOT_AXIS) * 1;
+                    Player.ang_vel = SHEAR_TORQUE * dt;
+                }
+
+                const TIP_THRESH = 0.55;
+                if (Math.abs(DIR_DIFF) > TIP_THRESH) {
+                    //Player is unbalanced, tip over
+                    Player.ang_vel += Math.sign(DIR_DIFF) * 0.005;
+                } else {
+                    //Stabilize the player
+                    Player.ang_vel *= 1 - 0.01 ** (1 / dt);
+                    Player.ang_vel -= ((DIR_DIFF) * 0.03) * dt;
+                }
+                
                 break;
             }
             //Update the player's velocity
@@ -388,9 +433,40 @@ export class Player {
         const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, deltaNorm);
         const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), deltaNorm);
         const IMPACT_SEVERITY = 
-        Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * Difficulty.Player.IMPACT_FATALITY_SIDEWAYS_COMPONENT //Punish the player for landing while moving sideways
+        0//Math.max(2 - VEL_NORM_DOT_DELTA_NORM, 0) * Difficulty.Player.IMPACT_FATALITY_SIDEWAYS_COMPONENT //Punish the player for landing while moving sideways
             + Math.max(DIR_DOT_DELTA_NORM, 0) * Difficulty.Player.IMPACT_FATALITY_DIRECTION_COMPONENT; //Punish the player for not landing upright
         return (relVel.len() > (Difficulty.Player.IMPACT_TOLERANCE - IMPACT_SEVERITY));
+    }
+    //----------------------------------------------------------------------//
+
+    //----------------------------------------------------------------------//
+    //isIntersecting(pos, point, radius)
+    //pos: player pos
+    //point: is this point intersecting the player
+    //radius: the distance to point 'point' required for an intersection - could be planet radius or just padding
+    static isIntersecting(pos, point, radius) {
+        const HEIGHT_OFFSET = new Vec2(Math.sin(Player.dir) * Player.HEIGHT, Math.cos(Player.dir) * Player.HEIGHT);
+        const WIDTH_OFFSET = new Vec2(Math.sin(Player.dir + Math.PI / 2) * Player.WIDTH, Math.cos(Player.dir + Math.PI / 2) * Player.WIDTH);
+
+        //The local space positions of the player's vertices
+        const DELTA_FRONT = HEIGHT_OFFSET.mul(new Vec2(0.5, 0.5));
+        const DELTA_RIGHT = HEIGHT_OFFSET.mul(new Vec2(-0.5, -0.5)).add(WIDTH_OFFSET.mul(new Vec2(0.5, 0.5)));
+        const DELTA_LEFT = HEIGHT_OFFSET.mul(new Vec2(-0.5, -0.5)).add(WIDTH_OFFSET.mul(new Vec2(-0.5, -0.5)));
+
+        //The world space positions of the player's vertices
+        const FRONT = DELTA_FRONT.add(pos);
+        const RIGHT = DELTA_RIGHT.add(pos);
+        const LEFT = DELTA_LEFT.add(pos);
+
+        const FRONT_DIST = Vec2.dist(FRONT, point);
+        const RIGHT_DIST = Vec2.dist(RIGHT, point);
+        const LEFT_DIST = Vec2.dist(LEFT, point);
+
+        const FRONT_INTERSECTING = FRONT_DIST < radius;
+        const RIGHT_INTERSECTING = RIGHT_DIST < radius;
+        const LEFT_INTERSECTING = LEFT_DIST < radius;
+
+        return FRONT_INTERSECTING || RIGHT_INTERSECTING || LEFT_INTERSECTING;
     }
     //----------------------------------------------------------------------//
 
@@ -631,8 +707,8 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 10000;
-        const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
+        const DEPTH = 6000;
+        const DT = 1.2; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
         var startSunIdx = 0;
         for (var p = 0; p < Game.PLANETS.length; p++) {
             if (Game.PLANETS[p].name == "sun") {
@@ -731,7 +807,7 @@ export class Player {
                 const DIST_SQUARED = DELTA.sqrMag();
                 const ACCEL = Game.G * fake_planets[p].mass / (DIST_SQUARED) * DT;
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
-                if (DIST_SQUARED < fake_planets[p].radius * fake_planets[p].radius) {
+                if (Player.isIntersecting(pos, fake_planets[p].pos, fake_planets[p].radius)) {
                     
                     //finish drawing the trajectories
                     for (var t = 0; t < planetTrajectories.length; t++) {
