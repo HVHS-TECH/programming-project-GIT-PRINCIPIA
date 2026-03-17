@@ -74,7 +74,7 @@ export class Player {
     //called every frame
     static Update(dt) {
         Player.manageInterpolatedValues(dt);
-        
+
         //----------------------------------------//
         //restart the game if the player presses 'r'
         if (Input.KeyDown("KeyR")) {
@@ -674,6 +674,8 @@ export class Player {
         }
         //----------------------------------------//
 
+        
+
 
         for (var i = 0; i < Game.PLANETS.length; i++) {
             const REAL_PLANET = Game.PLANETS[i];
@@ -690,6 +692,9 @@ export class Player {
 
 
         var drawIterations = 0; //Counts up every time i % <FREQUENCY> == 0
+
+
+        //Integrate through a fake simulation and cache the resulting trajectories to be drawn later
         for (var i = 0; i < DEPTH; i++) {
             //----------------------------------------//
             //verlet integration
@@ -784,7 +789,7 @@ export class Player {
                 const INTERCEPT_CIRCLE_RADIUS = 50;
                 const INTERCEPT_CIRCLE_THICKNESS = 6;
                 Game.renderer.stroke(Colour.rgb(200, 220, 230), INTERCEPT_CIRCLE_THICKNESS, true, true);
-                Game.renderer.beginPath();
+                
                 for (var p = 0; p < fake_planets.length; p++) {
                     if (currInInterceptWithPlanet[p] != prevInInterceptWithPlanet[p]
                         && i > 0 //not first frame e.g don't say that the player pos is the start of an intercept
@@ -795,19 +800,21 @@ export class Player {
                         for (var p2 = 0; p2 < fake_planets.length; p2++) {
                             //Only draw intercept circle relative to planets that the fake player is on an intercept with
                             if (!currInInterceptWithPlanet[p2]) continue;
-                            
+                            Game.renderer.beginPath();
                             Game.renderer.arc(pos.sub(fake_planets[p2].pos).add(Game.PLANETS[p2].pos), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
-                            
+                            Game.renderer.closePath();
+                            Game.renderer.strokeShape();
                         }
 
                         //also draw relative to the original body
+                        Game.renderer.beginPath();
                         Game.renderer.arc(pos.sub(fake_planets[p].pos).add(Game.PLANETS[p].pos), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
-                        
+                        Game.renderer.closePath();
+                        Game.renderer.strokeShape();
                         
                     }
                 }
-                //Stroke intercept circles
-                Game.renderer.strokeShape();
+                
                 //----------------------------------------//
 
 

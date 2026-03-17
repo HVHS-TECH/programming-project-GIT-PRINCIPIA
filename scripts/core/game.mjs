@@ -240,6 +240,7 @@ export class Game {
     //Start()
     //called on page load
     static Start() {
+
         console.log("Game.Start");
 
 
