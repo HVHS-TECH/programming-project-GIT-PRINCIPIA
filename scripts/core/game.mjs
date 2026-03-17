@@ -59,7 +59,7 @@ export class Game {
             function () {
                 const HIGH_SCORE_STATE = State.getState(Game.HIGH_SCORE_ID);
                 var highScoreElem = document.getElementById("high_score");
-                highScoreElem.innerText = "High Score: " + HIGH_SCORE_STATE;
+                highScoreElem.innerText = "High Score: " + Math.round(HIGH_SCORE_STATE);
             }
         ),
 

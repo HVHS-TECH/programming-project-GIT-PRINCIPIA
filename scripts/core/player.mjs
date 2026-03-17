@@ -443,7 +443,7 @@ export class Player {
 
 
         const DENSITY_POWER = 5;
-        const SEA_LEVEL_DENSITY = 0.3;
+        const SEA_LEVEL_DENSITY = 0.2;
         const AIR_DENSITY = SEA_LEVEL_DENSITY * getAirDensity(OTHER.radius, ATMO_RAD, DIST, DENSITY_POWER);
 
         //Player direction expressed as a vector
