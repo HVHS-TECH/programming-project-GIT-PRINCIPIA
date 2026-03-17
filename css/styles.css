@@ -16,7 +16,7 @@ canvas {
 .column {
     display: flex;
     width: 70%;
-    height: 500px;
+    height: fit-content;
     flex-direction: column;
     button {
         min-width: 25vw;
@@ -80,5 +80,10 @@ canvas {
     justify-self: center;
     justify-content: center; 
     align-items: center;
+}
+
+.bottom {
+    display: flex;
+    justify-self: flex-end;
 }
 

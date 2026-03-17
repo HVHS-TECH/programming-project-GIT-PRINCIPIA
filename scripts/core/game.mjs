@@ -57,7 +57,9 @@ export class Game {
 
         new Page(Game.HOME_TITLE, "/html/start.html", false,
             function () {
-
+                const HIGH_SCORE_STATE = State.getState(Game.HIGH_SCORE_ID);
+                var highScoreElem = document.getElementById("high_score");
+                highScoreElem.innerText = "High Score: " + HIGH_SCORE_STATE;
             }
         ),
 
@@ -291,6 +293,7 @@ export class Game {
     //called every frame
     //manages game logic, then renders scene using renderer
     static Update() {
+        if (!Game.renderer.hasCnv) return; //No canvas, nothing to update
         const TIMEWARP_SMOOTHING = 0.2;
         Game.smoothTimeWarp = lerp(Game.smoothTimeWarp, Game.timewarp, TIMEWARP_SMOOTHING);
 
