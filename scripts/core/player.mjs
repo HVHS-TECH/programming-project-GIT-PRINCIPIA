@@ -62,7 +62,7 @@ export class Player {
     
     
     //Reentry
-    static REENTRY_PARTICLE_THRESH = 0.01; //The drag force needed for the player to spawn reentry particles
+    static REENTRY_PARTICLE_THRESH = 0.0008; //The drag force needed for the player to spawn reentry particles
     
     static IMMUNITY_TIME = 1; //<IMMUNITY_TIME> seconds of immunity
 
@@ -514,7 +514,11 @@ export class Player {
             //Reentry is severe enough to spawn particles
             const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
             const OTHER_VEL = Game.PLANETS[CLOSEST_IDX].vel;
-            const STARTING_WIDTH = 4;
+
+            //from 0 - 1, will 'usually' only reach ~0.3 - ~0.7
+            const SEVERITY_NORM = severity / Difficulty.Player.REENTRY_TOLERANCE;
+            //The width gets larger the more severe the reentry is
+            const STARTING_WIDTH = clamp(10 * SEVERITY_NORM, 0, 4);
             const VEL_RANDOMNESS = 0.3;
             const VEL = OTHER_VEL.add(
                 new Vec2(
@@ -523,7 +527,11 @@ export class Player {
                 )
             );
             Game.addParticle(
-                new Particle(Player.pos, Player.dir, VEL, 0, STARTING_WIDTH, Colour.rgba(250, 150, 50, 0.8), Colour.rgba(150,120,0, 0.5), Colour.rgba(100, 20, 0, 0), 40, 
+                new Particle(Player.pos, Player.dir, VEL, 0, STARTING_WIDTH, 
+                    Colour.lerp(Colour.rgba(250, 150, 50, 0.8), Colour.rgba(240, 240, 240, 0.4), clamp(1 - 4 * SEVERITY_NORM, 0, 1)), 
+                    Colour.lerp(Colour.rgba(150,120,0, 0.5), Colour.rgba(134, 134, 134, 0.12), clamp(1 - 4 * SEVERITY_NORM, 0, 1)), 
+                    Colour.lerp(Colour.rgba(100, 20, 0, 0), Colour.rgba(0, 0, 0, 0), clamp(1 - 4 * SEVERITY_NORM, 0, 1)), 
+                    40, 
                 function(){
                     //Make the particle dwindle in size over time
                     this.width *= 0.95 / Time.scaleDeltaTime;
