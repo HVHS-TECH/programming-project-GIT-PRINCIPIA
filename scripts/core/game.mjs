@@ -207,7 +207,7 @@ export class Game {
         new RefVar(
             "HelpText", //The help text displayed above score
             function() { //Get
-                return "Controls: \n" + "Movement: W => move forward, A => rotate left, D => rotate right \n" +"Other: Space => speed up time, Arrow up / down => zoom";
+                return "Controls: \n" + "Movement: W => move forward, A => rotate left, D => rotate right \n" +"Other: Space => speed up time, Arrow up / down => zoom \n" + "R => restart game";
             }
         ),
         new RefVar(
