@@ -8,6 +8,7 @@
         "asteroid_2.json",
         "asteroid_3.json",
         "asteroid_4.json",
+        "asteroid_5.json",
         "sun.json"
     ],
     "starting_body": "earth"
