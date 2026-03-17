@@ -11,7 +11,7 @@ import { Input } from "../interface/input.mjs";
 import { Vec2, Colour } from "../utility/miscellaneous.mjs";
 import { Time } from "../utility/time.mjs";
 import { Particle, spawnExplosion } from "../utility/particle.mjs";
-import { lerp, clamp } from "../utility/miscellaneous.mjs";
+import { lerp, clamp, normalizeAngle } from "../utility/miscellaneous.mjs";
 
 import { State } from "../data/state.mjs";
 import { Difficulty } from "../data/difficulty.mjs";
@@ -317,10 +317,10 @@ export class Player {
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
-    //ApplyGravity()
+    //applyGravity()
     //Applies gravitational attraction from planets to the player
     static applyGravity(dt) {
-        //Apply gravity
+        //Loop through all the planets, calculate the attraction and apply it
         for (var p = 0; p < Game.PLANETS.length; p++) {
             const OTHER = Game.PLANETS[p];
             var delta = OTHER.pos.sub(Player.pos);
@@ -363,8 +363,9 @@ export class Player {
                 
                 
                 //Lock the player outward
-                Player.dir = delta.dir(); 
-                Player.ang_vel = 0;
+                const DIR_DIFF = normalizeAngle(Player.dir) - normalizeAngle(delta.dir());
+                Player.ang_vel *= 1 - 0.01 ** (1 / dt);
+                Player.ang_vel -= ((DIR_DIFF) * 0.01) * dt;
                 break;
             }
             //Update the player's velocity
@@ -553,7 +554,7 @@ export class Player {
         Player.pos = Player.pos.add(Player.vel.mul(dt));
 
         //Integrate rotation based on angular velocity and delta time
-        Player.dir += Player.ang_vel * dt / Game.smoothTimeWarp;
+        Player.dir += Player.ang_vel * Time.scaleDeltaTime / Game.smoothTimeWarp;
 
         //Integrate zoom based on input and delta time
         const ZOOM_SPEED = 0.05 / Game.smoothTimeWarp;
@@ -561,8 +562,8 @@ export class Player {
         Player.zoom = clamp(Player.zoom, 0.015, 50); //Restrict player zoom
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
         
-        Player.ang_vel += rotate / (Player.ang_vel + 1) * dt;
-        Player.ang_vel *= 0.95 ** dt;
+        Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
+        Player.ang_vel *= 1 - 0.05 ** (1 / Time.scaleDeltaTime);
 
 
     }

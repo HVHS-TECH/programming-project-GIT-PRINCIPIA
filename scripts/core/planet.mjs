@@ -5,7 +5,7 @@
 //Planet class                                                          //
 //An object to represent a planet, handling rendering and update logic  //
 //----------------------------------------------------------------------//
-import {Colour, Vec2, DEG2RAD} from "../utility/miscellaneous.mjs";
+import {Colour, Vec2, DEG2RAD, normalizeAngle} from "../utility/miscellaneous.mjs";
 import { Renderer } from './renderer.mjs';
 import { Game } from './game.mjs';
 import { Player } from './player.mjs';
