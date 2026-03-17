@@ -350,7 +350,9 @@ export class Player {
                 
 
                 //only explode if the player hasn't already exploded
-                if (Player.isImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded) {
+                //don't explode if not moving
+                const MIN_VEL = 0.05;
+                if (Player.isImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded && REL_VEL.len() > MIN_VEL) {
                     State.setState(Game.DEATH_STATE_ID, "crashed");
                     Player.explode();
                     return;
@@ -563,7 +565,8 @@ export class Player {
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
         
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
-        Player.ang_vel *= 1 - 0.05 ** (1 / Time.scaleDeltaTime);
+        const ANGULAR_FRICTION = 0.1;
+        Player.ang_vel *= Math.exp(-1 * ANGULAR_FRICTION * Time.scaleDeltaTime);
 
 
     }
@@ -829,12 +832,6 @@ export class Player {
                 //----------------------------------------//
 
 
-                //----------------------------------------//
-                //update prevInInterceptWithPlanet
-                for (var p = 0; p < currInInterceptWithPlanet.length; p++) {
-                    prevInInterceptWithPlanet[p] = currInInterceptWithPlanet[p];
-                }
-                //----------------------------------------//
 
                 //----------------------------------------//
                 //draw a line from the previous position to this iteration's position relative to the sun
@@ -882,8 +879,10 @@ export class Player {
                 lastPosDraw = posDraw;
 
                 //Update planet last positions
+                //Update previous intercept states
                 for (var p = 0; p < fake_planets.length; p++) {
                     prevPlanetPositions[p] = fake_planets[p].pos;
+                    prevInInterceptWithPlanet[p] = currInInterceptWithPlanet[p];
                 }
             }
             //----------------------------------------//

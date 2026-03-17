@@ -283,7 +283,7 @@ export class Game {
     static Restart() {
         //Currently, the last Game.Update() callback is waiting to be called. 
         //If we do not cancel it, we will have two game loops running
-        cancelAnimationFrame(Game.animationFrameID);
+        clearTimeout(Game.animationFrameID);
         Game.Start();
     }
     //----------------------------------------------------------------------//
@@ -347,7 +347,7 @@ export class Game {
         }
         Game.renderer.Render();
 
-        Game.animationFrameID = requestAnimationFrame(Game.Update);
+        Game.animationFrameID = setTimeout(Game.Update, 0);
     }
     //----------------------------------------------------------------------//
     
