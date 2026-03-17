@@ -406,11 +406,14 @@ export class Player {
                 const TIP_THRESH = 0.55;
                 if (Math.abs(DIR_DIFF) > TIP_THRESH) {
                     //Player is unbalanced, tip over
-                    Player.ang_vel += Math.sign(DIR_DIFF) * 0.005;
+                    const GRAVITY = 0.1;
+                    Player.ang_vel += Math.sign(DIR_DIFF) * GRAVITY * dt;
                 } else {
                     //Stabilize the player
-                    Player.ang_vel *= 1 - 0.01 ** (1 / dt);
-                    Player.ang_vel -= ((DIR_DIFF) * 0.03) * dt;
+                    const GRAVITY = 0.01; //How quickly the player stabilizes
+                    const LOSS = 0.005; //e.g damping, losses in collision / bounce
+                    Player.ang_vel *= 1 - LOSS ** (1 / dt);
+                    Player.ang_vel -= ((DIR_DIFF) * GRAVITY) * dt;
                 }
                 
                 break;
