@@ -343,6 +343,7 @@ export class Player {
             var delta = OTHER.pos.sub(Player.pos);
             var dist = delta.len() - Player.HEIGHT / 2;
             const DELTA_NORM = delta.norm();
+            const GRAVITY = Game.G * OTHER.mass / (dist * dist) * dt;
 
             //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
             if (Player.isIntersecting(Player.pos, OTHER.pos, OTHER.radius)) {
@@ -404,23 +405,25 @@ export class Player {
                 }
 
                 const TIP_THRESH = 0.55;
+                
                 if (Math.abs(DIR_DIFF) > TIP_THRESH) {
                     //Player is unbalanced, tip over
-                    const GRAVITY = 0.1;
-                    Player.ang_vel += Math.sign(DIR_DIFF) * GRAVITY * dt;
+                    //The force will increase due to leverage
+                    //Power of 3 is just an arbritrary value that looks good
+                    Player.ang_vel += ((DIR_DIFF * 2) ** 3) * GRAVITY * dt * 4;
                 } else {
                     //Stabilize the player
-                    const GRAVITY = 0.01; //How quickly the player stabilizes
                     const LOSS = 0.005; //e.g damping, losses in collision / bounce
                     Player.ang_vel *= 1 - LOSS ** (1 / dt);
-                    Player.ang_vel -= ((DIR_DIFF) * GRAVITY) * dt;
+                    Player.ang_vel -= ((DIR_DIFF) * GRAVITY) * dt * 4;
                 }
                 
                 break;
             }
             //Update the player's velocity
-            const FORCE = Game.G * OTHER.mass / (dist * dist) * dt;
-            Player.vel = Player.vel.add(DELTA_NORM.mul(FORCE));
+            //Gravity is defined above the if statement so as to be visible to both this line
+            //and the tipping / stabilizing logic above.
+            Player.vel = Player.vel.add(DELTA_NORM.mul(GRAVITY));
         }
     }
     //----------------------------------------------------------------------//
