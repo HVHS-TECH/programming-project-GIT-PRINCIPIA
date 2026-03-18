@@ -355,7 +355,7 @@ export class Player {
                             this.endColour.a = 0;
                             
                             this.dir = DELTA.dir(); //Lock the player outward
-                            this.ang_vel = 2;
+                            this.angVel = (Math.random() * 2 - 1) * 0.1;
                             this.frame = 0;
                             this.lifetime *= 2;
                             this.update = function(dt){
