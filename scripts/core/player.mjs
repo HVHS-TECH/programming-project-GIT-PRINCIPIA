@@ -345,7 +345,8 @@ export class Player {
 
                             var colour = Colour.rgb(164, 164, 164);
                             var landColour = Colour.rgb(0,0,0);
-                            if (OTHER.land != null) landColour = Colour.rgba(OTHER.land.innerColour.r, OTHER.land.innerColour.g, OTHER.land.innerColour.b, 0);
+                            //Use mantle colour for consistensy (e.g avoid earth's grass 'land.colour', or mars's dark 'land.innerColour')
+                            if (OTHER.land != null) landColour = Colour.rgba(OTHER.land.mantleColour.r, OTHER.land.mantleColour.g, OTHER.land.mantleColour.b, 0);
                             this.startColour = Colour.lerp(colour, landColour, 0);
                             this.startColour.a = 0.8;
                             this.midColour = Colour.lerp(colour, landColour, 0.3);
