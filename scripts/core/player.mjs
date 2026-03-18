@@ -222,7 +222,7 @@ export class Player {
     //dir: boolean value, true => right, false => left
     //RCS stands for reaction control system - it is the 'propulsion' system used to rotate many rockets in space
     //I'm using it here because it looks cool
-    static spawnRCSparticles(dir) {
+    static spawnRCSparticles(dir, strength) {
         const FRONT_DIR = new Vec2(Math.sin(Player.dir), Math.cos(Player.dir));
         const RIGHT_DIR = new Vec2(Math.sin(Player.dir + Math.PI / 2), Math.cos(Player.dir + Math.PI / 2));
 
@@ -245,9 +245,9 @@ export class Player {
         const NUM_PARTICLES = 20 * Time.scaleDeltaTime; //How many particles to spawn
         for (var i = 0; i < NUM_PARTICLES; i++) {
             const PARTICLE_VEL_DIR = Player.dir + ((dir) ? -Math.PI / 2 : Math.PI / 2);
-            const VEL_RANDOMNESS = (Math.random() * 2 - 1) * 0.2;
-            const PARTICLE_SPEED = 1 + VEL_RANDOMNESS;
-            const DIR_RANDOMNESS = ((Math.random() * 2 - 1) * 0.2);
+            const VEL_RANDOMNESS = (Math.random() * 2 - 1) * 0.2 / strength;
+            const PARTICLE_SPEED = 1 * strength + VEL_RANDOMNESS;
+            const DIR_RANDOMNESS = ((Math.random() * 2 - 1) * 0.2) / strength;
             const PARTICLE_VEL = new Vec2(Math.sin(PARTICLE_VEL_DIR + DIR_RANDOMNESS) * PARTICLE_SPEED, Math.cos(PARTICLE_VEL_DIR + DIR_RANDOMNESS) * PARTICLE_SPEED);
 
             Game.addParticle(
@@ -257,8 +257,8 @@ export class Player {
                     PARTICLE_VEL.add(Player.vel),
                     0,
                     0.35,
-                    Colour.rgba(200, 200, 200, 1),
-                    Colour.rgba(200, 200, 200, 0.1),
+                    Colour.rgba(200, 200, 200, 1 * strength),
+                    Colour.rgba(200, 200, 200, 0.1 * strength),
                     Colour.rgba(200, 200, 200, 0),
                     3, 
                     function(){
@@ -725,11 +725,16 @@ export class Player {
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
 
         //Spawn rotation thruster particles 
-        if (rotate != 0) Player.spawnRCSparticles(rotate > 0);
+        if (rotate != 0) Player.spawnRCSparticles(rotate > 0, 1);
         
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
         const ANGULAR_FRICTION = 0.1;
-        Player.ang_vel *= Math.exp(-1 * ANGULAR_FRICTION * Time.scaleDeltaTime);
+        const SLOWDOWN = Math.exp(-1 * ANGULAR_FRICTION * Time.scaleDeltaTime);
+        const MIN_ANG_VEL = 0.01;
+        if (rotate == 0 && Math.abs(this.ang_vel) > MIN_ANG_VEL) {
+            Player.spawnRCSparticles(this.ang_vel < 0, 0.5);
+        }
+        Player.ang_vel *= SLOWDOWN;
 
 
     }
