@@ -3,14 +3,17 @@
 
 <br>
 
-## ABOUT:
-Astro Explorer is a game developed for year 12 Computer Science at HVHS by Alex Curwen.  
+## ABOUT:  
 *You are piloting the spaceship* Isosceles *on a mission to discover[^1] as many planets as possible.*  
 *You are, however, restriced; you must avoid:*  
 * Running out of fuel
 * Impacting a planet too fast
 * Tipping over when landing on a planet
 * Overheating when entering a planet's atmosphere
+
+### Aim of the game: 
+Score *is collected by discovering[^1] a planet - the amount of* score *gained **increases** as the planet's radius **decreases.***  
+**You must try to get the highest score while avoiding the hazards listed above.**
 
 
 
