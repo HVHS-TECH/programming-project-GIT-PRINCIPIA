@@ -102,13 +102,18 @@ export class Player {
 
         //Cancel all further functions if player is dying / dead
         if (Player.deathCounter > 0) {
+            if (Player.fuel > 0 && !Player.exploded) {
+                Player.deathCounter = 0;
+            } else {
+                Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
+            }
             if (Player.deathCounter > Player.DEATH_COUNTER_THRESH) {
                 Game.setPage(Game.END_TITLE); //Go to 'end.html'
                 
             }
             //Don't use dt for death counter, instead use the raw time.scaleDeltaTime
             //dt scales with timewarp - but dying faster when timewarping reduces the player's awareness of dying
-            Player.deathCounter += Time.scaleDeltaTime / Game.smoothTimeWarp;
+            
             Player.applyGravity(dt);
             Player.pos = Player.pos.add(Player.vel.mul(dt));
             return;
@@ -727,9 +732,9 @@ export class Player {
         //Spawn rotation thruster particles 
         if (rotate != 0) Player.spawnRCSparticles(rotate > 0, 1);
         
-        Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
+        Player.ang_vel += rotate * Time.scaleDeltaTime;
         const ANGULAR_FRICTION = 0.1;
-        const SLOWDOWN = Math.exp(-1 * ANGULAR_FRICTION * Time.scaleDeltaTime);
+        const SLOWDOWN = Math.exp(-1 * ANGULAR_FRICTION / (Math.abs(rotate) * 100 + 1) * Time.scaleDeltaTime);
         const MIN_ANG_VEL = 0.01;
         if (rotate == 0 && Math.abs(this.ang_vel) > MIN_ANG_VEL) {
             Player.spawnRCSparticles(this.ang_vel < 0, 0.5);

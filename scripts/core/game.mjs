@@ -29,6 +29,7 @@ import { Time } from "../utility/time.mjs";
 import { State } from "../data/state.mjs";
 
 import { Difficulty } from "../data/difficulty.mjs";
+import { Button } from "../interface/ui/button.mjs";
 export class Game {
 
     static INDEX_TITLE = "Astro Explorer - Index";
@@ -143,7 +144,8 @@ export class Game {
                     //Container for score text
                     new Container(new Vec2(-200, -35), 'bottom', 450, 70, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
                         [   //Score text is rendered in a container located below the dropdown
-                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 60, "monospace", "center", "middle", "PlayerScore")]
+                            new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 60, "monospace", "center", "middle", "PlayerScore")
+                        ]
                         ),
                     
                     //Prompt text telling the user that the help information above exists
