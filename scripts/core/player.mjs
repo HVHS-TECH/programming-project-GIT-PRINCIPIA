@@ -600,15 +600,18 @@ export class Player {
     static spawnReentryParticles(severity) {
         const INTERVAL = 1; //0 for not at all, 1 for all the time
         if (severity > Player.REENTRY_PARTICLE_THRESH && Time.seconds % 1 < INTERVAL) {
+            //from 0 - 1, will 'usually' only reach ~0.3 - ~0.7
+            const SEVERITY_NORM = severity / Difficulty.Player.REENTRY_TOLERANCE;
+            
+            const SEVERITY_BLEND = clamp(1 - 4 * SEVERITY_NORM, 0, 1); //0 when high severity, 1 when low severity
             //Reentry is severe enough to spawn particles
             const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
             const OTHER_VEL = Game.PLANETS[CLOSEST_IDX].data.vel;
 
-            //from 0 - 1, will 'usually' only reach ~0.3 - ~0.7
-            const SEVERITY_NORM = severity / Difficulty.Player.REENTRY_TOLERANCE;
+            
             //The width gets larger the more severe the reentry is
             const STARTING_WIDTH = clamp(10 * SEVERITY_NORM, 0, 4);
-            const VEL_RANDOMNESS = 0.3;
+            const VEL_RANDOMNESS = 0.3 * (1 - SEVERITY_BLEND);
             const VEL = OTHER_VEL.add(
                 new Vec2(
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS, 
@@ -618,7 +621,7 @@ export class Player {
             const OTHER_COLOUR = Game.PLANETS[CLOSEST_IDX].atmosphere.atmoColourLow;
             const BLACK = Colour.rgba(0, 0, 0, 0);
             const OTHER_COLOUR_DARKENED = Colour.lerp(OTHER_COLOUR, BLACK, 0.66);
-            const SEVERITY_BLEND = clamp(1 - 4 * SEVERITY_NORM, 0, 1); //0 when high severity, 1 when low severity
+            
             
             Game.addParticle(
                 new Particle(Player.pos, Player.dir, VEL, 0, STARTING_WIDTH, 
