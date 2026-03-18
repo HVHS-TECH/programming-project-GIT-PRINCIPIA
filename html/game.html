@@ -5,9 +5,12 @@
         <link rel="stylesheet" href="../css/styles.css">
         <link rel="icon" type="image/png" href="../gamedata/images/favicon.png">
     </head>
-    <body>
+    <body contenteditable virtualkeyboardpolicy="manual">
         <canvas id="canvas"></canvas>
 
+        <script>
+            navigator.virtualKeyboard.show();
+        </script>
         <script type="module" src='../scripts/core/main.mjs'></script>
     </body>
 </html>
