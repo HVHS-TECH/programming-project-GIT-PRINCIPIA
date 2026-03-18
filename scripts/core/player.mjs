@@ -218,6 +218,62 @@ export class Player {
     //----------------------------------------------------------------------//
 
     //----------------------------------------------------------------------//
+    //spawnRCSparticles(dir)
+    //dir: boolean value, true => right, false => left
+    //RCS stands for reaction control system - it is the 'propulsion' system used to rotate many rockets in space
+    //I'm using it here because it looks cool
+    static spawnRCSparticles(dir) {
+        const FRONT_DIR = new Vec2(Math.sin(Player.dir), Math.cos(Player.dir));
+        const RIGHT_DIR = new Vec2(Math.sin(Player.dir + Math.PI / 2), Math.cos(Player.dir + Math.PI / 2));
+
+        //What fraction of height up the player's length is the port (thruster)?
+        const PORT_HEIGHT_FRAC = 0.9;
+
+        //Position of the thruster port
+        const PORT_POS = Player.pos.add(
+            FRONT_DIR.mul(Player.HEIGHT / 2 * PORT_HEIGHT_FRAC).add(
+                //Left or right
+                (dir) ? 
+                //Left (rotating right)
+                    RIGHT_DIR.mul(-1 * (1 - PORT_HEIGHT_FRAC) * Player.WIDTH / 2)
+                :
+                //Right (rotating left)
+                    RIGHT_DIR.mul((1 - PORT_HEIGHT_FRAC) * Player.WIDTH / 2)
+
+            )
+        );
+        const NUM_PARTICLES = 20 * Time.scaleDeltaTime; //How many particles to spawn
+        for (var i = 0; i < NUM_PARTICLES; i++) {
+            const PARTICLE_VEL_DIR = Player.dir + ((dir) ? -Math.PI / 2 : Math.PI / 2);
+            const VEL_RANDOMNESS = (Math.random() * 2 - 1) * 0.2;
+            const PARTICLE_SPEED = 1 + VEL_RANDOMNESS;
+            const DIR_RANDOMNESS = ((Math.random() * 2 - 1) * 0.2);
+            const PARTICLE_VEL = new Vec2(Math.sin(PARTICLE_VEL_DIR + DIR_RANDOMNESS) * PARTICLE_SPEED, Math.cos(PARTICLE_VEL_DIR + DIR_RANDOMNESS) * PARTICLE_SPEED);
+
+            Game.addParticle(
+                new Particle(
+                    PORT_POS,
+                    Player.dir,
+                    PARTICLE_VEL.add(Player.vel),
+                    0,
+                    0.35,
+                    Colour.rgba(200, 200, 200, 1),
+                    Colour.rgba(200, 200, 200, 0.1),
+                    Colour.rgba(200, 200, 200, 0),
+                    3, 
+                    function(){
+                        this.width *= 1 - 0.2 * Time.scaleDeltaTime;
+                    },
+                    function(){}
+                )
+            );
+        }
+        
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
     //spawnThrusterParticles()
     static spawnThrusterParticles() {
         //----------------------------------------//
@@ -666,6 +722,9 @@ export class Player {
         Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * dt + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * dt + 1));
         Player.zoom = clamp(Player.zoom, 0.015, 50); //Restrict player zoom
         var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
+
+        //Spawn rotation thruster particles 
+        if (rotate != 0) Player.spawnRCSparticles(rotate > 0);
         
         Player.ang_vel += rotate / (Player.ang_vel + 1) * Time.scaleDeltaTime;
         const ANGULAR_FRICTION = 0.1;
@@ -734,7 +793,11 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 5000;
+
+        //Depth decreases as the player zooms in.
+        const MAX_DEPTH = 5000;
+        const DEPTH = MAX_DEPTH / clamp(Player.smoothZoom * 5, 1, 10);
+        
         const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
         
         const INTERCEPT_CIRCLE_RADIUS = 50;
