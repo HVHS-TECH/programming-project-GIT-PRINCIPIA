@@ -30,7 +30,12 @@ export class Time {
         
         Time.last = NOW;
         Time.fps = 1 / Time.deltaTime;
-        console.log(Time.fps);
+
+        const FPS_LOG_INTERVAL = 10;
+        if (Time.frame % FPS_LOG_INTERVAL == 0) {
+            console.log("FPS: " + Time.fps);
+        }
+        
         //----------------------------------------//
 
         Time.frame++;

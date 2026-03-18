@@ -183,7 +183,7 @@ export class Navball extends UIelement {
         //----------------------------------------//
 
         const SPEED_MUL = 0.15;
-        this.frame += this.vel * SPEED_MUL;
+        this.frame += this.vel * SPEED_MUL * Time.scaleDeltaTime;
     }
     //----------------------------------------------------------------------//
 

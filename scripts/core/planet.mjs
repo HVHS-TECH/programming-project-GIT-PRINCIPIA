@@ -138,6 +138,7 @@ export class PlanetAtmosphere {
 export class Planet {
     static GROUND_STROKE_WIDTH = 2; //Width of ground outline
     static MOUNTAIN_STROKE_WIDTH = 3; //Width of mountain outline
+    static LOCATOR_RADIUS_RAD_MUL = 3; //Locator radius = <LOCATOR_RADIUS_RAD_MUL> * this.data.radius
     constructor(data, land, ocean, atmosphere) {
         this.data = data;
         this.land = land;
@@ -212,7 +213,7 @@ export class Planet {
     DrawLocatorOutline() {
         Game.renderer.stroke(Colour.rgb(183, 100, 200), 2, false, true);
         Game.renderer.beginPath();
-        Game.renderer.arc(this.data.pos, this.data.radius * 3, 0, Math.PI * 2, true, true);
+        Game.renderer.arc(this.data.pos, this.data.radius * Planet.LOCATOR_RADIUS_RAD_MUL, 0, Math.PI * 2, true, true);
         Game.renderer.strokeShape();
     }
     //----------------------------------------------------------------------//
@@ -280,7 +281,7 @@ export class Planet {
     //Draws the mountains on the planet
     DrawMountains() {
         const FUDGE_FACTOR = 5; //Fudge factor to shift the mountain into the ground
-        var mountainGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, this.data.radius, this.data.radius * 2, true, true);
+        var mountainGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, this.data.radius, this.data.radius * 1.4, true, true);
         mountainGrad.addColorStop(0, this.land.mountainColour.txt());
         mountainGrad.addColorStop(0.28, this.land.mountainColour.txt());
         mountainGrad.addColorStop(0.3, this.land.snowColour.txt());

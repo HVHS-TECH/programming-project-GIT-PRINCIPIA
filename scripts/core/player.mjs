@@ -287,9 +287,15 @@ export class Player {
                             const ROTATED_VEL = ROTATABLE_VEL.rotate((Math.random() > 0.5) ? 0 : Math.PI); 
                             this.vel = DIF.add(ROTATED_VEL.mul(2)); //Make the particle spread outward while still moving with the planet's orbital velocity
 
-                            this.startColour = Colour.rgba(100, 100, 110, 1);
-                            this.midColour = Colour.rgba(150,150,170, 0.3);
-                            this.endColour = Colour.rgba(210, 210, 255, 0);
+                            var colour = Colour.rgb(164, 164, 164);
+                            var landColour = Colour.rgb(0,0,0);
+                            if (OTHER.land != null) landColour = Colour.rgba(OTHER.land.innerColour.r, OTHER.land.innerColour.g, OTHER.land.innerColour.b, 0);
+                            this.startColour = Colour.lerp(colour, landColour, 0);
+                            this.startColour.a = 0.8;
+                            this.midColour = Colour.lerp(colour, landColour, 0.3);
+                            this.midColour.a = 0.3;
+                            this.endColour = Colour.lerp(colour, landColour, 0.7);
+                            this.endColour.a = 0;
                             
                             this.dir = DELTA.dir(); //Lock the player outward
                             this.ang_vel = 2;
@@ -465,14 +471,18 @@ export class Player {
         const LEFT = DELTA_LEFT.add(pos);
 
         const FRONT_DIST = Vec2.dist(FRONT, point);
-        const RIGHT_DIST = Vec2.dist(RIGHT, point);
-        const LEFT_DIST = Vec2.dist(LEFT, point);
-
         const FRONT_INTERSECTING = FRONT_DIST < radius;
-        const RIGHT_INTERSECTING = RIGHT_DIST < radius;
-        const LEFT_INTERSECTING = LEFT_DIST < radius;
+        if (FRONT_INTERSECTING) return true;
 
-        return FRONT_INTERSECTING || RIGHT_INTERSECTING || LEFT_INTERSECTING;
+        const RIGHT_DIST = Vec2.dist(RIGHT, point);
+        const RIGHT_INTERSECTING = RIGHT_DIST < radius;
+        if (RIGHT_INTERSECTING) return true;
+
+        const LEFT_DIST = Vec2.dist(LEFT, point);
+        const LEFT_INTERSECTING = LEFT_DIST < radius;
+        if (LEFT_INTERSECTING) return true;
+
+        return false; //No intersection
     }
     //----------------------------------------------------------------------//
 
@@ -724,8 +734,12 @@ export class Player {
     //drawTrajectory()
     //draws the trajectory of the player
     static drawTrajectory() {
-        const DEPTH = 6000;
-        const DT = 1.2; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
+        const DEPTH = 5000;
+        const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
+        
+        const INTERCEPT_CIRCLE_RADIUS = 50;
+        const INTERCEPT_CIRCLE_THICKNESS = 6;
+        
         var startSunIdx = 0;
         for (var p = 0; p < Game.PLANETS.length; p++) {
             if (Game.PLANETS[p].data.name == "sun") {
@@ -733,8 +747,14 @@ export class Player {
                 break;
             }
         }
-        const START_SUN_POS = Game.PLANETS[startSunIdx].data.pos;
+        const START_PLANET_POSITIONS = Game.PLANETS.map(p => p.data.pos);
+        var dynamicPlanetPositions = Game.PLANETS.map(p => p.data.pos);
+        var dynamicPlanetVelocities = Game.PLANETS.map(p => p.data.vel);
+        const PLANET_MASSES = Int32Array.from(Game.PLANETS.map(p => p.data.mass));
+        const PLANET_RADII = Int32Array.from(Game.PLANETS.map(p => p.data.radius));
 
+        const PLAYER_POS = Player.pos;
+        const PLAYER_VEL = Player.vel;
         //----------------------------------------//
         //Simulation state variables
         var pos = Player.pos;
@@ -783,7 +803,7 @@ export class Player {
 
         
 
-
+        
         for (var i = 0; i < Game.PLANETS.length; i++) {
             const REAL_PLANET = Game.PLANETS[i];
             var data = new PlanetData(REAL_PLANET.data.name, REAL_PLANET.data.pos, REAL_PLANET.data.vel, REAL_PLANET.data.radius, REAL_PLANET.data.mass, REAL_PLANET.data.referenceBodyNames);
@@ -834,7 +854,7 @@ export class Player {
                 fake_planets[p].Update(DT, fake_planets);
             }
             for (var p = 0; p < fake_planets.length; p++) {
-                fake_planets[p].Integrate(DT, fake_planets);
+                fake_planets[p].Integrate(DT);
             }
             for (var p = 0; p < fake_planets.length; p++) {
                 fake_planets[p].Update(DT, fake_planets);
@@ -842,14 +862,22 @@ export class Player {
             //----------------------------------------//
 
             //----------------------------------------//
+            //cache fake planet positions and velocities for performance (wow it makes a difference)
+            for (var p = 0; p < fake_planets.length; p++) {
+                dynamicPlanetPositions[p] = fake_planets[p].data.pos;
+                dynamicPlanetVelocities[p] = fake_planets[p].data.vel;
+            }
+            //----------------------------------------//
+
+            //----------------------------------------//
             //apply gravity to fake player
             for (var p = 0; p < fake_planets.length; p++) {
-                const DELTA = fake_planets[p].data.pos.sub(pos);
+                const DELTA = dynamicPlanetPositions[p].sub(pos);
                 const DELTA_NORM = DELTA.norm();
                 const DIST_SQUARED = DELTA.sqrMag();
-                const ACCEL = Game.G * fake_planets[p].data.mass / (DIST_SQUARED) * DT;
+                const ACCEL = Game.G * PLANET_MASSES[p] / (DIST_SQUARED) * DT;
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
-                if (Player.isIntersecting(pos, fake_planets[p].data.pos, fake_planets[p].data.radius)) {
+                if (DIST_SQUARED < PLANET_RADII[p] ** 2) {
                     
                     //finish drawing the trajectories
                     for (var t = 0; t < planetTrajectories.length; t++) {
@@ -857,14 +885,14 @@ export class Player {
                     } 
 
                     const MIN_DIST_FOR_IMPACT_MARKER = 50;
-                    if (Vec2.dist(Player.pos, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
+                    if (Vec2.dist(PLAYER_POS, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
 
 
                     //Draw a huge outline around the impact circle (for when the player is zoomed out
-                    const PLANET_POS = fake_planets[p].data.pos;
-                    const REL_VEL = vel.sub(fake_planets[p].data.vel);
+                    const PLANET_POS = dynamicPlanetPositions[p];
+                    const REL_VEL = vel.sub(dynamicPlanetVelocities[p]);
                     
-                    const POS = pos.sub(PLANET_POS).add(Game.PLANETS[p].data.pos);
+                    const POS = pos.sub(PLANET_POS).add(START_PLANET_POSITIONS[p]);
                     drawImpactCircle(POS, Player.isImpactFatal(REL_VEL, DELTA_NORM))
 
                         
@@ -881,29 +909,29 @@ export class Player {
             const FREQUENCY = 1;
             if (i % FREQUENCY == 0) {
                 drawIterations ++;
-                const FAKE_CLOSEST_PLANET_POS = fake_planets[startSunIdx].data.pos;
+                const FAKE_CLOSEST_PLANET_POS = dynamicPlanetPositions[startSunIdx];
                 posDraw = pos.sub(FAKE_CLOSEST_PLANET_POS);
                 //----------------------------------------//
                 //Draw intercept lines
                 var didDrawIntercept = false;
                 for (var p = 0; p < fake_planets.length; p++) {
-                    const PLANET_POS = fake_planets[p].data.pos;
+                    const PLANET_POS = dynamicPlanetPositions[p];
                     const LAST_ITERATION_PLANET_POS = prevPlanetPositions[p];
                     const DELTA = PLANET_POS.sub(pos);
                     const DIST = DELTA.len();
-                    const THRESH_MUL_RAD = 3;
+                    const THRESH_MUL_RAD = Planet.LOCATOR_RADIUS_RAD_MUL;
 
 
-                    if (DIST < fake_planets[p].data.radius * THRESH_MUL_RAD
+                    if (DIST < PLANET_RADII[p] * THRESH_MUL_RAD
                         && p != startSunIdx) 
                     {
                         didDrawIntercept = true;
                         //Draw an intercept line
                         planetTrajectories[p].addSegment(
                             new LineSegment(
-                                pos.sub(PLANET_POS).add(Game.PLANETS[p].data.pos),
+                                pos.sub(PLANET_POS).add(START_PLANET_POSITIONS[p]),
 
-                                lastPos.sub(LAST_ITERATION_PLANET_POS).add(Game.PLANETS[p].data.pos)
+                                lastPos.sub(LAST_ITERATION_PLANET_POS).add(START_PLANET_POSITIONS[p])
                             )
                         );
                         
@@ -918,8 +946,7 @@ export class Player {
                 //----------------------------------------//
                 //loop through all planets
                 //draw where any start / end of intercepts are
-                const INTERCEPT_CIRCLE_RADIUS = 50;
-                const INTERCEPT_CIRCLE_THICKNESS = 6;
+                
                 Game.renderer.stroke(Colour.rgb(200, 220, 230), INTERCEPT_CIRCLE_THICKNESS, true, true);
                 
                 for (var p = 0; p < fake_planets.length; p++) {
@@ -933,14 +960,14 @@ export class Player {
                             //Only draw intercept circle relative to planets that the fake player is on an intercept with
                             if (!currInInterceptWithPlanet[p2]) continue;
                             Game.renderer.beginPath();
-                            Game.renderer.arc(pos.sub(fake_planets[p2].data.pos).add(Game.PLANETS[p2].data.pos), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
+                            Game.renderer.arc(pos.sub(dynamicPlanetPositions[p2]).add(START_PLANET_POSITIONS[p2]), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
                             Game.renderer.closePath();
                             Game.renderer.strokeShape();
                         }
 
                         //also draw relative to the original body
                         Game.renderer.beginPath();
-                        Game.renderer.arc(pos.sub(fake_planets[p].data.pos).add(Game.PLANETS[p].data.pos), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
+                        Game.renderer.arc(pos.sub(dynamicPlanetPositions[p]).add(START_PLANET_POSITIONS[p]), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
                         Game.renderer.closePath();
                         Game.renderer.strokeShape();
                         
@@ -956,8 +983,8 @@ export class Player {
                 //don't clog up the screen
                 if (!didDrawIntercept) {
                     planetTrajectories[startSunIdx].addSegment(new LineSegment(
-                            posDraw.sub(fake_planets[startSunIdx].data.pos).add(START_SUN_POS),
-                            lastPosDraw.sub(prevPlanetPositions[startSunIdx]).add(START_SUN_POS)
+                            posDraw.sub(dynamicPlanetPositions[startSunIdx]).add(START_PLANET_POSITIONS[startSunIdx]),
+                            lastPosDraw.sub(prevPlanetPositions[startSunIdx]).add(START_PLANET_POSITIONS[startSunIdx])
                         )
                     );
                 }
@@ -978,7 +1005,7 @@ export class Player {
                     
                     for (var p = 0; p < currInInterceptWithPlanet.length; p++) {
                         if (currInInterceptWithPlanet[p]) {
-                            drawImpactCircle(pos.sub(fake_planets[p].data.pos).add(Game.PLANETS[p].data.pos), true);
+                            drawImpactCircle(pos.sub(dynamicPlanetPositions[p]).add(START_PLANET_POSITIONS[p]), true);
                         }
                     }
                     
@@ -999,7 +1026,7 @@ export class Player {
                 //Update planet last positions
                 //Update previous intercept states
                 for (var p = 0; p < fake_planets.length; p++) {
-                    prevPlanetPositions[p] = fake_planets[p].data.pos;
+                    prevPlanetPositions[p] = dynamicPlanetPositions[p];
                     prevInInterceptWithPlanet[p] = currInInterceptWithPlanet[p];
                 }
             }

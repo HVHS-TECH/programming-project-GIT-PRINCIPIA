@@ -80,7 +80,6 @@ export class Dropdown extends UIelement {
         }
         this.t = lerp(this.t, this.targetDropdownValue, 1 / this.dropdownTime * Time.scaleDeltaTime / (Math.abs(this.targetDropdownValue - this.t) + 1/*+1 to avoid divide by zero*/) * 2)
         this.t = clamp(this.t, 0, 1);
-        console.log(this.t);
     }
     //----------------------------------------------------------------------//
 
