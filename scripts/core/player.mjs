@@ -407,90 +407,105 @@ export class Player {
         //Loop through all the planets, calculate the attraction and apply it
         for (var p = 0; p < Game.PLANETS.length; p++) {
             const OTHER = Game.PLANETS[p];
+            
             var delta = OTHER.data.pos.sub(Player.pos);
             var dist = delta.len() - Player.HEIGHT / 2;
             const DELTA_NORM = delta.norm();
             const GRAVITY = Game.G * OTHER.data.mass / (dist * dist) * dt;
-
-            //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
-            if (Player.isIntersecting(Player.pos, OTHER.data.pos, OTHER.data.radius)) {
-                //----------------------------------------//
-                //resolve collision
-                while (Player.isIntersecting(Player.pos, OTHER.data.pos, OTHER.data.radius)) {
-                    
-                    Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
-                }
-                //Update variables as they are used later
-                    delta = OTHER.data.pos.sub(Player.pos);
-                    dist = delta.len();
-                //----------------------------------------//
-
-                
-                //----------------------------------------//
-                const REL_VEL = Player.vel.sub(OTHER.data.vel);
-
-                //Adjust velocity (skid / slide)
-                const FRICTION = 0.9; //Closer to one = slicker
-                const SKID_VEL = REL_VEL.mul(FRICTION);
-                Player.vel = OTHER.data.vel.add(SKID_VEL);
-
-                
-
-                //only explode if the player hasn't already exploded
-                //don't explode if not moving
-                const MIN_VEL = 0.05;
-                if (Player.isImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded && REL_VEL.len() > MIN_VEL) {
-                    State.setState(Game.DEATH_STATE_ID, "crashed");
-                    Player.explode();
-                    return;
-                }
-                //----------------------------------------//
-
-                //Only discover a planet if you can do so
-                if (!Player.exploded) Player.discoverPlanet(p);
-
-                
-                
-                const DIR_DIFF = normalizeAngle(Player.dir) - normalizeAngle(delta.dir());
-                
-                
-                const MIN_VEL_FOR_SHEAR_TILT = 0.05;
-                if (REL_VEL.len() > MIN_VEL_FOR_SHEAR_TILT) {
-                    //Player is sliding sideways, tip over
-
-                    //Parallel to planet surface
-                    const SIDE_AXIS = Vec2.rotatePoint(DELTA_NORM, Math.PI / 2);
-
-                    const VEL_DOT_AXIS = Vec2.dot(REL_VEL, SIDE_AXIS);
-
-                    //The proportion of REL_VEL along SIDE_AXIS
-                    const PROJECTION_ALONG_SIDE_AXIS = SIDE_AXIS.mul(VEL_DOT_AXIS);
-
-
-                    const SHEAR_TORQUE = PROJECTION_ALONG_SIDE_AXIS.len() * Math.sign(VEL_DOT_AXIS) * 1;
-                    Player.ang_vel = SHEAR_TORQUE * dt;
-                }
-
-                const TIP_THRESH = 0.55;
-                
-                if (Math.abs(DIR_DIFF) > TIP_THRESH) {
-                    //Player is unbalanced, tip over
-                    //The force will increase due to leverage
-                    //Power of 3 is just an arbritrary value that looks good
-                    Player.ang_vel += ((DIR_DIFF * 2) ** 3) * GRAVITY * dt * 4;
-                } else {
-                    //Stabilize the player
-                    const LOSS = 0.005; //e.g damping, losses in collision / bounce
-                    Player.ang_vel *= 1 - LOSS ** (1 / dt);
-                    Player.ang_vel -= ((DIR_DIFF) * GRAVITY) * dt * 4;
-                }
-                
-                break;
-            }
+            
+            Player.collideWithPlanet(p, OTHER, DELTA_NORM, GRAVITY, dt);
+            
+            
             //Update the player's velocity
             //Gravity is defined above the if statement so as to be visible to both this line
             //and the tipping / stabilizing logic above.
             Player.vel = Player.vel.add(DELTA_NORM.mul(GRAVITY));
+        }
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //collideWithPlanet(OTHER, DELTA_NORM)
+    //OTHER: the planet you collided with
+    //DELTA_NORM: the normalized delta position between planet and player
+    static collideWithPlanet(idx, OTHER, DELTA_NORM, GRAVITY, dt) {
+        if (OTHER.land == null) return; //Planet has no surface to collide with
+        
+        //If you are colliding with the planet, match its velocity and shift to above the surface to resolve the collision.
+        if (Player.isIntersecting(Player.pos, OTHER.data.pos, OTHER.data.radius)) {
+            //----------------------------------------//
+            //resolve collision
+            while (Player.isIntersecting(Player.pos, OTHER.data.pos, OTHER.data.radius)) {
+                
+                Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
+            }
+            //Update variables as they are used later
+            var delta;
+            var dist;
+            delta = OTHER.data.pos.sub(Player.pos);
+            dist = delta.len();
+            //----------------------------------------//
+
+            
+            //----------------------------------------//
+            const REL_VEL = Player.vel.sub(OTHER.data.vel);
+
+            //Adjust velocity (skid / slide)
+            const FRICTION = 0.9; //Closer to one = slicker
+            const SKID_VEL = REL_VEL.mul(FRICTION);
+            Player.vel = OTHER.data.vel.add(SKID_VEL);
+
+            
+
+            //only explode if the player hasn't already exploded
+            //don't explode if not moving
+            const MIN_VEL = 0.05;
+            if (Player.isImpactFatal(REL_VEL, DELTA_NORM) && !Player.exploded && REL_VEL.len() > MIN_VEL) {
+                State.setState(Game.DEATH_STATE_ID, "crashed");
+                Player.explode();
+                return;
+            }
+            //----------------------------------------//
+
+            //Only discover a planet if you can do so
+            if (!Player.exploded) Player.discoverPlanet(idx);
+
+            
+            
+            const DIR_DIFF = normalizeAngle(Player.dir) - normalizeAngle(delta.dir());
+            
+            
+            const MIN_VEL_FOR_SHEAR_TILT = 0.05;
+            if (REL_VEL.len() > MIN_VEL_FOR_SHEAR_TILT) {
+                //Player is sliding sideways, tip over
+
+                //Parallel to planet surface
+                const SIDE_AXIS = Vec2.rotatePoint(DELTA_NORM, Math.PI / 2);
+
+                const VEL_DOT_AXIS = Vec2.dot(REL_VEL, SIDE_AXIS);
+
+                //The proportion of REL_VEL along SIDE_AXIS
+                const PROJECTION_ALONG_SIDE_AXIS = SIDE_AXIS.mul(VEL_DOT_AXIS);
+
+
+                const SHEAR_TORQUE = PROJECTION_ALONG_SIDE_AXIS.len() * Math.sign(VEL_DOT_AXIS) * 1;
+                Player.ang_vel = SHEAR_TORQUE * dt;
+            }
+
+            const TIP_THRESH = 0.55;
+            
+            if (Math.abs(DIR_DIFF) > TIP_THRESH) {
+                //Player is unbalanced, tip over
+                //The force will increase due to leverage
+                //Power of 3 is just an arbritrary value that looks good
+                Player.ang_vel += ((DIR_DIFF * 2) ** 3) * GRAVITY * dt * 4;
+            } else {
+                //Stabilize the player
+                const LOSS = 0.005; //e.g damping, losses in collision / bounce
+                Player.ang_vel *= 1 - LOSS ** (1 / dt);
+                Player.ang_vel -= ((DIR_DIFF) * GRAVITY) * dt * 4;
+            }
         }
     }
     //----------------------------------------------------------------------//
@@ -607,7 +622,7 @@ export class Player {
 
         const DENSITY_POWER = 5;
         const SEA_LEVEL_DENSITY = OTHER.atmosphere.seaLvlDensity;
-        const AIR_DENSITY = SEA_LEVEL_DENSITY * getAirDensity(OTHER.data.radius, ATMO_RAD, DIST, DENSITY_POWER);
+        const AIR_DENSITY = SEA_LEVEL_DENSITY * getAirDensity(OTHER.atmosphere.seaLvlRadius, ATMO_RAD, DIST, DENSITY_POWER);
 
         //Player direction expressed as a vector
         const DIR_VEC_NORM = new Vec2(Math.sin(Player.dir), Math.cos(Player.dir));
@@ -894,7 +909,7 @@ export class Player {
 
             var atmosphere = null;
             if (REAL_PLANET.atmosphere != null) {
-                atmosphere = new PlanetAtmosphere(REAL_PLANET.atmosphere.radius, REAL_PLANET.atmosphere.seaLvlDensity, REAL_PLANET.atmosphere.atmoColourLow, REAL_PLANET.atmosphere.atmoColourMid);
+                atmosphere = new PlanetAtmosphere(REAL_PLANET.atmosphere.seaLvlRadius, REAL_PLANET.atmosphere.radius, REAL_PLANET.atmosphere.seaLvlDensity, REAL_PLANET.atmosphere.atmoColourLow, REAL_PLANET.atmosphere.atmoColourMid);
             }
 
             fake_planets.push(new Planet(data, land, ocean, atmosphere));
@@ -951,27 +966,30 @@ export class Player {
                 const DIST_SQUARED = DELTA.sqrMag();
                 const ACCEL = Game.G * PLANET_MASSES[p] / (DIST_SQUARED) * DT;
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
-                if (DIST_SQUARED < PLANET_RADII[p] ** 2) {
+                if (fake_planets[p].land != null) { //There IS a surface to collide with
+                    if (DIST_SQUARED < PLANET_RADII[p] ** 2) {
                     
-                    //finish drawing the trajectories
-                    for (var t = 0; t < planetTrajectories.length; t++) {
-                        planetTrajectories[t].Draw();
-                    } 
+                        //finish drawing the trajectories
+                        for (var t = 0; t < planetTrajectories.length; t++) {
+                            planetTrajectories[t].Draw();
+                        } 
 
-                    const MIN_DIST_FOR_IMPACT_MARKER = 50;
-                    if (Vec2.dist(PLAYER_POS, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
+                        const MIN_DIST_FOR_IMPACT_MARKER = 50;
+                        if (Vec2.dist(PLAYER_POS, pos) < MIN_DIST_FOR_IMPACT_MARKER) return; //Only draw an impact marker 'far' away from the player
 
 
-                    //Draw a huge outline around the impact circle (for when the player is zoomed out
-                    const PLANET_POS = dynamicPlanetPositions[p];
-                    const REL_VEL = vel.sub(dynamicPlanetVelocities[p]);
-                    
-                    const POS = pos.sub(PLANET_POS).add(START_PLANET_POSITIONS[p]);
-                    drawImpactCircle(POS, Player.isImpactFatal(REL_VEL, DELTA_NORM))
-
+                        //Draw a huge outline around the impact circle (for when the player is zoomed out
+                        const PLANET_POS = dynamicPlanetPositions[p];
+                        const REL_VEL = vel.sub(dynamicPlanetVelocities[p]);
                         
-                    return;
+                        const POS = pos.sub(PLANET_POS).add(START_PLANET_POSITIONS[p]);
+                        drawImpactCircle(POS, Player.isImpactFatal(REL_VEL, DELTA_NORM))
+
+                            
+                        return;
+                    }
                 }
+                
             }
             //----------------------------------------//
 
@@ -995,7 +1013,7 @@ export class Player {
                     const DIST = DELTA.len();
                     const THRESH_MUL_RAD = Planet.LOCATOR_RADIUS_RAD_MUL;
 
-
+                    
                     if (DIST < PLANET_RADII[p] * THRESH_MUL_RAD
                         && p != startSunIdx) 
                     {

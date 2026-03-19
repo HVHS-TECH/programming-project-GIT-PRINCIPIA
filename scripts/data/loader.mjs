@@ -6,7 +6,7 @@
 //Manages loading planets, images and assets, etc                       //
 //----------------------------------------------------------------------//
 "use strict";
-import { Planet, Mountain, Ocean, PlanetData, PlanetSurface, PlanetOceans, PlanetAtmosphere } from "../core/planet.mjs"
+import { Planet, Mountain, Ocean, PlanetData, PlanetSurface, PlanetOceans, PlanetAtmosphere, Ring, PlanetRings } from "../core/planet.mjs"
 import { Player } from "../core/player.mjs";
 import { Vec2, Colour } from "../utility/miscellaneous.mjs";
 //Loader class, 
@@ -144,7 +144,8 @@ export class Loader {
             //The planet has an atmosphere
 
             atmosphere = new PlanetAtmosphere(
-                jsonObject.atmosphere.atmoRadius,
+                jsonObject.atmosphere.seaLvlRadius, //bottom of atmosphere
+                jsonObject.atmosphere.atmoRadius, //Top of atmosphere
                 jsonObject.atmosphere.density, //At sea level
                 Colour.rgb(jsonObject.atmosphere.atmoColourLow.r, jsonObject.atmosphere.atmoColourLow.g, jsonObject.atmosphere.atmoColourLow.b),
                 Colour.rgb(jsonObject.atmosphere.atmoColourMid.r, jsonObject.atmosphere.atmoColourMid.g, jsonObject.atmosphere.atmoColourMid.b)
@@ -153,9 +154,24 @@ export class Loader {
         
         //----------------------------------------//
         
+        //----------------------------------------//
+        var ring = null;
+        if (jsonObject.ring != null) {
+            //The planet has rings
+            const RINGS = [];
+            for (var i = 0; i < jsonObject.ring.rings.length; i++) {
+                const RING = new Ring(
+                    jsonObject.ring.rings[i].startRad, jsonObject.ring.rings[i].endRad, jsonObject.ring.rings[i].density, //Opacity
+                    Colour.rgb(jsonObject.ring.rings[i].colour.r, jsonObject.ring.rings[i].colour.g, jsonObject.ring.rings[i].colour.b)
+                );
+                RINGS.push(RING);
+            }
+            ring = new PlanetRings(RINGS);
+        }
+        //----------------------------------------//
 
         return new Planet(
-            DATA, land, ocean, atmosphere
+            DATA, land, ocean, atmosphere, ring
         );
     }
 

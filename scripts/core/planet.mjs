@@ -18,6 +18,20 @@ import { Player } from './player.mjs';
 import { Time } from '../utility/time.mjs';
 
 //----------------------------------------------------------------------//
+//Ring class
+//data structure for a planet's ring
+export class Ring {
+    constructor(startRad, endRad, density, colour) {
+        this.startRad = startRad;
+        this.endRad = endRad;
+        this.density = density;
+        this.colour = Colour.rgba(colour.r, colour.g, colour.b, density);
+    }
+}
+//----------------------------------------------------------------------//
+
+
+//----------------------------------------------------------------------//
 //Mountain class
 //Simple data structure to store mountain data
 export class Mountain {
@@ -50,7 +64,6 @@ export class Ocean {
 //Helps to simplify planet contructor and readability
 export class PlanetSurface {
     constructor(colour, outlineColour, innerColour, mantleColour, outerCoreColour, innerCoreColour, mountainColour, snowColour, mountainOutlineColour, mountains) {
-        
         
         //Planet colours
         this.colour = colour;
@@ -121,13 +134,26 @@ export class PlanetData {
 //Atmosphere colours
 //Atmosphere density
 export class PlanetAtmosphere {
-    constructor(radius, seaLvlDensity, atmoColourLow, atmoColourMid) {
-        this.radius = radius;
+    constructor(seaLvlRadius, radius, seaLvlDensity, atmoColourLow, atmoColourMid) {
+        this.seaLvlRadius = seaLvlRadius; //Bottom
+        this.radius = radius; //Top
         this.seaLvlDensity = seaLvlDensity; //Atmosphere density at sea level
 
         //Atmosphere colours
         this.atmoColourLow = atmoColourLow;
         this.atmoColourMid = atmoColourMid;
+    }
+}
+//----------------------------------------------------------------------//
+
+
+
+//----------------------------------------------------------------------//
+//Planet rings class
+//Holds all of the planet's rings
+export class PlanetRings {
+    constructor(rings) {
+        this.rings = rings;
     }
 }
 //----------------------------------------------------------------------//
@@ -139,11 +165,13 @@ export class Planet {
     static GROUND_STROKE_WIDTH = 2; //Width of ground outline
     static MOUNTAIN_STROKE_WIDTH = 3; //Width of mountain outline
     static LOCATOR_RADIUS_RAD_MUL = 3; //Locator radius = <LOCATOR_RADIUS_RAD_MUL> * this.data.radius
-    constructor(data, land, ocean, atmosphere) {
+
+    constructor(data, land, ocean, atmosphere, rings) {
         this.data = data;
         this.land = land;
         this.ocean = ocean;
         this.atmosphere = atmosphere;
+        this.rings = rings;
     }
 
     //----------------------------------------------------------------------//
@@ -202,7 +230,24 @@ export class Planet {
 
         if (this.ocean != null) this.DrawOceans();
 
+        if (this.rings != null) this.DrawRings();
+
         this.DrawLocatorOutline();
+    }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //DrawRings()
+    //draws the planet's rings
+    DrawRings() {
+        for (var r = 0; r < this.rings.rings.length; r++) {
+            const THICKNESS = this.rings.rings[r].endRad - this.rings.rings[r].startRad;
+            Game.renderer.stroke(this.rings.rings[r].colour, THICKNESS, true, true);
+            Game.renderer.beginPath();
+            Game.renderer.arc(this.data.pos, this.rings.rings[r].startRad + THICKNESS / 2, 0, Math.PI * 2, true, true);
+            Game.renderer.strokeShape();
+        }
     }
     //----------------------------------------------------------------------//
 
@@ -261,7 +306,7 @@ export class Planet {
     //Draws the atmosphere of the planet
     DrawAtmosphere() {
         //Draw planet atmosphere
-        var atmoGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, this.data.radius, this.atmosphere.radius, true, true);
+        var atmoGrad = Game.renderer.radGradient(this.data.pos, this.data.pos, this.atmosphere.seaLvlRadius, this.atmosphere.radius, true, true);
 
         
         atmoGrad.addColorStop(0, this.atmosphere.atmoColourLow.txt());

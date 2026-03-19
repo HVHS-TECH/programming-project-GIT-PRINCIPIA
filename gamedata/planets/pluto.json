@@ -3,24 +3,25 @@
         "name": "pluto",
 
         "x": 0,
-        "y": 6000,
+        "y": 30000,
 
-        "xVel": -3,
+        "xVel": -1,
         "yVel": 0,
         
-        "mass": 10000,
-        "radius": 150, 
+        "mass": 4000,
+        "radius": 100,
         "referenceBodyNames": ["sun"]
     },
     "land": {
-        "colour": {"r": 200, "g": 200, "b": 200}, 
-        "outlineColour": {"r": 120, "g": 120, "b": 120},
-        "innerColour": {"r": 100, "g": 100, "b": 100}, 
-        "mantleColour": {"r": 20, "g": 20, "b": 20},
+        "radius": 100, 
+        "colour": {"r": 230, "g": 200, "b": 200}, 
+        "outlineColour": {"r": 140, "g": 120, "b": 120},
+        "innerColour": {"r": 120, "g": 100, "b": 100}, 
+        "mantleColour": {"r": 30, "g": 20, "b": 20},
         "outerCoreColour": {"r": 0, "g": 0, "b": 0},
         "innerCoreColour": {"r": 0, "g": 0, "b": 0},
-        "mountainColour": {"r": 100, "g": 100, "b": 100},
-        "snowColour": {"r": 100, "g": 100, "b": 100},
+        "mountainColour": {"r": 110, "g": 100, "b": 100},
+        "snowColour": {"r": 110, "g": 100, "b": 100},
         "mountainOutlineColour": {"r": 80, "g": 80, "b": 80},
         "mountains": [
             {"rad": 0.2, "width": 150, "height": 5},

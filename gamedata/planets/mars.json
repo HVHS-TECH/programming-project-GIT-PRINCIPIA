@@ -9,11 +9,12 @@
         "yVel": 0,
 
         "mass": 70000,
-        "radius": 300, 
         
+        "radius": 300,
         "referenceBodyNames": ["sun"]
     },
     "land": {
+        "radius": 300, 
         "colour": {"r": 200, "g": 100, "b": 100}, 
         "outlineColour": {"r": 150, "g": 100, "b": 50},
         "innerColour": {"r": 75, "g": 50, "b": 25}, 
@@ -41,6 +42,7 @@
         ]
     },
     "atmosphere": {
+        "seaLvlRadius": 300,
         "atmoRadius": 475,
         "density": 0.1,
         "atmoColourLow": {"r": 200, "g": 150, "b": 150}, 

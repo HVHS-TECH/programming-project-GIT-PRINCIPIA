@@ -14,6 +14,7 @@
         "referenceBodyNames": ["sun"]
     },
     "land": {
+        "radius": 400, 
         "colour": {"r": 200, "g": 150, "b": 100}, 
         "outlineColour": {"r": 150, "g": 100, "b": 50},
         "innerColour": {"r": 75, "g": 65, "b": 25}, 
@@ -41,6 +42,7 @@
         ]
     },
     "atmosphere": {
+        "seaLvlRadius": 400,
         "atmoRadius": 600,
         "density" : 0.7,
         "atmoColourLow": {"r": 200, "g": 180, "b": 150}, 

@@ -9,12 +9,12 @@
         "yVel": 1,
         
         "mass": 300000,
-        "radius": 800, 
-        
+        "radius": 800,
         "referenceBodyNames": ["sun"]
     },
     
     "atmosphere": {
+        "seaLvlRadius": 800,
         "atmoRadius": 1800,
         "density" : 0.7,
         "atmoColourLow": {"r": 190, "g": 160, "b": 150}, 

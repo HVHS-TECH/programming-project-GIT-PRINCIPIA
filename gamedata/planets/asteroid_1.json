@@ -8,11 +8,12 @@
         "xVel": 1.8,
         "yVel": -1.8,
         
-        "mass": 500,
-        "radius": 50, 
+        "mass": 50,
+        "radius": 10,
         "referenceBodyNames": ["earth", "sun", "venus", "mars", "moon"]
     },
     "land": {
+        "radius": 10, 
         "colour": {"r": 200, "g": 180, "b": 180}, 
         "outlineColour": {"r": 120, "g": 110, "b": 110},
         "innerColour": {"r": 100, "g": 90, "b": 90}, 
