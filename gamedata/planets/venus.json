@@ -2,11 +2,11 @@
     "data": {
         "name": "venus",
 
-        "x": 5000,
+        "x": 3500,
         "y": 0,
 
         "xVel": 0,
-        "yVel": 2,
+        "yVel": 1.7,
         
         "mass": 120000,
         "radius": 400, 

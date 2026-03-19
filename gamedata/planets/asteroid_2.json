@@ -2,15 +2,15 @@
     "data": {
         "name": "asteroid_2",
 
-        "x": 2000,
-        "y": 3000,
+        "x": 5673,
+        "y": 5673,
 
-        "xVel": 2,
-        "yVel": -1.8,
+        "xVel": -0.85,
+        "yVel": 0.85,
 
         "mass": 500,
         "radius": 50,
-        "referenceBodyNames": ["earth", "sun", "venus", "mars", "moon"]
+        "referenceBodyNames": ["sun"]
     },
     "land": {
         "radius": 50, 

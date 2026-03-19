@@ -824,7 +824,7 @@ export class Player {
         const MAX_DEPTH = 5000;
         const DEPTH = MAX_DEPTH / clamp(Player.smoothZoom * 5, 1, 10);
         
-        const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (no guarantees!)
+        const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (aside from floating point error)
         
         const INTERCEPT_CIRCLE_RADIUS = 50;
         const INTERCEPT_CIRCLE_THICKNESS = 6;
@@ -860,6 +860,8 @@ export class Player {
         //intercept with that planet
         var prevInInterceptWithPlanet = []; 
         var currInInterceptWithPlanet = [];
+        var currDrewIntercept = false;
+        var prevDrewIntercept = false;
         
         //----------------------------------------//
         //Since changing stroke colour for each individual line segment is costly, we batch them
@@ -886,6 +888,33 @@ export class Player {
             Game.renderer.stroke(STROKE_COLOUR, 5, true, true);
             Game.renderer.beginPath();
             Game.renderer.arc(pos, 10, 0, Math.PI * 2, true, true);
+            Game.renderer.strokeShape();
+        }
+        //----------------------------------------//
+
+        //----------------------------------------//
+        //Draw a circle with a pulsing interior marking the start / end of an intercept
+        function drawInterceptMarker(pos) {
+            const PULSE_PERIOD = 1;
+            const PULSE = (Time.seconds % PULSE_PERIOD) / PULSE_PERIOD;
+            const PULSE_RAD = clamp(INTERCEPT_CIRCLE_RADIUS - PULSE * 100, 0, INTERCEPT_CIRCLE_RADIUS);
+
+            const OUTLINE_COLOUR = Colour.rgb(200, 220, 230);
+            const PULSE_COLOUR = Colour.rgba(200, 220, 230, 0.5 - PULSE); //Slightly transparent, reduces in opacity over time
+
+
+            Game.renderer.stroke(OUTLINE_COLOUR, INTERCEPT_CIRCLE_THICKNESS, true, true);
+            Game.renderer.beginPath();
+            Game.renderer.arc(pos, INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
+            Game.renderer.closePath();
+            Game.renderer.strokeShape();
+
+
+            //Draw a pulse moving inward
+            Game.renderer.stroke(PULSE_COLOUR, INTERCEPT_CIRCLE_THICKNESS, true, true);
+            Game.renderer.beginPath();
+            Game.renderer.arc(pos, PULSE_RAD, 0, Math.PI * 2, true, true);
+            Game.renderer.closePath();
             Game.renderer.strokeShape();
         }
         //----------------------------------------//
@@ -1005,7 +1034,6 @@ export class Player {
                 posDraw = pos.sub(FAKE_CLOSEST_PLANET_POS);
                 //----------------------------------------//
                 //Draw intercept lines
-                var didDrawIntercept = false;
                 for (var p = 0; p < fake_planets.length; p++) {
                     const PLANET_POS = dynamicPlanetPositions[p];
                     const LAST_ITERATION_PLANET_POS = prevPlanetPositions[p];
@@ -1014,10 +1042,9 @@ export class Player {
                     const THRESH_MUL_RAD = Planet.LOCATOR_RADIUS_RAD_MUL;
 
                     
-                    if (DIST < PLANET_RADII[p] * THRESH_MUL_RAD
-                        && p != startSunIdx) 
+                    if (DIST < PLANET_RADII[p] * THRESH_MUL_RAD && p != startSunIdx) 
                     {
-                        didDrawIntercept = true;
+                        currDrewIntercept = true;
                         //Draw an intercept line
                         planetTrajectories[p].addSegment(
                             new LineSegment(
@@ -1026,6 +1053,7 @@ export class Player {
                                 lastPos.sub(LAST_ITERATION_PLANET_POS).add(START_PLANET_POSITIONS[p])
                             )
                         );
+                    
                         
                         currInInterceptWithPlanet[p] = true;
                         
@@ -1038,33 +1066,36 @@ export class Player {
                 //----------------------------------------//
                 //loop through all planets
                 //draw where any start / end of intercepts are
-                
-                Game.renderer.stroke(Colour.rgb(200, 220, 230), INTERCEPT_CIRCLE_THICKNESS, true, true);
-                
                 for (var p = 0; p < fake_planets.length; p++) {
-                    if (currInInterceptWithPlanet[p] != prevInInterceptWithPlanet[p]
+                    if (currInInterceptWithPlanet[p] != prevInInterceptWithPlanet[p] //Start or end of an intercept
                         && i > 0 //not first frame e.g don't say that the player pos is the start of an intercept
                     ) {
                         
                         
+
                         //loop through all planets and if the fake player is on an intercept with them, also draw an intercept circle relative to that planet
                         for (var p2 = 0; p2 < fake_planets.length; p2++) {
                             //Only draw intercept circle relative to planets that the fake player is on an intercept with
                             if (!currInInterceptWithPlanet[p2]) continue;
-                            Game.renderer.beginPath();
-                            Game.renderer.arc(pos.sub(dynamicPlanetPositions[p2]).add(START_PLANET_POSITIONS[p2]), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
-                            Game.renderer.closePath();
-                            Game.renderer.strokeShape();
+                            const POS = pos.sub(dynamicPlanetPositions[p2]).add(START_PLANET_POSITIONS[p2]);
+                            drawInterceptMarker(POS);
                         }
 
+                        const POS = pos.sub(dynamicPlanetPositions[p]).add(START_PLANET_POSITIONS[p]);
+
                         //also draw relative to the original body
-                        Game.renderer.beginPath();
-                        Game.renderer.arc(pos.sub(dynamicPlanetPositions[p]).add(START_PLANET_POSITIONS[p]), INTERCEPT_CIRCLE_RADIUS, 0, Math.PI * 2, true, true);
-                        Game.renderer.closePath();
-                        Game.renderer.strokeShape();
+                        drawInterceptMarker(POS);
+
+
+                        
                         
                     }
                 }
+                //Draw relative to sun too
+                if (currDrewIntercept != prevDrewIntercept && i > 0) {
+                    drawInterceptMarker(posDraw.sub(dynamicPlanetPositions[startSunIdx]).add(START_PLANET_POSITIONS[startSunIdx]));
+                }
+                
                 
                 //----------------------------------------//
 
@@ -1073,12 +1104,13 @@ export class Player {
                 //----------------------------------------//
                 //draw a line from the previous position to this iteration's position relative to the sun
                 //don't clog up the screen
-                if (!didDrawIntercept) {
+                if (!currDrewIntercept) {
                     planetTrajectories[startSunIdx].addSegment(new LineSegment(
                             posDraw.sub(dynamicPlanetPositions[startSunIdx]).add(START_PLANET_POSITIONS[startSunIdx]),
                             lastPosDraw.sub(prevPlanetPositions[startSunIdx]).add(START_PLANET_POSITIONS[startSunIdx])
                         )
                     );
+                    
                 }
                 //----------------------------------------//
                 
@@ -1121,6 +1153,8 @@ export class Player {
                     prevPlanetPositions[p] = dynamicPlanetPositions[p];
                     prevInInterceptWithPlanet[p] = currInInterceptWithPlanet[p];
                 }
+                prevDrewIntercept = currDrewIntercept;
+                currDrewIntercept = false;
             }
             //----------------------------------------//
         }

@@ -12,6 +12,7 @@
         "jupiter.json",
         "pluto.json",
         "saturn.json",
+        "mercury.json",
         "sun.json"
     ],
     "starting_body": "earth"

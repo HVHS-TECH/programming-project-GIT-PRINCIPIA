@@ -219,7 +219,8 @@ export class Planet {
     //Draws the planet and its features (atmosphere etc)
     Draw() {
         //Layered from back to front
-
+        console.log("Name: " + this.data.name);
+        console.dir(this.data.pos);
         if (this.atmosphere != null) this.DrawAtmosphere();
         
         if (this.land != null) {
