@@ -9,6 +9,10 @@
         "asteroid_3.json",
         "asteroid_4.json",
         "asteroid_5.json",
+        "jupiter.json",
+        "pluto.json",
+        "saturn_rings.json",
+        "saturn.json",
         "sun.json"
     ],
     "starting_body": "earth"
