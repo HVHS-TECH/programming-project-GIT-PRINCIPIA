@@ -108,6 +108,25 @@ export class UIelement {
 //GetScaleSizeHalf()
 //When multiplied by an alignment vector (e.g [-1, 0] for left center), this produces coordinates that 
 //will - after being transformed by Renderer.worldToCanvas()) - correspond to that side of the screen.
+//e.g
+//scale cnv size = 2;
+//cnvWidth = 4;
+//cnvHeight = 2;
+//width = 4;
+//height = 2;
+//width / height * scaleCnvSize / cnvWidth * width
+// = 4 / 2 * 2 / 4 * 4
+// = 4
+//scaleCnvSize / cnvHeight * height
+// = 2 / 2 * 2
+// = 2
+//divide by 2
+// = [2, 1]
+//renderer:
+//[2, 1] / scaleCnvSize
+// = [1, 0.5]
+//[1, 0.5] * cnvHeight
+// = [2, 1]
 function GetScaleSizeHalf(width, height) {
     return new Vec2(
         //Multiply scaleCnvSize by the aspect ratio
@@ -116,8 +135,8 @@ function GetScaleSizeHalf(width, height) {
         //Y is just scaleCnvSize
         Game.renderer.scaleCnvSize / Game.renderer.cnvHeight * height)
 
-        //Divide by two to get the half size
-        .div(new Vec2(2,2));
+    //Divide by two to get the half size
+    .div(2);
 }
 //----------------------------------------------------------------------//
 
