@@ -1,18 +1,26 @@
 {
     "planets": [
-        "mars.json",
+        "mercury.json",
+        "venus.json",
+        
         "earth.json",
         "moon.json",
-        "venus.json",
-        "asteroid_1.json",
-        "asteroid_2.json",
-        "asteroid_3.json",
-        "asteroid_4.json",
-        "asteroid_5.json",
+
+        "mars.json",
+        
+
         "jupiter.json",
         "pluto.json",
         "saturn.json",
-        "mercury.json",
+        
+
+        "asteroids/asteroid_1.json",
+        "asteroids/asteroid_2.json",
+        "asteroids/asteroid_3.json",
+        "asteroids/asteroid_4.json",
+        "asteroids/asteroid_5.json",
+
+        
         "sun.json"
     ],
     "starting_body": "earth"
