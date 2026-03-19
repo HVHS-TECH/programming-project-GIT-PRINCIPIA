@@ -67,6 +67,12 @@
             {
                 "startRad": 2900,
                 "endRad": 2920,
+                "density": 0.3,
+                "colour": {"r": 190, "g": 160, "b": 150}
+            },
+            {
+                "startRad": 3000,
+                "endRad": 3120,
                 "density": 0.1,
                 "colour": {"r": 190, "g": 160, "b": 150}
             }
