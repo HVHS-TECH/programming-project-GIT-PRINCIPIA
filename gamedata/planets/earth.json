@@ -69,8 +69,8 @@
         "seaLvlRadius": 500,
         "atmoRadius": 750,
         "density": 0.3,
-        "atmoColourLow": {"r": 200, "g": 253, "b": 255}, 
-        "atmoColourMid": {"r": 101, "g": 128, "b": 168}
+        "atmoColourLow": {"r": 200, "g": 245, "b": 235}, 
+        "atmoColourMid": {"r": 91, "g": 118, "b": 158}
     }
     
     
