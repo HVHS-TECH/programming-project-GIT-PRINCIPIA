@@ -203,6 +203,22 @@ export class Navball extends UIelement {
         Game.renderer.closePath();
         Game.renderer.strokeShape();
         //----------------------------------------//
+
+
+        //----------------------------------------//
+        //Draw an overlay pointing to the nearest planet (use player.smoothDir)
+        const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
+        const CLOSEST = Game.PLANETS[CLOSEST_IDX];
+        const DELTA = CLOSEST.data.pos.sub(Player.pos);
+        if (CLOSEST.land != null) {
+            const COLOUR = CLOSEST.land.mantleColour;
+            Game.renderer.stroke(COLOUR, this.outlineWidth, false, true);
+            Game.renderer.beginPath();
+            Game.renderer.arc(center, this.radius, DELTA.dir() - Player.smoothDir, DELTA.dir() - Player.smoothDir + Math.PI, false, true);
+            Game.renderer.strokeShape();
+        }
+        
+        //----------------------------------------//
     }
 }
 //----------------------------------------------------------------------//
