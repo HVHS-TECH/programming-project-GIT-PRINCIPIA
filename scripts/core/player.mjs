@@ -698,7 +698,7 @@ export class Player {
             
             //The width gets larger the more severe the reentry is
             const STARTING_WIDTH = clamp(10 * SEVERITY_NORM, 0, 4);
-            const VEL_RANDOMNESS = 0.3 * (1 - SEVERITY_BLEND);
+            const VEL_RANDOMNESS = 0.15 * (1 - SEVERITY_BLEND);
             const VEL = OTHER_VEL.add(
                 new Vec2(
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS, 
