@@ -775,16 +775,60 @@ export class Player {
     //drawOutline()
     //draws an outline around the player if the camera is too zoomed out to see it
     static drawOutline() {
-        const ZOOM_THRESH = 5;
+        const ZOOM_THRESH = 2; 
         //Don't draw the outline if the user can see the player icon
         if (Player.zoom > ZOOM_THRESH) return;
-        const OUTLINE_COLOUR = Colour.rgb(50, 60, 150);
+
+        //Fade in and out
+        const ALPHA_MUL = ZOOM_THRESH / Player.zoom - 1;
+
+        //----------------------------------------//
+        //Outline
+        const OUTLINE_COLOUR = Colour.rgba(50, 60, 150, ALPHA_MUL);
         const OUTLINE_WIDTH = 5;
-        const OUTLINE_RADIUS = 20;
+        const OUTLINE_RADIUS = 30;
         Game.renderer.stroke(OUTLINE_COLOUR, OUTLINE_WIDTH, false, true);
         Game.renderer.beginPath();
         Game.renderer.arc(Player.pos, OUTLINE_RADIUS / Player.smoothZoom, 0, Math.PI * 2, true, true);
         Game.renderer.strokeShape();
+        //----------------------------------------//
+
+
+        //----------------------------------------//
+        //Player velocity
+        const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
+        const REL_VEL = Player.vel.sub(Game.PLANETS[CLOSEST_IDX].data.vel);
+        const VEL_MARKER_COLOUR = Colour.rgba(30, 255, 0, 0.8 * ALPHA_MUL);
+        const VEL_MARKER_WIDTH = 0.5;
+        Game.renderer.stroke(VEL_MARKER_COLOUR, OUTLINE_WIDTH, false, true);
+        Game.renderer.beginPath();
+        Game.renderer.arc(Player.pos, OUTLINE_RADIUS / Player.smoothZoom, REL_VEL.dir() + Math.PI / 2 - VEL_MARKER_WIDTH / 2, REL_VEL.dir() + Math.PI / 2 + VEL_MARKER_WIDTH / 2, true, true);
+        Game.renderer.strokeShape();
+        //----------------------------------------//
+
+
+        //----------------------------------------//
+        //Player drag
+        const DRAG = Player.getDrag(Player.pos, Player.vel);
+        const HEAT = Player.getHeat(Player.pos, Player.vel);
+        const DRAG_MARKER_COLOUR = Colour.rgba(255, 166, 0, HEAT / Difficulty.Player.REENTRY_TOLERANCE * ALPHA_MUL);
+        const DRAG_MARKER_WIDTH = 1;
+        Game.renderer.stroke(DRAG_MARKER_COLOUR, OUTLINE_WIDTH, false, true);
+        Game.renderer.beginPath();
+        Game.renderer.arc(Player.pos, OUTLINE_RADIUS / Player.smoothZoom, DRAG.dir() + Math.PI / 2 - DRAG_MARKER_WIDTH / 2, DRAG.dir() + Math.PI / 2 + DRAG_MARKER_WIDTH / 2, true, true);
+        Game.renderer.strokeShape();
+        //----------------------------------------//
+
+
+        //----------------------------------------//
+        //Player direction
+        const DIR_MARKER_COLOUR = Colour.rgba(255, 247, 231, 1 * ALPHA_MUL);
+        const DIR_MARKER_WIDTH = 0.3;
+        Game.renderer.stroke(DIR_MARKER_COLOUR, OUTLINE_WIDTH, false, true);
+        Game.renderer.beginPath();
+        Game.renderer.arc(Player.pos, OUTLINE_RADIUS / Player.smoothZoom, Player.dir - Math.PI / 2 - DIR_MARKER_WIDTH / 2, Player.dir - Math.PI / 2 + DIR_MARKER_WIDTH / 2, true, true);
+        Game.renderer.strokeShape();
+        //----------------------------------------//
     }
     //----------------------------------------------------------------------//
 
