@@ -705,9 +705,11 @@ export class Player {
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS
                 )
             );
-            const OTHER_COLOUR = Game.PLANETS[CLOSEST_IDX].atmosphere.atmoColourLow;
+            const OTHER_COLOUR = Colour.clone(Game.PLANETS[CLOSEST_IDX].atmosphere.atmoColourLow);
+            OTHER_COLOUR.a *= SEVERITY_NORM;
             const BLACK = Colour.rgba(0, 0, 0, 0);
             const OTHER_COLOUR_DARKENED = Colour.lerp(OTHER_COLOUR, BLACK, 0.66);
+            OTHER_COLOUR_DARKENED.a *= SEVERITY_NORM;
             
             
             Game.addParticle(

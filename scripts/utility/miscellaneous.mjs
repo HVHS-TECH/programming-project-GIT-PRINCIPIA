@@ -288,6 +288,15 @@ export class Colour {
     }
     //----------------------------------------------------------------------//
 
+
+    //----------------------------------------------------------------------//
+    //clone(other)
+    //avoid changes to this affecting other (js passes classes as references)
+    static clone(other) {
+        return new Colour(other.r, other.g, other.b, other.a);
+    }
+    //----------------------------------------------------------------------//
+
 }
 
 
