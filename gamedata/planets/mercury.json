@@ -8,8 +8,8 @@
         "xVel": 0,
         "yVel": -2.3,
         
-        "mass": 50000,
-        "radius": 250,
+        "mass": 10000,
+        "radius": 200,
         "referenceBodyNames": ["sun"]
     },
     "land": {

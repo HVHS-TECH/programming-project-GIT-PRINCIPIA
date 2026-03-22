@@ -763,6 +763,15 @@ export class Player {
     //----------------------------------------------------------------------//
 
 
+
+    //----------------------------------------------------------------------//
+    //
+    //                      RENDERING FUNCTIONS
+    //
+    //----------------------------------------------------------------------//
+
+
+
     //----------------------------------------------------------------------//
     //Draw()
     //Calls DrawPlayer() with default values
@@ -782,7 +791,7 @@ export class Player {
         if (Player.zoom > ZOOM_THRESH) return;
 
         //Fade in and out
-        const ALPHA_MUL = ZOOM_THRESH / Player.zoom - 1;
+        const ALPHA_MUL = clamp(ZOOM_THRESH / Player.zoom - 1, 0, 1);
 
         //----------------------------------------//
         //Outline
@@ -800,7 +809,7 @@ export class Player {
         //Player velocity
         const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
         const REL_VEL = Player.vel.sub(Game.PLANETS[CLOSEST_IDX].data.vel);
-        const VEL_MARKER_COLOUR = Colour.rgba(30, 255, 0, 0.8 * ALPHA_MUL);
+        const VEL_MARKER_COLOUR = Colour.rgba(30, 255, 0, 0.5 * ALPHA_MUL);
         const VEL_MARKER_WIDTH = 0.5;
         Game.renderer.stroke(VEL_MARKER_COLOUR, OUTLINE_WIDTH, false, true);
         Game.renderer.beginPath();

@@ -36,15 +36,18 @@ export class Game {
     static HOME_TITLE = "Astro Explorer - Title Screen";
     static GAME_TITLE = "Astro Explorer";
     static END_TITLE = "Astro Explorer - End Screen";
-
     
+
+    //----------------------------------------------------------------------//
     //Planets
     static PLANETS = [];
 
     //The game renderer
     static renderer = new Renderer(); 
+    //----------------------------------------------------------------------//
 
-    
+
+    //----------------------------------------------------------------------//
     //A list of the pages that make up the game. Each one has a title, a href, a 'hasCnv' boolean, and an onLoad() function
     //HREF is from root directory
     static PAGES = [
@@ -114,8 +117,12 @@ export class Game {
         )
 
     ];
+    //----------------------------------------------------------------------//
 
 
+
+
+    //----------------------------------------------------------------------//
     //The UI elements that make up the screen
     static UI_ELEMENTS = [
         //fuel
@@ -159,13 +166,20 @@ export class Game {
             )
         )
     ];
+    //----------------------------------------------------------------------//
+
     
+
+    //----------------------------------------------------------------------//
     //                                   num particle slots
     //                                          ||
     //The particles that exist in the world     ||
     //Initialize an array of null with length   \/
     static PARTICLES = Array.apply(null, Array(3000).map(function(){}));
+    //----------------------------------------------------------------------//
 
+
+    //----------------------------------------------------------------------//
     //References to other variables for flexibility
     static REF_VARIABLES = [
         new RefVar(
@@ -219,9 +233,10 @@ export class Game {
             }
         )
     ];
+    //----------------------------------------------------------------------//
 
      
-
+    //----------------------------------------------------------------------//
     static G = 0.01; //Universal gravitational constant
 
     static timewarp = 1;
@@ -229,7 +244,7 @@ export class Game {
 
     //The ID returned by requestAnimationFrame(), used to stop the game loop
     static animationFrameID = 0;
-
+    //----------------------------------------------------------------------//
 
     //state id-s
     //the names of the states that make up the game
