@@ -132,7 +132,7 @@ export class Game {
         new VertMeter(new Vec2(80,0), 'left', 80, 700, Colour.rgb(20, 68, 20), Colour.rgb(255, 128, 0), Colour.rgb(0, 140, 255), 5, "PlayerHeat"),  //Heat
         
         //navball
-        new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(34, 52, 70), Colour.rgb(200, 200, 200), Colour.rgb(50, 150, 50), Colour.rgb(21, 51, 33), 15, "PlayerVel", "PlayerVelDir"), //Navball
+        new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(34, 52, 70), Colour.rgb(200, 200, 200), Colour.rgb(255, 255, 255), Colour.rgb(21, 51, 33), 15, 25, "monospace", "PlayerVel", "PlayerVelDir"), //Navball
         
         //top dropdown
         new Dropdown(new Vec2(0, 80), 'top', 400, 150, 150, 10, 

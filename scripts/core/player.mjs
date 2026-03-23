@@ -686,46 +686,83 @@ export class Player {
     //relVel: the relative velocity of the player to the closest planet
     static spawnReentryParticles(severity) {
         const INTERVAL = 1; //0 for not at all, 1 for all the time
+
         if (severity > Player.REENTRY_PARTICLE_THRESH && Time.seconds % 1 < INTERVAL) {
-            //from 0 - 1, will 'usually' only reach ~0.3 - ~0.7
+            //----------------------------------------//
+            //Reentry is severe enough to spawn particles
+            //----------------------------------------//
+
+
+            //from 0 - 1, will 'usually' only reach ~0.3 - ~0.7 during 'normal' gameplay
             const SEVERITY_NORM = severity / Difficulty.Player.REENTRY_TOLERANCE;
             
-            const SEVERITY_BLEND = clamp(1 - 4 * SEVERITY_NORM, 0, 1); //0 when high severity, 1 when low severity
-            //Reentry is severe enough to spawn particles
+            //0 when high severity, 1 when low severity
+            const SEVERITY_BLEND = clamp(1 - 4 * SEVERITY_NORM, 0, 1); 
             const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
             const OTHER_VEL = Game.PLANETS[CLOSEST_IDX].data.vel;
 
-            
+            //----------------------------------------//
             //The width gets larger the more severe the reentry is
             const STARTING_WIDTH = clamp(10 * SEVERITY_NORM, 0, 4);
-            const VEL_RANDOMNESS = 0.15 * (1 - SEVERITY_BLEND);
+            const VEL_RANDOMNESS = 0.15 * (1 - SEVERITY_BLEND); //Velocity gets more random when the player is on a severe reentry (severity_blend == )
             const VEL = OTHER_VEL.add(
                 new Vec2(
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS, 
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS
                 )
             );
+            //----------------------------------------//
+
+
+            //----------------------------------------//
+            //Colours
+
+            //Colour of the nearest planet's atmosphere
             const OTHER_COLOUR = Colour.clone(Game.PLANETS[CLOSEST_IDX].atmosphere.atmoColourLow);
+
+            //Make it more transparent when the reentry isn't too severe
             OTHER_COLOUR.a *= SEVERITY_NORM;
+
+            //Dark colour to lerp toward
             const BLACK = Colour.rgba(0, 0, 0, 0);
+
+            //Make the particle get darker the further through its lifetime it is
             const OTHER_COLOUR_DARKENED = Colour.lerp(OTHER_COLOUR, BLACK, 0.66);
+            
+            //Make it more transparent when the reentry isn't too severe
             OTHER_COLOUR_DARKENED.a *= SEVERITY_NORM;
+            //----------------------------------------//
             
-            
+            //----------------------------------------//
+            //Spawn the particle
             Game.addParticle(
-                new Particle(Player.pos, Player.dir, VEL, 0, STARTING_WIDTH, 
-                    Colour.lerp(Colour.rgba(250, 150, 50, 0.8), OTHER_COLOUR, SEVERITY_BLEND), 
-                    Colour.lerp(Colour.rgba(150,120,0, 0.5), OTHER_COLOUR_DARKENED, SEVERITY_BLEND), 
-                    Colour.lerp(Colour.rgba(100, 20, 0, 0), BLACK, SEVERITY_BLEND), 
-                    40, 
+                new Particle(
+                    Player.pos, Player.dir, 
+                    VEL, 0, 
+                    STARTING_WIDTH, 
+
+                    //Colours
+                    Colour.lerp(Colour.rgba(250, 150, 50, 0.8), OTHER_COLOUR, SEVERITY_BLEND), //Start
+                    Colour.lerp(Colour.rgba(150,120,0, 0.5), OTHER_COLOUR_DARKENED, SEVERITY_BLEND), //Mid
+                    Colour.lerp(Colour.rgba(100, 20, 0, 0), BLACK, SEVERITY_BLEND), //End
+
+                    40, //Lifetime
+
+                    //----------------------------------------//
+                    //Update
                     function(){
                         //Make the particle dwindle in size over time
                         this.width *= 0.95 / Time.scaleDeltaTime;
-                        this.width = clamp(this.width, 0, STARTING_WIDTH);
+
+                        //Don't let width go below 0 or exceed the starting width
+                        this.width = clamp(this.width, 0, STARTING_WIDTH);;
                     }, 
-                    function(){}
+                    //----------------------------------------//
+                    
+                    function(){} //No onDeath function
                 )
             );
+            //----------------------------------------//
         }
     }
     //----------------------------------------------------------------------//
@@ -734,21 +771,18 @@ export class Player {
     //Integrate()
     //Integrates the players position and rotation
     static Integrate(dt) {
-        //Integrate position based on velocity and delta time
-        Player.pos = Player.pos.add(Player.vel.mul(dt));
-
-        //Integrate rotation based on angular velocity and delta time
-        Player.dir += Player.ang_vel * Time.scaleDeltaTime / Game.smoothTimeWarp;
-
+        //----------------------------------------//
         //Integrate zoom based on input and delta time
         const ZOOM_SPEED = 0.05 / Game.smoothTimeWarp;
         Player.zoom *= ((Input.KeyDown("ArrowUp") * ZOOM_SPEED * dt + 1) / (Input.KeyDown("ArrowDown") * ZOOM_SPEED * dt + 1));
         Player.zoom = clamp(Player.zoom, 0.015, 50); //Restrict player zoom
-        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
-
-        //Spawn rotation thruster particles 
-        if (rotate != 0) Player.spawnRCSparticles(rotate > 0, 1);
         
+        //----------------------------------------//
+
+
+        //----------------------------------------//
+        //Rotate
+        var rotate = (Input.KeyDown("KeyD") - Input.KeyDown("KeyA")) * 0.005;
         Player.ang_vel += rotate * Time.scaleDeltaTime;
         const ANGULAR_FRICTION = 0.1;
         const SLOWDOWN = Math.exp(-1 * ANGULAR_FRICTION / (Math.abs(rotate) * 100 + 1) * Time.scaleDeltaTime);
@@ -757,8 +791,20 @@ export class Player {
             Player.spawnRCSparticles(this.ang_vel < 0, 0.5);
         }
         Player.ang_vel *= SLOWDOWN;
+        //----------------------------------------//
 
 
+
+        //----------------------------------------//
+        //Integrate position based on velocity and delta time
+        Player.pos = Player.pos.add(Player.vel.mul(dt));
+
+        //Integrate rotation based on angular velocity and delta time
+        Player.dir += Player.ang_vel * Time.scaleDeltaTime / Game.smoothTimeWarp;
+
+        //Spawn rotation thruster particles 
+        if (rotate != 0) Player.spawnRCSparticles(rotate > 0, 1);
+        //----------------------------------------//
     }
     //----------------------------------------------------------------------//
 

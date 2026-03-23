@@ -29,7 +29,10 @@ import { Colour } from "../../utility/miscellaneous.mjs";
 //----------------------------------------------------------------------//
 //Navball, displays a copy of the player, and information such as their velocity, velocity direction, closest planet, etc
 export class Navball extends UIelement {
-    constructor(pos, align, radius, playerColour, backgroundColour, backgroundColourOuter, windStreakColour, textColour, outlineColour, outlineWidth, velRefName, velDirRefName) {
+    constructor(pos, align, radius, 
+        playerColour, backgroundColour, backgroundColourOuter, windStreakColour, textColour, outlineColour, 
+        outlineWidth, textSize, font, velRefName, velDirRefName
+    ) {
         super(pos, align, radius * 2, radius * 2);
         this.radius = radius;
         this.playerColour = playerColour;
@@ -39,6 +42,8 @@ export class Navball extends UIelement {
         this.textColour = textColour;
         this.outlineColour = outlineColour;
         this.outlineWidth = outlineWidth;
+        this.textSize = textSize;
+        this.font = font;
         this.vel = 0;
         this.velDir = 0;
         this.playerScale = 20;
@@ -46,6 +51,8 @@ export class Navball extends UIelement {
         this.velDirRefName = velDirRefName;
         this.velRefName = velRefName;
         this.frame = 100000;
+
+        this.text = "";
     }
 
     //----------------------------------------------------------------------//
@@ -72,6 +79,8 @@ export class Navball extends UIelement {
         this.DrawPlayer(center);
 
         this.DrawOutline(center);
+
+        this.DrawText(center);
     }
     //----------------------------------------------------------------------//
 
@@ -187,13 +196,20 @@ export class Navball extends UIelement {
     }
     //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //DrawPlayer(center)
+    //Draw the player in the navball's center
     DrawPlayer(center) {
         //----------------------------------------//
         //Draw the player at an enlarged size
         Player.drawPlayer(center, this.playerScale, false, true, true);
         //----------------------------------------//
     }
+    //----------------------------------------------------------------------//
 
+    //----------------------------------------------------------------------//
+    //DrawOutline(center)
+    //Draw an outline around the navball
     DrawOutline(center) {
         //----------------------------------------//
         //Draw the background outline last
@@ -220,5 +236,82 @@ export class Navball extends UIelement {
         
         //----------------------------------------//
     }
+    //----------------------------------------------------------------------//
+
+
+    //----------------------------------------------------------------------//
+    //DrawText(center)
+    //Draw nearest planet name text
+    //Draw nearest planet discovered boolean value text
+    //Draw nearest planet distance
+    //Draw nearest planet relative speed
+    DrawText(center) {
+        const FREQUENCY = 1;
+        if (Time.frame % 10 == FREQUENCY) {
+            //----------------------------------------//
+            //Update text
+            //----------------------------------------//
+
+            this.text = ""; //Reset text
+
+
+            const DISTANCE_UNITS = "km";
+            const DISTANCE_SCALE = 0.1; //To make it match the units sensibly
+
+            const SPEED_UNITS = "km/s"
+            const SPEED_SCALE = 1; //To make it match the units sensibly
+
+            const DECIMAL_PLACES = 2;
+            const TEN_POW_DECIMAL_PLACES = Math.pow(10, DECIMAL_PLACES);
+
+            const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
+            const CLOSEST_PLANET = Game.PLANETS[CLOSEST_IDX];
+
+            //----------------------------------------//
+            //Nearest planet name
+            this.text += "Closest planet: '" + CLOSEST_PLANET.data.name + "'\n";
+            //----------------------------------------//
+
+
+            //----------------------------------------//
+            //Nearest planet is discovered?
+            if (CLOSEST_PLANET.data.discovered) {
+                //Planet has been discovered already
+                this.text += "Discovered!\n";
+            } else {
+                //Planet has not yet been discovered
+                this.text += "Not yet discovered!\n";
+            }
+            //----------------------------------------//
+
+
+            //----------------------------------------//
+            //Nearest planet distance
+            const DIST = Vec2.dist(CLOSEST_PLANET.data.pos, Player.pos) - CLOSEST_PLANET.data.radius - Player.HEIGHT / 2;
+            const ROUNDED_DIST = Math.round(DIST * DISTANCE_SCALE * TEN_POW_DECIMAL_PLACES) / TEN_POW_DECIMAL_PLACES;
+            this.text += "Distance to '" + CLOSEST_PLANET.data.name + "': " + ROUNDED_DIST + " " + DISTANCE_UNITS + "\n";
+            //----------------------------------------//
+
+
+            //----------------------------------------//
+            //Nearest planet reltative speed
+            const REL_VEL = Player.vel.sub(CLOSEST_PLANET.data.vel);
+            const REL_SPEED = REL_VEL.len();
+            const ROUNDED_REL_SPEED = Math.round(REL_SPEED * SPEED_SCALE * TEN_POW_DECIMAL_PLACES) / TEN_POW_DECIMAL_PLACES; //Rounded to <DECIMAL_PLACES> decimal places
+            this.text += "Relative speed: " + ROUNDED_REL_SPEED + " " + SPEED_UNITS + "\n";
+            //----------------------------------------//
+        }
+
+        //----------------------------------------//
+        //Draw
+        const POS = center.sub(new Vec2(
+            this.radius + this.outlineWidth,
+            0
+        ));
+        Game.renderer.fill(this.textColour);
+        Game.renderer.text(this.text, 'right', 'middle', this.textSize, this.font, POS, false, true);
+        //----------------------------------------//
+    }
+    //----------------------------------------------------------------------//
 }
 //----------------------------------------------------------------------//
