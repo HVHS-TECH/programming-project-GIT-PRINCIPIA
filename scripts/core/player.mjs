@@ -280,6 +280,7 @@ export class Player {
 
     //----------------------------------------------------------------------//
     //spawnThrusterParticles()
+    //spawn particles emanating from the thruster of the player
     static spawnThrusterParticles() {
         //----------------------------------------//
         //Thruster particle settings

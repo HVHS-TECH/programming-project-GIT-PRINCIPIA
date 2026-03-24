@@ -13,6 +13,7 @@ export class Time {
     static fps = 0;
     static frame = 0;
     static seconds = 0;
+    static TARGET_FPS = 60;
 
     //----------------------------------------------------------------------//
     //Update()
@@ -26,7 +27,7 @@ export class Time {
         Time.seconds += Time.deltaTime;
         
         //Prevent divide by 0 or ridiculus values (6 < FPS < 600)
-        Time.scaleDeltaTime = clamp((Time.deltaTime * 60), 0.01, 10); //deltaTime x target fps
+        Time.scaleDeltaTime = clamp((Time.deltaTime * Time.TARGET_FPS), 0.01, 10); //deltaTime x target fps
         
         Time.last = NOW;
         Time.fps = 1 / Time.deltaTime;

@@ -52,7 +52,8 @@ export class Navball extends UIelement {
         this.velRefName = velRefName;
         this.frame = 100000;
 
-        this.text = "";
+        this.closestPlanetDist = 0;
+        this.closestPlanetRelVel = 0;
     }
 
     //----------------------------------------------------------------------//
@@ -246,50 +247,52 @@ export class Navball extends UIelement {
     //Draw nearest planet distance
     //Draw nearest planet relative speed
     DrawText(center) {
+        //----------------------------------------//
+        //Update text
+        //----------------------------------------//
+        const DISTANCE_UNITS = "m";
+        const DISTANCE_SCALE = 1; //To make it match the units sensibly
+
+
+        const DECIMAL_PLACES = 2;
+        const TEN_POW_DECIMAL_PLACES = Math.pow(10, DECIMAL_PLACES);
+
+        const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
+        const CLOSEST_PLANET = Game.PLANETS[CLOSEST_IDX];
+
+        var textRight = "";
+        var textLeft = "";
+        
+        //----------------------------------------//
+        //Nearest planet name
+        textLeft += "Closest planet: '" + CLOSEST_PLANET.data.name + "'\n";
+        //----------------------------------------//
+
+        //----------------------------------------//
+        //Nearest planet is discovered?
+        if (CLOSEST_PLANET.data.discovered) {
+            //Planet has been discovered already
+            textLeft += "Discovered!\n";
+        } else {
+            //Planet has not yet been discovered
+            textLeft += "Not yet discovered!\n";
+        }
+        //----------------------------------------//
+
         const FREQUENCY = 1;
         if (Time.frame % 10 == FREQUENCY) {
             //----------------------------------------//
-            //Update text
+            //Update distance and rel vel 
             //----------------------------------------//
-
-            this.text = ""; //Reset text
-
-
-            const DISTANCE_UNITS = "km";
-            const DISTANCE_SCALE = 0.1; //To make it match the units sensibly
-
-            const SPEED_UNITS = "km/s"
-            const SPEED_SCALE = 1; //To make it match the units sensibly
-
-            const DECIMAL_PLACES = 2;
-            const TEN_POW_DECIMAL_PLACES = Math.pow(10, DECIMAL_PLACES);
-
-            const CLOSEST_IDX = Game.getClosestPlanet(Player.pos, true);
-            const CLOSEST_PLANET = Game.PLANETS[CLOSEST_IDX];
-
-            //----------------------------------------//
-            //Nearest planet name
-            this.text += "Closest planet: '" + CLOSEST_PLANET.data.name + "'\n";
-            //----------------------------------------//
-
-
-            //----------------------------------------//
-            //Nearest planet is discovered?
-            if (CLOSEST_PLANET.data.discovered) {
-                //Planet has been discovered already
-                this.text += "Discovered!\n";
-            } else {
-                //Planet has not yet been discovered
-                this.text += "Not yet discovered!\n";
-            }
-            //----------------------------------------//
+            
 
 
             //----------------------------------------//
             //Nearest planet distance
             const DIST = Vec2.dist(CLOSEST_PLANET.data.pos, Player.pos) - CLOSEST_PLANET.data.radius - Player.HEIGHT / 2;
             const ROUNDED_DIST = Math.round(DIST * DISTANCE_SCALE * TEN_POW_DECIMAL_PLACES) / TEN_POW_DECIMAL_PLACES;
-            this.text += "Distance to '" + CLOSEST_PLANET.data.name + "': " + ROUNDED_DIST + " " + DISTANCE_UNITS + "\n";
+            this.closestPlanetDist = ROUNDED_DIST;
+            
             //----------------------------------------//
 
 
@@ -297,19 +300,41 @@ export class Navball extends UIelement {
             //Nearest planet reltative speed
             const REL_VEL = Player.vel.sub(CLOSEST_PLANET.data.vel);
             const REL_SPEED = REL_VEL.len();
-            const ROUNDED_REL_SPEED = Math.round(REL_SPEED * SPEED_SCALE * TEN_POW_DECIMAL_PLACES) / TEN_POW_DECIMAL_PLACES; //Rounded to <DECIMAL_PLACES> decimal places
-            this.text += "Relative speed: " + ROUNDED_REL_SPEED + " " + SPEED_UNITS + "\n";
+            const ROUNDED_REL_SPEED = Math.round(REL_SPEED * DISTANCE_SCALE * Time.TARGET_FPS * TEN_POW_DECIMAL_PLACES) / TEN_POW_DECIMAL_PLACES; //Rounded to <DECIMAL_PLACES> decimal places
+            this.closestPlanetRelVel = ROUNDED_REL_SPEED;
+            
             //----------------------------------------//
         }
 
         //----------------------------------------//
+        //Nearest planet distance
+        textRight += "Distance to '" + CLOSEST_PLANET.data.name + "': " + this.closestPlanetDist + " " + DISTANCE_UNITS + "\n";
+        //----------------------------------------//
+
+        //----------------------------------------//
+        //Nearest planet relative speed
+        textRight += "Relative speed: " + this.closestPlanetRelVel + " " + DISTANCE_UNITS + "/s\n";
+        //----------------------------------------//
+
+
+        //----------------------------------------//
         //Draw
-        const POS = center.sub(new Vec2(
+
+        const RIGHT_POS = center.add(new Vec2(
             this.radius + this.outlineWidth,
             0
         ));
+
+        const LEFT_POS = center.add(new Vec2(
+            -this.radius - this.outlineWidth,
+            0
+        ));
         Game.renderer.fill(this.textColour);
-        Game.renderer.text(this.text, 'right', 'middle', this.textSize, this.font, POS, false, true);
+        //Text on the left
+        Game.renderer.text(textLeft, 'right', 'middle', this.textSize, this.font, LEFT_POS, false, true);
+
+        //Text on the right
+        Game.renderer.text(textRight, 'left', 'middle', this.textSize, this.font, RIGHT_POS, false, true);
         //----------------------------------------//
     }
     //----------------------------------------------------------------------//
