@@ -187,7 +187,7 @@ export class Game {
             'center',
             500,
             750,
-            1000, //Drops down x units
+            0, //Since the dropdown distance varies with screen size, it is constantly calculated in CheckToToggle() (defined below)
             1, //starts dropped down
             10, //time to drop down
             function(){ //Called every frame, should the dropdown toggle?
@@ -205,6 +205,10 @@ export class Game {
                 else {
                     this.targetDropdownValue = 1;
                 }
+
+                //Make sure the dropdown is always off screen when dropped-down
+                this.dropdownDist = Game.renderer.cnvHeight + this.height;
+                this.loweredPos = this.raisedPos.sub(new Vec2(0,this.dropdownDist));
                 
             },
             //Pause menu container
