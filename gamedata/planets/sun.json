@@ -11,7 +11,6 @@
         "referenceBodyNames": ["none"]
     },
     "land": {
-        "radius": 1500, 
         "colour": {"r": 250, "g": 200, "b": 150}, 
         "outlineColour": {"r": 220, "g": 220, "b": 220},
         "innerColour": {"r": 255, "g": 230, "b": 200}, 

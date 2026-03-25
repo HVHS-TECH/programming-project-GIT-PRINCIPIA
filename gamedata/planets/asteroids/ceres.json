@@ -1,15 +1,15 @@
 {
     "data": {
-        "name": "asteroid_5",
+        "name": "ceres",
 
-        "x": -8000,
-        "y": 0,
+        "x": 6000,
+        "y": -6000,
 
-        "xVel": 0,
-        "yVel": -1.2,
+        "xVel": 0.85,
+        "yVel": 0.85,
 
-        "mass": 120,
-        "radius": 30,
+        "mass": 3000,
+        "radius": 100,
         "referenceBodyNames": ["sun"]
     },
     "land": {

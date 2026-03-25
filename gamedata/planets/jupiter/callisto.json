@@ -1,16 +1,16 @@
 {
     "data": {
-        "name": "asteroid_5",
+        "name": "callisto",
 
-        "x": -8000,
+        "x": 21000,
         "y": 0,
 
         "xVel": 0,
-        "yVel": -1.2,
+        "yVel": -0.05,
 
-        "mass": 120,
-        "radius": 30,
-        "referenceBodyNames": ["sun"]
+        "mass": 17000,
+        "radius": 200,
+        "referenceBodyNames": ["jupiter", "sun"]
     },
     "land": {
         "colour": {"r": 200, "g": 180, "b": 180}, 

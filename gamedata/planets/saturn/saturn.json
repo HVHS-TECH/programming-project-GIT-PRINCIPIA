@@ -6,10 +6,10 @@
         "y": 0,
 
         "xVel": 0,
-        "yVel": -0.5,
+        "yVel": -0.6,
         
         "mass": 300000,
-        "radius": 400,
+        "radius": 1500,
         "referenceBodyNames": ["sun"]
     },
     

@@ -14,7 +14,6 @@
     },
 
     "land": {
-        "radius": 500, 
 
         "colour": {"r": 150, "g": 200, "b": 50}, 
         "outlineColour": {"r": 50, "g": 75, "b": 25},

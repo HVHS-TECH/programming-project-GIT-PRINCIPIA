@@ -13,7 +13,6 @@
         "referenceBodyNames": ["sun"]
     },
     "land": {
-        "radius": 100, 
         "colour": {"r": 230, "g": 200, "b": 200}, 
         "outlineColour": {"r": 140, "g": 120, "b": 120},
         "innerColour": {"r": 120, "g": 100, "b": 100}, 

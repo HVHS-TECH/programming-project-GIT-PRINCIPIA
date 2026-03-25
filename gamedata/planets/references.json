@@ -3,15 +3,21 @@
         "mercury.json",
         "venus.json",
         
-        "earth.json",
-        "moon.json",
+        "earth/earth.json",
+        "earth/moon.json",
 
         "mars.json",
         
 
-        "jupiter.json",
+        "jupiter/jupiter.json",
+        "jupiter/io.json",
+        "jupiter/europa.json",
+        "jupiter/ganymede.json",
+        "jupiter/callisto.json",
+
+
         "pluto.json",
-        "saturn.json",
+        "saturn/saturn.json",
         
 
         "asteroids/asteroid_1.json",
@@ -19,6 +25,7 @@
         "asteroids/asteroid_3.json",
         "asteroids/asteroid_4.json",
         "asteroids/asteroid_5.json",
+        "asteroids/ceres.json",
 
         
         "sun.json"
