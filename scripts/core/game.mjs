@@ -193,12 +193,19 @@ export class Game {
             function(){ //Called every frame, should the dropdown toggle?
                 if (Input.KeyDown("Escape")) {
                     this.ToggleDroppedDown();
+                    if (this.targetDropdownValue < 1) {
+                        Game.paused = true;
+                    } else {
+                        Game.paused = false;
+                    }
                 }
-                if (this.targetDropdownValue < 1) {
-                    Game.paused = true;
-                } else {
-                    Game.paused = false;
+                if (Game.paused) {
+                    this.targetDropdownValue = 0;
                 }
+                else {
+                    this.targetDropdownValue = 1;
+                }
+                
             },
             //Pause menu container
             new Container(
@@ -206,7 +213,7 @@ export class Game {
                 'center',
                 500,
                 750,
-                Colour.rgba(200,200,200,0.5),
+                Colour.rgba(255, 250, 174, 0.64),
                 Colour.rgba(0,0,0,0.2),
                 0,
                 //Items contained within the pause menu
@@ -217,7 +224,7 @@ export class Game {
                         'top',
                         400,
                         200,
-                        Colour.rgb(0,0,0),
+                        Colour.rgb(10, 26, 19),
                         80,
                         'monospace',
                         'center',
@@ -225,19 +232,18 @@ export class Game {
                         "GamePausedTitle"
                     ),
 
-                    //Restart game button
+
+                    //Back to game (unpause) button
                     new Button(
-                        new Vec2(0, 200),
+                        new Vec2(0, 300),
                         'bottom',
                         //Dimensions
 
                         //Width
-                        300,
-                        250,
+                        400,
 
                         //Height
                         80,
-                        70,
 
                         //Background
                         Colour.rgb(26, 61, 44),
@@ -248,7 +254,48 @@ export class Game {
                         Colour.rgb(0,0,0),
 
                         5,
-                        3,
+                        0.9,
+                        [
+                            new Text(
+                                new Vec2(0,0),
+                                'center',
+                                300,
+                                80,
+                                Colour.rgb(252, 235, 179),
+                                40,
+                                'monospace',
+                                'center',
+                                'middle',
+                                "BackToGameText"
+                            )
+                        ],
+                        //Restart the game when button clicked
+                        function(){Game.paused = false}
+                    ),
+
+
+                    //Restart game button
+                    new Button(
+                        new Vec2(0, 200),
+                        'bottom',
+                        //Dimensions
+
+                        //Width
+                        300,
+
+                        //Height
+                        80,
+
+                        //Background
+                        Colour.rgb(26, 61, 44),
+                        Colour.rgb(2, 34, 27),
+
+                        //Outline
+                        Colour.rgb(0,0,0),
+                        Colour.rgb(0,0,0),
+
+                        5,
+                        0.9,
                         [
                             new Text(
                                 new Vec2(0,0),
@@ -263,7 +310,8 @@ export class Game {
                                 "RestartGameText"
                             )
                         ],
-                        function(){}
+                        //Restart the game when button clicked
+                        function(){Game.Restart();}
                     ),
 
                     //Quit to main menu button
@@ -274,11 +322,9 @@ export class Game {
 
                         //Width
                         400,
-                        350,
 
                         //Height
                         80,
-                        70,
 
                         //Background
                         Colour.rgb(26, 61, 44),
@@ -289,7 +335,7 @@ export class Game {
                         Colour.rgb(0,0,0),
 
                         5,
-                        3,
+                        0.9,
                         [
                             new Text(
                                 new Vec2(0,0),
@@ -304,7 +350,8 @@ export class Game {
                                 "QuitToMainMenuText"
                             )
                         ],
-                        function(){}
+                        //Quit to main menu
+                        function(){Game.setPage(Game.HOME_TITLE);}
                     )
                 ]
             )
@@ -368,7 +415,10 @@ export class Game {
         new RefVar(
             "HelpText", //The help text displayed above score
             function() { //Get
-                return "Controls: \n" + "Movement: W => move forward, A => rotate left, D => rotate right \n" +"Other: Space => speed up time, Arrow up / down => zoom \n" + "R => restart game";
+                return "Controls: \n" + 
+                "Movement: W => move forward, A => rotate left, D => rotate right \n" + 
+                "Other: Space => speed up time, Arrow up / down => zoom \n" + 
+                "R => restart game, Escape => toggle pause menu";
             }
         ),
         new RefVar(
@@ -393,6 +443,12 @@ export class Game {
             "RestartGameText", //Text displayed in pause menu restart game button
             function() { //Get
                 return "Restart Game";
+            }
+        ),
+        new RefVar(
+            "BackToGameText",
+            function() { //Get
+                return "Back To Game";
             }
         )
     ];
@@ -456,6 +512,8 @@ export class Game {
         //----------------------------------------//
         
         console.log("Game.Start: initialized");
+        Game.paused = false;
+        Game.timewarp = 1;
         
         Game.animationFrameID = setTimeout(Game.Update, 0);
     }
@@ -468,6 +526,14 @@ export class Game {
         //Currently, the last Game.Update() callback is waiting to be called. 
         //If we do not cancel it, we will have two game loops running
         clearTimeout(Game.animationFrameID);
+        //Reset UI element dropdown values
+        for (var i = 0; i < Game.UI_ELEMENTS.length; i++) {
+            var element = Game.UI_ELEMENTS[i];
+            if (element instanceof Dropdown) {
+                //Element is a dropdown, reset its target state (don't reset its state, it looks nice)
+                element.targetDropdownValue = element.startDropdownState;
+            }
+        }
         Game.Start();
     }
     //----------------------------------------------------------------------//

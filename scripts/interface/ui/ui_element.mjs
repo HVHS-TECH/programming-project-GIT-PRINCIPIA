@@ -54,14 +54,14 @@ export class UIelement {
     //MousedOver(pos)
     //checks whether the mouse is within the bounds of the dropdown IF it was at position 'pos'
     MousedOver(pos) {
-        const PREV_POS = this.pos; //To be restored later
-        this.pos = pos;
+        const PREV_POS = new Vec2(this.pos.x, this.pos.y); //To be restored later
+        this.pos = new Vec2(pos.x, pos.y);
         const MOUSE_POS = new Vec2(Input.mouseX, Input.mouseY);
         const CENTER = Game.renderer.worldToCanvas(this.GetCenter(), false, true);
         const DELTA = CENTER.sub(MOUSE_POS);
         const X_IN_RANGE = (Math.abs(DELTA.x) < this.width / 2); //Is the mouse X in range?
         const Y_IN_RANGE = (Math.abs(DELTA.y) < this.height / 2);//Is the mouse Y in range?
-        this.pos = PREV_POS; //Restore pos after calculations
+        this.pos = new Vec2(PREV_POS.x, PREV_POS.y); //Restore pos after calculations
         return (X_IN_RANGE && Y_IN_RANGE);
     }
     //----------------------------------------------------------------------//

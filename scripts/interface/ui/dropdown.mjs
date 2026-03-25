@@ -41,6 +41,7 @@ export class Dropdown extends UIelement {
         
         this.targetDropdownValue = dropdownState;
         this.t = dropdownState; //For interpolation
+        this.startDropdownState = dropdownState; //Used in game.restart to reset dropdowns
     }
     
 

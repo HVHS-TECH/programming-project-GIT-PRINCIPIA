@@ -10,6 +10,7 @@ export class Input {
     static mouseX;
     static mouseY;
     static keysDown = [];
+    static mouseDown = false;
 
     //----------------------------------------------------------------------//
     //Initialize()
@@ -23,6 +24,9 @@ export class Input {
             Input.keysDown[event.code] = false;
         });
         document.onmousemove = function(evt){Input.mouseX = evt.pageX; Input.mouseY = evt.pageY;};
+
+        document.addEventListener("mousedown", function(event){Input.mouseDown = true});
+        document.addEventListener("mouseup", function(event){Input.mouseDown = false});
     }
     //----------------------------------------------------------------------//
 
