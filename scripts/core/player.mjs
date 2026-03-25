@@ -708,6 +708,7 @@ export class Player {
             const VEL_RANDOMNESS = 0.15 * (1 - SEVERITY_BLEND); //Velocity gets more random when the player is on a severe reentry (severity_blend == )
             const VEL = OTHER_VEL.add(
                 new Vec2(
+                    //(Math.random() * 2 - 1) is in range [-1] -> [+1]
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS, 
                     (Math.random() * 2 - 1) * VEL_RANDOMNESS
                 )
@@ -923,8 +924,8 @@ export class Player {
     static drawTrajectory() {
 
         //Depth decreases as the player zooms in.
-        const MAX_DEPTH = 5000;
-        const DEPTH = MAX_DEPTH / clamp(Player.smoothZoom * 5, 1, 10);
+        const MAX_DEPTH = 5000; 
+        const DEPTH = MAX_DEPTH / clamp(Player.smoothZoom * 5, 1, 10); //Max simulation length
         
         const DT = 1; //1 / <DT> times as accurate e.g a value of 1 is 'perfectly' accurate (aside from floating point error)
         
@@ -946,6 +947,7 @@ export class Player {
 
         const PLAYER_POS = Player.pos;
         const PLAYER_VEL = Player.vel;
+
         //----------------------------------------//
         //Simulation state variables
         var pos = Player.pos;
@@ -1094,11 +1096,11 @@ export class Player {
             for (var p = 0; p < fake_planets.length; p++) {
                 const DELTA = dynamicPlanetPositions[p].sub(pos);
                 const DELTA_NORM = DELTA.norm();
-                const DIST_SQUARED = DELTA.sqrMag();
+                const DIST_SQUARED = DELTA.sqrMag(); 
                 const ACCEL = Game.G * PLANET_MASSES[p] / (DIST_SQUARED) * DT;
                 vel = vel.add(DELTA_NORM.mul(ACCEL));
                 if (fake_planets[p].land != null) { //There IS a surface to collide with
-                    if (DIST_SQUARED < PLANET_RADII[p] ** 2) {
+                    if (DIST_SQUARED < PLANET_RADII[p] ** 2) { 
                     
                         //finish drawing the trajectories
                         for (var t = 0; t < planetTrajectories.length; t++) {
@@ -1113,7 +1115,8 @@ export class Player {
                         const PLANET_POS = dynamicPlanetPositions[p];
                         const REL_VEL = vel.sub(dynamicPlanetVelocities[p]);
                         
-                        const POS = pos.sub(PLANET_POS).add(START_PLANET_POSITIONS[p]);
+                        const POS = pos.sub(PLANET_POS).add(START_PLANET_POSITIONS[p]); //Relative to fake planet pos => relative to current planet pos
+
                         drawImpactCircle(POS, Player.isImpactFatal(REL_VEL, DELTA_NORM))
 
                             

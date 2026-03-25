@@ -28,10 +28,16 @@ export class Container extends UIelement {
         this.outlineWidth = outlineWidth;
 
         this.items = items;
-        
+        //Initialize items' parents
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i] != null) {
+                this.items[i].parent = this;
+            }
+        }
     }
 
     Update() {
+        
         for (var i = 0; i < this.items.length; i++) {
             if (this.items[i] != null) {
                 this.items[i].parent = this;

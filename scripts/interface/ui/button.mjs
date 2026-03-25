@@ -28,6 +28,13 @@ export class Button extends UIelement {
         this.outlineWidth = outlineWidth;
 
         this.items = items;
+
+        //Initialize items' parents
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i] != null) {
+                this.items[i].parent = this;
+            }
+        }
         
         this.onClick = onClick;
     }
@@ -39,11 +46,9 @@ export class Button extends UIelement {
                 this.items[i].Update();
             }
         }
-        if (this.MousedOver()) {
-            this.onClick;
-            
-        }
-        
+        //if (this.MousedOver()) {
+        //    this.onClick();
+        //}
     }
     Draw() {
         var center = this.GetCenter();

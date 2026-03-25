@@ -24,7 +24,7 @@ export class Dropdown extends UIelement {
     static dropdownTimeout = 300; //<dropdownTimeout> ms between dropdowns
     //Trigger element: the ui element that displays where the dropdown is e.g an arrow icon, etc
     //container: the container class that this dropdown 'drops down'.
-    constructor(pos, align, width, height, dropdownDist, dropdownTime, triggerFunc, container) {
+    constructor(pos, align, width, height, dropdownDist, dropdownState, dropdownTime, triggerFunc, container) {
         super(pos, align, width, height);
         this.raisedPos = pos;
         this.loweredPos = pos.sub(new Vec2(0, dropdownDist));
@@ -34,10 +34,13 @@ export class Dropdown extends UIelement {
 
         this.CheckToToggle = triggerFunc;
         this.container = container;
+        if (this.container != null) this.container.parent = this;
+
+        
         this.timeSinceLastDroppedDown = 0;
         
-        this.targetDropdownValue = 0;
-        this.t = 0; //For interpolation
+        this.targetDropdownValue = dropdownState;
+        this.t = dropdownState; //For interpolation
     }
     
 

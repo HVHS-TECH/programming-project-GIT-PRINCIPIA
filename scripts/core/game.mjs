@@ -125,6 +125,7 @@ export class Game {
     //----------------------------------------------------------------------//
     //The UI elements that make up the screen
     static UI_ELEMENTS = [
+        //----------------------------------------------------------------------//
         //fuel
         new VertMeter(new Vec2(-80,0), 'right', 80, 700, Colour.rgb(100, 0, 0), Colour.rgb(85, 255, 0), Colour.rgb(0, 140, 255), 5, "PlayerFuel"), //Fuel
         
@@ -133,21 +134,28 @@ export class Game {
         
         //navball
         new Navball(new Vec2(0, 180), 'bottom', 160, Colour.rgb(200, 200, 200), Colour.rgb(50, 75, 100), Colour.rgb(34, 52, 70), Colour.rgb(200, 200, 200), Colour.rgb(255, 255, 255), Colour.rgb(21, 51, 33), 15, 25, "monospace", "PlayerVel", "PlayerVelDir"), //Navball
-        
+        //----------------------------------------------------------------------//
+
+
+        //----------------------------------------------------------------------//
         //top dropdown
-        new Dropdown(new Vec2(0, 80), 'top', 400, 150, 150, 10, 
+        new Dropdown(new Vec2(0, 80), 'top', 400, 150, 150, 0, 10, 
             function(){ //Function that determines if it should toggle (must do the toggling)
                 const DROPDOWN = this.MousedOver(this.loweredPos);
                 if (DROPDOWN) {
-                    this.targetDropdownValue = 1; //Drop down
+                    this.targetDropdownValue = 1;
                 } else {
-                    this.targetDropdownValue = 0; //Raise up
+                    this.targetDropdownValue = 0;
                 }
             }, 
             new Container(new Vec2(0, 0), 'center', 900, 150, Colour.rgb(255, 241, 179), Colour.rgb(41, 2, 32), 10, 
                 [
+                    //----------------------------------------------------------------------//
                     //Help information
                     new Text(new Vec2(0,0), 'center', 900, 125, Colour.rgb(0, 0, 0), 23, "monospace", 'center', 'middle', "HelpText"),
+                    //----------------------------------------------------------------------//
+
+                    //----------------------------------------------------------------------//
                     //Container for score text
                     new Container(new Vec2(-200, -35), 'bottom', 450, 70, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
                         [   //Score text is rendered in a container located below the dropdown
@@ -155,16 +163,153 @@ export class Game {
                         ]
                         ),
                     
+                    //----------------------------------------------------------------------//
+
+                    //----------------------------------------------------------------------//
                     //Prompt text telling the user that the help information above exists
                     new Container(new Vec2(200, -20), 'bottom', 200, 40, Colour.rgb(241, 222, 135), Colour.rgb(39, 36, 39), 5,
                         [   //Text
                             new Text(new Vec2(0,0), 'center', 300, 125, Colour.rgb(0, 0, 0), 25, "monospace", 'center', 'middle', "HelpTextPromptText")
                         ]
                     )
+                    //----------------------------------------------------------------------//
                     
                 ]
             )
+        ),
+        //----------------------------------------------------------------------//
+
+
+        //----------------------------------------------------------------------//
+        //escape / pause menu
+        new Dropdown(
+            new Vec2(0,0),
+            'center',
+            500,
+            750,
+            1000, //Drops down x units
+            1, //starts dropped down
+            10, //time to drop down
+            function(){ //Called every frame, should the dropdown toggle?
+                if (Input.KeyDown("Escape")) {
+                    this.ToggleDroppedDown();
+                }
+                if (this.targetDropdownValue < 1) {
+                    Game.paused = true;
+                } else {
+                    Game.paused = false;
+                }
+            },
+            //Pause menu container
+            new Container(
+                new Vec2(0,0),
+                'center',
+                500,
+                750,
+                Colour.rgba(200,200,200,0.5),
+                Colour.rgba(0,0,0,0.2),
+                0,
+                //Items contained within the pause menu
+                [
+                    //Title text of pause menu
+                    new Text(
+                        new Vec2(0, -70),
+                        'top',
+                        400,
+                        200,
+                        Colour.rgb(0,0,0),
+                        80,
+                        'monospace',
+                        'center',
+                        'middle',
+                        "GamePausedTitle"
+                    ),
+
+                    //Restart game button
+                    new Button(
+                        new Vec2(0, 200),
+                        'bottom',
+                        //Dimensions
+
+                        //Width
+                        300,
+                        250,
+
+                        //Height
+                        80,
+                        70,
+
+                        //Background
+                        Colour.rgb(26, 61, 44),
+                        Colour.rgb(2, 34, 27),
+
+                        //Outline
+                        Colour.rgb(0,0,0),
+                        Colour.rgb(0,0,0),
+
+                        5,
+                        3,
+                        [
+                            new Text(
+                                new Vec2(0,0),
+                                'center',
+                                300,
+                                80,
+                                Colour.rgb(252, 235, 179),
+                                40,
+                                'monospace',
+                                'center',
+                                'middle',
+                                "RestartGameText"
+                            )
+                        ],
+                        function(){}
+                    ),
+
+                    //Quit to main menu button
+                    new Button(
+                        new Vec2(0, 100),
+                        'bottom',
+                        //Dimensions
+
+                        //Width
+                        400,
+                        350,
+
+                        //Height
+                        80,
+                        70,
+
+                        //Background
+                        Colour.rgb(26, 61, 44),
+                        Colour.rgb(2, 34, 27),
+
+                        //Outline
+                        Colour.rgb(0,0,0),
+                        Colour.rgb(0,0,0),
+
+                        5,
+                        3,
+                        [
+                            new Text(
+                                new Vec2(0,0),
+                                'center',
+                                300,
+                                80,
+                                Colour.rgb(252, 235, 179),
+                                40,
+                                'monospace',
+                                'center',
+                                'middle',
+                                "QuitToMainMenuText"
+                            )
+                        ],
+                        function(){}
+                    )
+                ]
+            )
         )
+        //----------------------------------------------------------------------//
     ];
     //----------------------------------------------------------------------//
 
@@ -231,6 +376,24 @@ export class Game {
             function() { //Get
                 return "↑ CONTROLS ↑";
             }
+        ),
+        new RefVar(
+            "GamePausedTitle", //Title of the game paused menu
+            function() { //Get
+                return "Game Paused";
+            }
+        ), 
+        new RefVar(
+            "QuitToMainMenuText", //Text displayed in pause menu quit to main menu button
+            function() { //Get
+                return "Quit To Main Menu";
+            }
+        ),
+        new RefVar(
+            "RestartGameText", //Text displayed in pause menu restart game button
+            function() { //Get
+                return "Restart Game";
+            }
         )
     ];
     //----------------------------------------------------------------------//
@@ -244,6 +407,9 @@ export class Game {
 
     //The ID returned by requestAnimationFrame(), used to stop the game loop
     static animationFrameID = 0;
+
+    //Is the game paused?
+    static paused = false;
     //----------------------------------------------------------------------//
 
     //state id-s
@@ -330,35 +496,40 @@ export class Game {
         const INTEGER_PORTION = Math.max(Math.floor(Game.smoothTimeWarp), 1);
 
         const DT = Time.scaleDeltaTime * (Game.smoothTimeWarp / INTEGER_PORTION);
-        for (var k = 0; k < INTEGER_PORTION; k++) {
-            //----------------------------------------//
-            //Use verlet velocity integration to reduce integration error
-            for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update(DT, Game.PLANETS);
-            }
-            for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Integrate(DT);
-            }
-            for (var p = 0; p < Game.PLANETS.length; p++) {
-                Game.PLANETS[p].Update(DT, Game.PLANETS);
-            }
-            //----------------------------------------//
+        if (!Game.paused) {
+            //only update if the game is paused
+            for (var k = 0; k < INTEGER_PORTION; k++) {
+                //----------------------------------------//
+                //Use verlet velocity integration to reduce integration error
+                for (var p = 0; p < Game.PLANETS.length; p++) {
+                    Game.PLANETS[p].Update(DT, Game.PLANETS);
+                }
+                for (var p = 0; p < Game.PLANETS.length; p++) {
+                    Game.PLANETS[p].Integrate(DT);
+                }
+                for (var p = 0; p < Game.PLANETS.length; p++) {
+                    Game.PLANETS[p].Update(DT, Game.PLANETS);
+                }
+                //----------------------------------------//
 
-            for (var e = 0; e < Game.UI_ELEMENTS.length; e++) {
+                
+
+                for (var i = 0; i < Game.PARTICLES.length; i++) {
+                    if (Game.PARTICLES[i].frame < Game.PARTICLES[i].lifetime) {
+                        //Particle is alive, update
+                        Game.PARTICLES[i].Update(DT);
+                    }
+                    
+                }
+
+                Player.Update(DT);
+
+            }
+        }
+        for (var e = 0; e < Game.UI_ELEMENTS.length; e++) {
                 Game.UI_ELEMENTS[e].Update();
             }
-
-            for (var i = 0; i < Game.PARTICLES.length; i++) {
-                if (Game.PARTICLES[i].frame < Game.PARTICLES[i].lifetime) {
-                    //Particle is alive, update
-                    Game.PARTICLES[i].Update(DT);
-                }
-                
-            }
-
-            Player.Update(DT);
-
-        }
+        
         Time.Update();
         if (Input.KeyDown("KeyG")) {
             Game.UI_ELEMENTS[3].ToggleDroppedDown();
