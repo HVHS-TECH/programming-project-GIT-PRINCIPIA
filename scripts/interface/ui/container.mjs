@@ -52,7 +52,6 @@ export class Container extends UIelement {
         //Draw the background
         var tl = center.add(new Vec2(-this.width / 2, this.height / 2));
         var br = center.add(new Vec2(this.width / 2, -this.height / 2));
-
         Game.renderer.stroke(this.outline, this.outlineWidth, false, true);
         Game.renderer.fill(this.background);
         Game.renderer.rect(tl, br, false, true);

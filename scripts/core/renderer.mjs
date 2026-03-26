@@ -94,6 +94,8 @@ export class Renderer {
             Game.UI_ELEMENTS[e].Draw();
         }
         //----------------------------------------//
+
+        this.text("height: " + this.cnvHeight + ", virtual canvas size: " + this.scaleCnvSize, 'center', 'middle', 40, 'monospace', new Vec2(0,0), false, true);
     }
     //----------------------------------------------------------------------//
 
@@ -412,6 +414,7 @@ export class Renderer {
         if (verticalAlign.includes('bottom')) {start = 0; end = (NUM_LINES - 1) * LINE_SPACING}
         for (var y = start; y <= end; y += LINE_SPACING) {
             this.cnv.fillText(TEXT_ARRAY[Math.round((y - start) / LINE_SPACING)], pos.x, pos.y + y + LINE_SPACING / 3); //idk why 3, but it works
+            
         }   
 
 
@@ -437,10 +440,12 @@ export class Renderer {
             pos = pos.rotate(-Player.smoothDir + Math.PI / 2);
         }
         //----------------------------------------//
-
+        //console.log("Pos before:");
+        //console.dir(pos);
 
         pos = pos.mul(new Vec2(1, -1)); //Canvas y is inverted
-
+        //console.log("Pos mid:");
+        //console.dir(pos);
 
         //----------------------------------------//
         //Transform based on screen dimensions
@@ -450,7 +455,8 @@ export class Renderer {
             pos = pos.add(this.cnvHalfDimen);
         }
         //----------------------------------------//
-        
+        //console.log("Pos final:");
+        //console.dir(pos);
         
         return pos;
     }

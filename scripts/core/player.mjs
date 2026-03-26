@@ -234,7 +234,7 @@ export class Player {
         //What fraction of height up the player's length is the port (thruster)?
         const PORT_HEIGHT_FRAC = 0.9;
 
-        //Position of the thruster port
+        //Position of the thruster port (relative to player)
         const PORT_POS = Player.pos.add(
             FRONT_DIR.mul(Player.HEIGHT / 2 * PORT_HEIGHT_FRAC).add(
                 //Left or right
@@ -247,6 +247,7 @@ export class Player {
 
             )
         );
+
         const NUM_PARTICLES = 20 * Time.scaleDeltaTime; //How many particles to spawn
         for (var i = 0; i < NUM_PARTICLES; i++) {
             const PARTICLE_VEL_DIR = Player.dir + ((dir) ? -Math.PI / 2 : Math.PI / 2);
@@ -254,7 +255,7 @@ export class Player {
             const PARTICLE_SPEED = 1 * strength + VEL_RANDOMNESS;
             const DIR_RANDOMNESS = ((Math.random() * 2 - 1) * 0.2) / strength;
             const PARTICLE_VEL = new Vec2(Math.sin(PARTICLE_VEL_DIR + DIR_RANDOMNESS) * PARTICLE_SPEED, Math.cos(PARTICLE_VEL_DIR + DIR_RANDOMNESS) * PARTICLE_SPEED);
-
+            
             Game.addParticle(
                 new Particle(
                     PORT_POS,

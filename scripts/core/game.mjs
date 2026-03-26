@@ -592,7 +592,7 @@ export class Game {
                     
                 }
 
-                Player.Update(DT);
+                //Player.Update(DT);
 
             }
         }
