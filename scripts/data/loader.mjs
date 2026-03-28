@@ -3,9 +3,8 @@
 //----------------------------------------------------------------------//
 //Written by Alex Curwen                                                //
 //Loader class                                                          //
-//Manages loading planets, images and assets, etc                       //
+//Manages loading planets, etc                                          //
 //----------------------------------------------------------------------//
-"use strict";
 import { Planet, Mountain, Ocean, PlanetData, PlanetSurface, PlanetOceans, PlanetAtmosphere, Ring, PlanetRings } from "../core/planet.mjs"
 import { Player } from "../core/player.mjs";
 import { Vec2, Colour } from "../utility/miscellaneous.mjs";

@@ -5,7 +5,6 @@
 //Player class                                                          //
 //Manages player movement and logic, as well as player rendering        //
 //----------------------------------------------------------------------//
-"use strict";
 import { Planet, PlanetAtmosphere, PlanetData, PlanetOceans, PlanetSurface } from "./planet.mjs";
 import { Game } from "./game.mjs";
 import { Input } from "../interface/input.mjs";

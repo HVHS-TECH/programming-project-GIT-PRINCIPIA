@@ -5,7 +5,6 @@
 //Renderer class                                                        //
 //Manages render functions and canvas setup                             //
 //----------------------------------------------------------------------//
-"use strict";
 import { Player } from './player.mjs';
 import { Vec2, Colour } from '../utility/miscellaneous.mjs';
 import { Game } from './game.mjs';

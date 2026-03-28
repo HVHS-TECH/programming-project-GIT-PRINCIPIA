@@ -9,8 +9,6 @@
 //planet colours class                                                  //
 //(for cleanliness)                                                     //
 //----------------------------------------------------------------------//
-
-"use strict";
 import {Colour, Vec2, DEG2RAD, normalizeAngle} from "../utility/miscellaneous.mjs";
 import { Renderer } from './renderer.mjs';
 import { Game } from './game.mjs';
