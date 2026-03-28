@@ -441,11 +441,8 @@ export class Player {
                 
                 Player.pos = Player.pos.sub(DELTA_NORM.mul(new Vec2(0.01, 0.01)));
             }
-            //Update variables as they are used later
-            var delta;
-            var dist;
-            delta = OTHER.data.pos.sub(Player.pos);
-            dist = delta.len();
+            var delta = OTHER.data.pos.sub(Player.pos);
+            var dist = delta.len();
             //----------------------------------------//
 
             
@@ -477,7 +474,7 @@ export class Player {
             const DIR_DIFF = normalizeAngle(Player.dir) - normalizeAngle(delta.dir());
             
             
-            const MIN_VEL_FOR_SHEAR_TILT = 0.05;
+            const MIN_VEL_FOR_SHEAR_TILT = 0.075;
             if (REL_VEL.len() > MIN_VEL_FOR_SHEAR_TILT) {
                 //Player is sliding sideways, tip over
 

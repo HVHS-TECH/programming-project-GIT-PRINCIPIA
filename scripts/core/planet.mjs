@@ -255,10 +255,41 @@ export class Planet {
     //DrawLocatorOutline()
     //draws a circle around the planet showing where it is
     DrawLocatorOutline() {
-        Game.renderer.stroke(Colour.rgb(183, 100, 200), 2, false, true);
+        const DISCOVERED_COLOUR = Colour.rgba(0, 255, 38, 0.5);
+        const UNDISCOVERED_COLOUR = Colour.rgba(183, 100, 200, 0.5);
+        const OUTLINE_COLOUR = (this.data.discovered) ? DISCOVERED_COLOUR : UNDISCOVERED_COLOUR;
+
+        Game.renderer.stroke(OUTLINE_COLOUR, 2, false, true);
         Game.renderer.beginPath();
         Game.renderer.arc(this.data.pos, this.data.radius * Planet.LOCATOR_RADIUS_RAD_MUL, 0, Math.PI * 2, true, true);
         Game.renderer.strokeShape();
+
+
+        //Also draw the name of the planet
+        const FONT_SIZE = this.data.radius * 1;
+
+
+        //Rotate the position to be always at the SCREEN-SPACE bottom of the planet's outline
+        const OFFSET = new Vec2(0, -this.data.radius * Planet.LOCATOR_RADIUS_RAD_MUL + FONT_SIZE / 2); //Slightly inside the outline
+        const ROTATED_OFFSET = Vec2.rotatePoint(OFFSET, -Player.smoothDir);
+        const POS = this.data.pos.add(ROTATED_OFFSET);
+
+        const TEXT = this.data.name.toUpperCase();
+        const MIN_DIST_2_PLAYER = FONT_SIZE * TEXT.length / 3; //Long planet names need the player to be further away
+
+        //Only draw if the text wont get in the way of the player's vision
+        if (Vec2.dist(POS, Player.pos) > MIN_DIST_2_PLAYER) {
+            Game.renderer.fill(OUTLINE_COLOUR);
+            Game.renderer.text(
+                TEXT,
+                'center', 'middle',
+                FONT_SIZE, 'monospace',
+                POS,
+                true, true
+            );
+        }
+        
+        
     }
     //----------------------------------------------------------------------//
 
