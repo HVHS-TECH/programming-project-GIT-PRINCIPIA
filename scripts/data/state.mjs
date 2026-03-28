@@ -9,7 +9,8 @@
 // - the high score                                                     //
 //----------------------------------------------------------------------//
 export class State {
-
+    static DEBUG_MODE = false;
+    static UPDATE_PLAYER = true;
     //----------------------------------------------------------------------//
     //getState(name)
     //get the stored state under name 'name'

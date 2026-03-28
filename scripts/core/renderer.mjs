@@ -9,6 +9,7 @@
 import { Player } from './player.mjs';
 import { Vec2, Colour } from '../utility/miscellaneous.mjs';
 import { Game } from './game.mjs';
+import { State } from '../data/state.mjs';
 export class Renderer {
     constructor() {
         //----------------------------------------//
@@ -95,7 +96,7 @@ export class Renderer {
         }
         //----------------------------------------//
 
-        this.text("height: " + this.cnvHeight + ", virtual canvas size: " + this.scaleCnvSize, 'center', 'middle', 40, 'monospace', new Vec2(0,0), false, true);
+        if (State.DEBUG_MODE) this.text("height: " + this.cnvHeight + ", virtual canvas size: " + this.scaleCnvSize, 'center', 'middle', 40, 'monospace', new Vec2(0,0), false, true);
     }
     //----------------------------------------------------------------------//
 

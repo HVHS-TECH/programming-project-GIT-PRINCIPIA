@@ -470,6 +470,10 @@ export class Game {
 
     //Is the game paused?
     static paused = false;
+
+    //Cooldown for debug toggles
+    static DEBUG_TOGGLE_COOLDOWN_TIME = 0.5; //Seconds
+    static debugToggelCooldown = 0;
     //----------------------------------------------------------------------//
 
     //state id-s
@@ -549,6 +553,16 @@ export class Game {
     //manages game logic, then renders scene using renderer
     static Update() {
         if (!Game.renderer.hasCnv) return; //No canvas, nothing to update
+        //Handle debug modes
+        if (Game.debugToggelCooldown > Game.DEBUG_TOGGLE_COOLDOWN_TIME) {
+            if (Input.KeyDown("KeyG")) State.UPDATE_PLAYER = !State.UPDATE_PLAYER;
+            if (Input.KeyDown("Period")) State.DEBUG_MODE = !State.DEBUG_MODE;
+            Game.debugToggelCooldown = 0;
+        } else {
+            Game.debugToggelCooldown += Time.deltaTime;
+        }
+        
+
         const TIMEWARP_SMOOTHING = 0.2;
         Game.smoothTimeWarp = lerp(Game.smoothTimeWarp, Game.timewarp, TIMEWARP_SMOOTHING);
 
@@ -592,7 +606,7 @@ export class Game {
                     
                 }
 
-                //Player.Update(DT);
+                if (State.UPDATE_PLAYER) Player.Update(DT);
 
             }
         }

@@ -14,6 +14,7 @@ import { Vec2, clamp, lerp, Colour} from "../../utility/miscellaneous.mjs";
 import { Player } from "../../core/player.mjs";
 import { Time } from "../../utility/time.mjs";
 import { Input } from "../../interface/input.mjs";
+import { State } from "../../data/state.mjs";
 
 
 //----------------------------------------------------------------------//
@@ -40,22 +41,27 @@ export class Text extends UIelement {
         //Game.renderer.cnv.font = this.fontSize + "px " + this.font;
         Game.renderer.fill(this.fontColour);
         Game.renderer.text(this.contents, this.textAlignX, this.textAlignY, this.fontSize, this.font, center, false, true);
-        const POS_CAM_SPACE = this.GetCenter();
-        const POS_CANVAS_SPACE = POS_CAM_SPACE.mul(new Vec2(1, -1)).div(Game.renderer.scaleCnvSize).mul(Game.renderer.cnvHeight).add(Game.renderer.cnvHalfDimen);
-        Game.renderer.fill(Colour.rgb(255, 255, 255));
-        Game.renderer.text(
-            "Alignment to parent: x: " + this.alignment.x + ", y: " + this.alignment.y + "\n" +
-            "Position camera space: x: " + Math.round(POS_CAM_SPACE.x) + ", y: " + Math.round(POS_CAM_SPACE.y) + "\n" +
-            "Position canvas space: x: " + Math.round(POS_CANVAS_SPACE.x) + ", y: " + Math.round(POS_CANVAS_SPACE.y) + "\n" + 
-            "Parent position: x: " + Math.round(this.parent.GetCenter().x) + ", y: " + Math.round(this.parent.GetCenter().y) + "\n" + 
-            "Offset to alignment: x: " + Math.round(this.pos.x) + ", y: " + Math.round(this.pos.y),
-            'center', 'middle',
-            15,
-            'monospace',
-            center.sub(new Vec2(0, 50)),
-            false,
-            true
-        );
+        
+        if (State.DEBUG_MODE) {
+            //Draw debug text
+            const POS_CAM_SPACE = this.GetCenter();
+            const POS_CANVAS_SPACE = POS_CAM_SPACE.mul(new Vec2(1, -1)).div(Game.renderer.scaleCnvSize).mul(Game.renderer.cnvHeight).add(Game.renderer.cnvHalfDimen);
+            Game.renderer.fill(Colour.rgb(255, 255, 255));
+            Game.renderer.text(
+                "Alignment to parent: x: " + this.alignment.x + ", y: " + this.alignment.y + "\n" +
+                "Position camera space: x: " + Math.round(POS_CAM_SPACE.x) + ", y: " + Math.round(POS_CAM_SPACE.y) + "\n" +
+                "Position canvas space: x: " + Math.round(POS_CANVAS_SPACE.x) + ", y: " + Math.round(POS_CANVAS_SPACE.y) + "\n" + 
+                "Parent position: x: " + Math.round(this.parent.GetCenter().x) + ", y: " + Math.round(this.parent.GetCenter().y) + "\n" + 
+                "Offset to alignment: x: " + Math.round(this.pos.x) + ", y: " + Math.round(this.pos.y),
+                'center', 'middle',
+                15,
+                'monospace',
+                center.sub(new Vec2(0, 50)),
+                false,
+                true
+            );
+        }
+        
     }
 }
 //----------------------------------------------------------------------//
