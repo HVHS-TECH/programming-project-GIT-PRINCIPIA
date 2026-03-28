@@ -356,6 +356,21 @@ export class Game {
                         ],
                         //Quit to main menu
                         function(){Game.setPage(Game.HOME_TITLE);}
+                    ),
+
+
+                    //Pause menu help text
+                    new Text(
+                        new Vec2(0,0),
+                        'center',
+
+                        400, 800,
+                        
+                        Colour.rgb(0,0,0), 25, 'monospace',
+
+                        'center', 'middle',
+
+                        "PauseHelpText"
                     )
                 ]
             )
@@ -422,7 +437,7 @@ export class Game {
                 return "Controls: \n" + 
                 "Movement: W => move forward, A => rotate left, D => rotate right \n" + 
                 "Other: Space => speed up time, Arrow up / down => zoom \n" + 
-                "R => restart game, Escape => toggle pause menu";
+                "R => restart game, Escape => toggle pause / help menu";
             }
         ),
         new RefVar(
@@ -453,6 +468,32 @@ export class Game {
             "BackToGameText",
             function() { //Get
                 return "Back To Game";
+            }
+        ),
+        new RefVar(
+            "PauseHelpText", //Help text in pause menu
+            function() { //Get
+                return (
+                "LANDING ON PLANETS:\n\n" +
+
+                "Make sure to not come down\n" + 
+                "too fast, or you\n" +
+                "will explode.\n\n" + 
+
+                "On top of this, if you are\n" + 
+                "moving sideways too fast\n" + 
+                "you may tip over.\n\n" + 
+
+                "GETTING TO PLANETS:\n\n" + 
+
+                "Since, by the time you reach\n" + 
+                "a planet, it will have moved by\n" +
+                "some amount, you need to be\n" +
+                "careful to aim your trajectory\n" +
+                "to intersect with the planet's\n" +
+                "future position, not its current\n" +
+                "position."
+                );
             }
         )
     ];
@@ -538,7 +579,7 @@ export class Game {
         for (var i = 0; i < Game.UI_ELEMENTS.length; i++) {
             var element = Game.UI_ELEMENTS[i];
             if (element instanceof Dropdown) {
-                //Element is a dropdown, reset its target state (don't reset its state, it looks nice)
+                //Element is a dropdown, reset its target state (don't reset its state, it looks nice to have it animate back to the original state)
                 element.targetDropdownValue = element.startDropdownState;
             }
         }
@@ -555,8 +596,8 @@ export class Game {
         if (!Game.renderer.hasCnv) return; //No canvas, nothing to update
         //Handle debug modes
         if (Game.debugToggelCooldown > Game.DEBUG_TOGGLE_COOLDOWN_TIME) {
-            if (Input.KeyDown("KeyG")) State.UPDATE_PLAYER = !State.UPDATE_PLAYER;
-            if (Input.KeyDown("Period")) State.DEBUG_MODE = !State.DEBUG_MODE;
+            if (Input.KeyDown("KeyG")) State.updatePlayer = !State.updatePlayer;
+            if (Input.KeyDown("Period")) State.debugMode = !State.debugMode;
             Game.debugToggelCooldown = 0;
         } else {
             Game.debugToggelCooldown += Time.deltaTime;
@@ -606,7 +647,7 @@ export class Game {
                     
                 }
 
-                if (State.UPDATE_PLAYER) Player.Update(DT);
+                if (State.updatePlayer) Player.Update(DT);
 
             }
         }

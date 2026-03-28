@@ -95,7 +95,13 @@ export class Renderer {
         }
         //----------------------------------------//
 
-        if (State.DEBUG_MODE) this.text("height: " + this.cnvHeight + ", virtual canvas size: " + this.scaleCnvSize, 'center', 'middle', 40, 'monospace', new Vec2(0,0), false, true);
+
+        //----------------------------------------//
+        //If applicable, draw debug information
+        if (State.debugMode) {
+            this.text("height: " + this.cnvHeight + ", virtual canvas size: " + this.scaleCnvSize, 'center', 'middle', 40, 'monospace', new Vec2(0,0), false, true);
+        }
+        //----------------------------------------//
     }
     //----------------------------------------------------------------------//
 
@@ -399,7 +405,7 @@ export class Renderer {
         size = this.worldToCanvasNum(size, playerRelative, scaleWithScreen);
         pos = this.worldToCanvas(pos, playerRelative, scaleWithScreen);
 
-        
+        text += "\n"; //Add a new line to the end, seems to fix bugs with the text not including the last line???
         const TEXT_ARRAY = text.split("\n"); //Split text up into different lines
         const NUM_LINES = TEXT_ARRAY.length;
         const LINE_SPACING = size;
@@ -413,7 +419,11 @@ export class Renderer {
         if (verticalAlign.includes('top')) {start = -(NUM_LINES - 1) * LINE_SPACING; end = 0;}
         if (verticalAlign.includes('bottom')) {start = 0; end = (NUM_LINES - 1) * LINE_SPACING}
         for (var y = start; y <= end; y += LINE_SPACING) {
-            this.cnv.fillText(TEXT_ARRAY[Math.round((y - start) / LINE_SPACING)], pos.x, pos.y + y + LINE_SPACING / 3); //idk why 3, but it works
+            this.cnv.fillText(
+                TEXT_ARRAY[Math.round((y - start) / LINE_SPACING)], 
+                pos.x, 
+                pos.y + y + LINE_SPACING / 1.25 //idk why 1.25, but it works
+            ); 
             
         }   
 

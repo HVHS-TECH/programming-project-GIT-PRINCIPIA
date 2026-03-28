@@ -42,7 +42,10 @@ export class Text extends UIelement {
         Game.renderer.fill(this.fontColour);
         Game.renderer.text(this.contents, this.textAlignX, this.textAlignY, this.fontSize, this.font, center, false, true);
         
-        if (State.DEBUG_MODE) {
+
+        //----------------------------------------//
+        //If applicable, draw debug information
+        if (State.debugMode) {
             //Draw debug text
             const POS_CAM_SPACE = this.GetCenter();
             const POS_CANVAS_SPACE = POS_CAM_SPACE.mul(new Vec2(1, -1)).div(Game.renderer.scaleCnvSize).mul(Game.renderer.cnvHeight).add(Game.renderer.cnvHalfDimen);
@@ -61,6 +64,7 @@ export class Text extends UIelement {
                 true
             );
         }
+        //----------------------------------------//
         
     }
 }
