@@ -339,7 +339,8 @@ export class Player {
                         const DELTA_NORM = DELTA.norm();
 
                         //If the particle is colliding with the planet, change the particle's velocity and shift it to above the surface to resolve the collision.
-                        if (DIST < OTHER.data.radius) {
+                        //CAN ONLY HAPPEN IF PLANET ACTUALLY HAS A SURFACE!!!
+                        if (DIST < OTHER.data.radius && OTHER.land != null) {
                             
                             //Change the particle's direction to imitate a 'spread outward' effect
                             const DOT = Vec2.dot(this.vel.sub(OTHER.data.vel), DELTA_NORM);
@@ -352,7 +353,7 @@ export class Player {
                             var colour = Colour.rgb(164, 164, 164);
                             var landColour = Colour.rgb(0,0,0);
                             //Use mantle colour for consistensy (e.g avoid earth's grass 'land.colour', or mars's dark 'land.innerColour')
-                            if (OTHER.land != null) landColour = Colour.rgba(OTHER.land.mantleColour.r, OTHER.land.mantleColour.g, OTHER.land.mantleColour.b, 0);
+                            landColour = Colour.rgba(OTHER.land.mantleColour.r, OTHER.land.mantleColour.g, OTHER.land.mantleColour.b, 0);
                             this.startColour = Colour.lerp(colour, landColour, 0);
                             this.startColour.a = 0.8;
                             this.midColour = Colour.lerp(colour, landColour, 0.3);
