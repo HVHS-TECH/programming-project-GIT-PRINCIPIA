@@ -239,7 +239,7 @@ export class Game {
 
                     //Back to game (unpause) button
                     new Button(
-                        new Vec2(0, 300),
+                        new Vec2(0, 240),
                         'bottom',
                         //Dimensions
 
@@ -247,7 +247,7 @@ export class Game {
                         400,
 
                         //Height
-                        80,
+                        60,
 
                         //Background
                         Colour.rgb(26, 61, 44),
@@ -280,7 +280,7 @@ export class Game {
 
                     //Restart game button
                     new Button(
-                        new Vec2(0, 200),
+                        new Vec2(0, 160),
                         'bottom',
                         //Dimensions
 
@@ -288,7 +288,7 @@ export class Game {
                         300,
 
                         //Height
-                        80,
+                        60,
 
                         //Background
                         Colour.rgb(26, 61, 44),
@@ -320,7 +320,7 @@ export class Game {
 
                     //Quit to main menu button
                     new Button(
-                        new Vec2(0, 100),
+                        new Vec2(0, 80),
                         'bottom',
                         //Dimensions
 
@@ -328,7 +328,7 @@ export class Game {
                         400,
 
                         //Height
-                        80,
+                        60,
 
                         //Background
                         Colour.rgb(26, 61, 44),
@@ -361,14 +361,14 @@ export class Game {
 
                     //Pause menu help text
                     new Text(
-                        new Vec2(0,0),
+                        new Vec2(0,-100),
                         'center',
 
                         400, 800,
                         
-                        Colour.rgb(0,0,0), 25, 'monospace',
+                        Colour.rgb(0,0,0), 20, 'monospace',
 
-                        'center', 'middle',
+                        'center', 'top',
 
                         "PauseHelpText"
                     )
