@@ -583,6 +583,13 @@ export class Game {
                 element.targetDropdownValue = element.startDropdownState;
             }
         }
+
+        //Update high score on game restart AS WELL AS game end (defined elsewhere)
+        if (Player.score > Number(State.getState(Game.HIGH_SCORE_ID))) {
+            State.setState(Game.HIGH_SCORE_ID, Player.score);
+        }
+
+        //Start game again
         Game.Start();
     }
     //----------------------------------------------------------------------//
