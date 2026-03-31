@@ -11,7 +11,6 @@ export class Difficulty {
     static Player = {
         //Impacts
         IMPACT_TOLERANCE: 1.1,
-        IMPACT_FATALITY_SIDEWAYS_COMPONENT: 0.5, //How severe sideways impacts are
         IMPACT_FATALITY_DIRECTION_COMPONENT: 10, //How severe not being upright on impacts is
         
         //Reentry

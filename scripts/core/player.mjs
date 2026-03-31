@@ -101,6 +101,8 @@ export class Player {
 
         //Cancel all further functions if player is dying / dead
         if (Player.deathCounter > 0) {
+            //Don't use dt for death counter, instead use the raw time.scaleDeltaTime
+            //dt scales with timewarp - but dying faster when timewarping reduces the player's awareness of dying
             if (Player.fuel > 0 && !Player.exploded) {
                 Player.deathCounter = 0;
             } else {
@@ -110,8 +112,7 @@ export class Player {
                 Game.setPage(Game.END_TITLE); //Go to 'end.html'
                 
             }
-            //Don't use dt for death counter, instead use the raw time.scaleDeltaTime
-            //dt scales with timewarp - but dying faster when timewarping reduces the player's awareness of dying
+            
             
             Player.applyGravity(dt);
             Player.pos = Player.pos.add(Player.vel.mul(dt));
@@ -121,7 +122,7 @@ export class Player {
         //----------------------------------------//
         //speed up time to cross large distances
         if (Player.mightExplodeOnReentry) {
-            Game.timewarp = 0.3; //Slow down time to let the player see themselves explode!
+            Game.timewarp = 0.3; //Slow down time to let the player see themself explode!
         }
         else if (Input.KeyDown("Space")) {
             Game.timewarp = 5;
@@ -516,8 +517,6 @@ export class Player {
     //true = die
     //false = live
     static isImpactFatal(relVel, deltaNorm) {
-        const VEL_NORM = relVel.norm();
-        const VEL_NORM_DOT_DELTA_NORM = Vec2.dot(VEL_NORM, deltaNorm);
         const DIR_DOT_DELTA_NORM = Vec2.dot(new Vec2(Math.sin(Player.dir), Math.cos(Player.dir)), deltaNorm);
         const IMPACT_SEVERITY = 
         //Punish the player for not landing upright
